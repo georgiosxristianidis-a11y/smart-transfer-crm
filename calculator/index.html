@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;">
+  <title>Smart Transfer Calculator</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="cosmic-bg"></div>
+  <div class="particles-layer"></div>
+
+  <div class="app-container">
+    <div class="header">
+      <h1 class="header-title">Unit Calc Pro</h1>
+      <div class="header-sub">Minivan Fleet 2026</div>
+    </div>
+
+    <!-- MAIN TAB (DASHBOARD) -->
+    <div id="tab-dashboard" class="tab-content active">
+      
+      <!-- HERO: Honest Daily Net -->
+      <div class="hero-card">
+        <div class="hero-label">Чистыми за день на брата</div>
+        <div class="hero-sub">Daily Net (Amortized Expenses)</div>
+        <div class="hero-value" id="val-daily-net">€0</div>
+        
+        <div style="margin-top: 16px; display: flex; justify-content: space-around; font-size: 12px; color: var(--text-mid);">
+          <div>Чаевые кэш: <span id="val-tips-day" style="color:var(--text-hi)">€0</span>/д</div>
+          <div>Резерв: <span id="val-safety-day" style="color:var(--brand-warn)">€0</span>/д</div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Годовой Net Revenue</div>
+          <div class="stat-val val-purple" id="val-year-rev">€0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Доля брата (Сезон)</div>
+          <div class="stat-val val-cyan" id="val-year-profit">€0</div>
+        </div>
+      </div>
+
+      <!-- MAIN CONTROLS -->
+      <div class="controls-panel">
+        <div class="control-group">
+          <div class="control-header">
+            <span class="control-title">Брутто Чек (вкл. 13% НДС)</span>
+            <span class="control-val" id="lbl-check">€45</span>
+          </div>
+          <input type="range" id="inp-check" min="20" max="150" step="1" value="45">
+        </div>
+        
+        <div class="control-group">
+          <div class="control-header">
+            <span class="control-title">Поездок в день</span>
+            <span class="control-val" id="lbl-trips">13</span>
+          </div>
+          <input type="range" id="inp-trips" min="2" max="25" step="1" value="13">
+        </div>
+        
+        <div class="control-group">
+          <div class="control-header">
+            <span class="control-title">Дней в сезоне</span>
+            <span class="control-val" id="lbl-season">122</span>
+          </div>
+          <input type="range" id="inp-season" min="30" max="250" step="1" value="122">
+        </div>
+        
+        <div class="control-group">
+          <div class="control-header">
+            <span class="control-title">Чаевые кэшем / поездка</span>
+            <span class="control-val" id="lbl-tips">€5</span>
+          </div>
+          <input type="range" id="inp-tips" min="0" max="30" step="1" value="5">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB SETTINGS -->
+    <div id="tab-settings" class="tab-content">
+      
+      <div class="controls-panel">
+        <div class="flex-row">
+          <span class="control-title">Количество владельцев (Доли)</span>
+          <div class="segmented-control" id="seg-owners">
+            <div class="seg-btn active" data-val="2">2 (50/50)</div>
+            <div class="seg-btn" data-val="3">3 (33x3)</div>
+          </div>
+        </div>
+        
+        <div class="flex-row">
+          <span class="control-title">Наемных водителей</span>
+          <div class="segmented-control" id="seg-drivers">
+            <div class="seg-btn active" data-val="0">0</div>
+            <div class="seg-btn" data-val="1">1</div>
+            <div class="seg-btn" data-val="2">2</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-panel">
+        <div class="flex-row">
+          <span class="control-title">Сборы портов/АП (€2/поездка)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tog-port" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="flex-row">
+          <span class="control-title">Страховка Такси (ΔΧ)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tog-ins" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="flex-row">
+          <span class="control-title">Премиум Мойка</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tog-wash" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="chart-wrap">
+        <div class="control-title" style="margin-bottom:10px;">Структура расходов (Год)</div>
+        <div class="chart-container">
+          <canvas id="expensesChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="nav-bottom">
+      <div class="nav-item active" data-target="tab-dashboard">Dashboard</div>
+      <div class="nav-item" data-target="tab-settings">Settings & Logic</div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

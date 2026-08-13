@@ -1,0 +1,39 @@
+:root {
+  /* Air Minimalism Brand Colors */
+  --bg-vanta: #020008;
+  --bg-space-1: #070316;
+  --bg-space-2: #0F0726;
+  
+  --brand-primary: #8B5CF6; /* V2 Purple */
+  --brand-secondary: #22D3EE; /* Cyan */
+  --brand-accent: #10B981; /* Green glowing (Readiness 94% ref) */
+  --brand-warn: #FBBF24; /* Amber */
+  --brand-danger: #EF4444; /* Red */
+
+  /* Text Colors */
+  --text-hi: #F9FAFB;
+  --text-mid: #B0B6C4;
+  --text-low: #6B7280;
+
+  /* Surfaces & Glassmorphism */
+  --glass-bg: rgba(15, 10, 30, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-glow: rgba(139, 92, 246, 0.15);
+  --glass-glow-green: rgba(16, 185, 129, 0.15);
+  
+  /* Shadows */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 24px var(--glass-glow);
+  --shadow-glow-green: 0 0 24px var(--glass-glow-green);
+  
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  
+  /* Typography */
+  --font-display: 'Unbounded', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}

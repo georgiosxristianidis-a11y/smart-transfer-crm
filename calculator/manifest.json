@@ -1,0 +1,16 @@
+{
+  "name": "Unit Calc Pro",
+  "short_name": "UnitCalc",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#020008",
+  "theme_color": "#8B5CF6",
+  "description": "Smart Calculator for Minivan Transfers",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%238B5CF6%22/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

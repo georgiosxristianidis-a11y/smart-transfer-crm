@@ -1,0 +1,14 @@
+{
+  "name": "unit-calc-pro",
+  "version": "1.0.0",
+  "description": "Smart Calculator for Minivan Transfers",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "build:sw": "node scripts/build-sw.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-plugin-security": "^3.0.0"
+  }
+}
