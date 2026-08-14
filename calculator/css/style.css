@@ -135,12 +135,11 @@ html, body {
   margin-bottom: 16px; z-index: 1; position: relative; opacity: 0.7;
 }
 .hero-value {
-  font-family: var(--font-display); font-size: 48px; font-weight: 600;
-  background: linear-gradient(160deg, #FFFFFF 0%, #a5b4fc 100%);
-  -webkit-background-clip: text; color: transparent;
+  font-family: var(--font-display); font-size: 48px; font-weight: var(--font-weight-hero, 800);
+  color: var(--text-hero);
   margin: 0; z-index: 1; position: relative; letter-spacing: -0.02em;
 }
-.hero-unit { font-size: 16px; color: var(--text-mid); vertical-align: middle; margin-left: 4px; }
+.hero-unit { font-size: 16px; color: var(--text-mid); vertical-align: middle; margin-left: 4px; font-weight: 500; }
 
 /* Stats Grid */
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
@@ -429,7 +428,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 .trip-point { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
 .trip-arrow { flex-shrink: 0; opacity: 0.5; color: var(--brand-prim); }
 .trip-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--stitch-border-subtle); }
-.trip-price { font-family: var(--font-mono); color: var(--text-hi); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
+.trip-price { font-family: var(--font-mono); color: var(--text-hero); font-weight: 800; font-size: 18px; font-variant-numeric: tabular-nums; }
 .trip-done-badge { font-size: 11px; font-weight: 600; color: #10B981; background: rgba(16,185,129,0.12); padding: 3px 10px; border-radius: 20px; }
 .trip-gcal-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--text-mid); text-decoration: none; transition: background 0.2s, color 0.2s; }
 .trip-gcal-btn:hover { background: rgba(99,102,241,0.2); color: #a5b4fc; }

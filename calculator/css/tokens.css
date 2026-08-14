@@ -23,6 +23,7 @@
   --palette-pink-400:   #FF4D88; /* GIO Elite Pink */
   --palette-pink-300:   #FF77A8;
   --palette-rose-400:   #FB7185;
+  --palette-rose-300:   #FDA4AF;
 
   --palette-amber-400:  #FBBF24;
   --palette-amber-300:  #FDE047;
@@ -42,10 +43,23 @@
   --stitch-border-mid:        rgba(255, 255, 255, 0.10);
   --stitch-border-hi:         rgba(255, 255, 255, 0.18);
 
-  /* Typography Colors */
-  --text-hi:                  #F9FAFB;
-  --text-mid:                 #CBD5E1;
-  --text-low:                 #94A3B8; /* AA Compliance */
+  /* ─── CONTRAST HIERARCHY (DS-01: CRETAN SUNLIGHT GRADE) ─── */
+  /* Tier 1: Hero (≥ 7:1 AAA / Sunlight Grade: 20.8:1 on base, 17.5:1 on high glass) */
+  --text-hero:                #FFFFFF;
+  --font-weight-hero:         800;
+
+  /* Tier 2: Primary & Secondary Body (11.6:1 – 19.5:1) */
+  --text-primary:             #F8FAFC;
+  --text-secondary:           #CBD5E1;
+
+  /* Tier 3: Muted Decor & Low-Emphasis Captions (3.8:1 – 7.1:1) */
+  --text-muted:               #94A3B8;
+  --text-dim:                 #64748B;
+
+  /* Typography Backward-Compatibility Aliases */
+  --text-hi:                  var(--text-primary);
+  --text-mid:                 var(--text-secondary);
+  --text-low:                 var(--text-muted);
 
   /* Semantic Brand Roles */
   --brand-prim:               var(--palette-indigo-400);
@@ -61,20 +75,20 @@
   --status-done-fg:           rgba(148, 163, 184, 0.6);
   --status-done-bar:          rgba(99, 102, 241, 0.25);
 
-  /* 3-Layer Flight Radar Status Tokens */
+  /* 3-Layer Flight Radar Status Tokens (Sunlight Boosted ≥ 7:1) */
   --status-landed-fg:         var(--palette-teal-400);
   --status-landed-bg:         rgba(45, 212, 191, 0.12);
   --status-landed-glow:       rgba(45, 212, 191, 0.25);
 
-  --status-ontime-fg:         var(--palette-amber-400);
+  --status-ontime-fg:         var(--palette-amber-300);
   --status-ontime-bg:         rgba(251, 191, 36, 0.12);
   --status-ontime-glow:       rgba(251, 191, 36, 0.25);
 
-  --status-delayed-fg:        var(--palette-rose-400);
+  --status-delayed-fg:        var(--palette-rose-300);
   --status-delayed-bg:        rgba(251, 113, 133, 0.12);
   --status-delayed-glow:      rgba(251, 113, 133, 0.25);
 
-  --status-sched-fg:          var(--palette-indigo-400);
+  --status-sched-fg:          var(--palette-indigo-300);
   --status-sched-bg:          rgba(129, 140, 248, 0.12);
   --status-sched-glow:        rgba(129, 140, 248, 0.25);
 
