@@ -219,6 +219,8 @@ export class CalculatorView {
 
     const gradients = this.createCanvasGradients(this.ctx);
 
+    if (typeof Chart === 'undefined') return;
+
     this.chart = new Chart(this.ctx, {
       type: 'doughnut',
       data: {

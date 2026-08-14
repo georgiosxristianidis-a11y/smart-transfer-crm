@@ -33,4 +33,3 @@ Card = file = branch = agent = one squashed commit. Fields `STOP` and `Гран�
 - `npm run docs:budget` — system docs size limits
 - `npm run build:sw` — never hand-edit `ASSETS` in `sw.js`
 
-⚠️ **Known defect (QUEUE #1):** `index.html` has no `serviceWorker.register()` and no `<link rel="manifest">`. The PWA never ran — offline does not exist. The asset list in `build-sw.mjs` is hardcoded and stale. Do not cite offline as a working feature.

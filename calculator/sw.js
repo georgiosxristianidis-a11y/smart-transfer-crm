@@ -1,19 +1,24 @@
-const CACHE_NAME = 'taxi-crm-v1';
-const SCOPE_PREFIX = 'taxi-crm-';
+const CACHE_NAME = 'unit-calc-v1786746653105';
 
 const ASSETS = [
   "./",
   "./index.html",
-  "./css/tokens.css",
-  "./css/style.css",
+  "./manifest.json",
+  "./favicon.ico",
   "./js/app.js",
   "./js/calculator.store.js",
   "./js/calculator.view.js",
+  "./js/fuel.store.js",
+  "./js/fuel.view.js",
+  "./js/shared/db.js",
+  "./js/shared/flight.service.js",
+  "./js/shared/utils.js",
   "./js/trips.store.js",
   "./js/trips.view.js",
-  "./js/shared/utils.js",
-  "./js/shared/db.js",
-  "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
+  "./css/style.css",
+  "./css/tokens.css",
+  "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
+  "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@300;400;500;600;700&family=Unbounded:wght@400;600&display=swap"
 ];
 
 // INSTALL: cache own assets
@@ -31,19 +36,31 @@ self.addEventListener('activate', (e) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME) // delete everything that isn't ours
+          .filter((key) => key !== CACHE_NAME)
           .map((key) => {
-            console.log('[SW taxi-crm] Deleting foreign cache:', key);
+            console.log('[SW] Deleting old cache:', key);
             return caches.delete(key);
           })
       );
-    }).then(() => self.clients.claim()) // claim all open tabs immediately
+    }).then(() => self.clients.claim())
   );
 });
 
-// FETCH: cache-first, network fallback
+// FETCH: network-first for navigations (HTML), cache-first for static assets
 self.addEventListener('fetch', (e) => {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .then((resp) => {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(e.request, clone));
+          return resp;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
   e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
+    caches.match(e.request).then((r) => r || fetch(e.request))
   );
 });
