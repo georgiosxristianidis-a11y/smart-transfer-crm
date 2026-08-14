@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node --test",
     "dev": "npx http-server . -p 12345 -c-1 -a taxi.localhost",
+    "serve": "npx http-server . -p 8888 -c-1",
     "build:sw": "node scripts/build-sw.mjs",
     "lhci": "npx -y @lhci/cli autorun"
   },
