@@ -77,6 +77,15 @@ export class TripsStore {
       .reduce((sum, t) => sum + t.price, 0);
   }
 
+  /**
+   * Returns the nearest upcoming active (non-completed) trip.
+   */
+  getNextUpcomingTrip() {
+    const activeTrips = this.trips.filter(t => t.status !== 'completed');
+    if (activeTrips.length === 0) return null;
+    return activeTrips[0];
+  }
+
   generateGCalLink(trip) {
     const text = encodeURIComponent(`Трансфер: ${trip.clientName}`);
     const details = encodeURIComponent(`Маршрут: ${trip.pickup} -> ${trip.dropoff}\nЦена: ${trip.price}€`);

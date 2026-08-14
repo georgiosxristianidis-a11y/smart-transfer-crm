@@ -67,3 +67,55 @@ test('TripsStore: GCal Link generation', async () => {
   // But we can check for the base URL
   assert.ok(link.startsWith('https://calendar.google.com/calendar/render?action=TEMPLATE'));
 });
+
+test('FlightService: Code extraction & Status resolving', async () => {
+  const { FlightService } = await import('../js/shared/flight.service.js');
+  
+  // Test code parsing
+  assert.strictEqual(FlightService.extractFlightCode('John Doe, U2 4531'), 'U24531');
+  assert.strictEqual(FlightService.extractFlightCode('Flight A3 312 VIP'), 'A3312');
+  assert.strictEqual(FlightService.extractFlightCode('FR8214 from London'), 'FR8214');
+  assert.strictEqual(FlightService.extractFlightCode('No flight here'), null);
+
+  // Test radar URL
+  const radarUrl = FlightService.getFlightRadarUrl('U2 4531');
+  assert.strictEqual(radarUrl, 'https://www.flightradar24.com/data/flights/U24531');
+
+  // Test status resolver
+  const tripWithFlight = {
+    clientName: 'Alex, LH 1234',
+    date: '2026-08-14',
+    time: '18:00',
+    pickup: 'HER Airport',
+    dropoff: 'Chersonissos',
+    price: 45
+  };
+  const statusRes = FlightService.resolveFlightStatus(tripWithFlight);
+  assert.ok(statusRes !== null);
+  assert.strictEqual(statusRes.flightCode, 'LH1234');
+  assert.ok(['landed', 'ontime', 'delayed', 'scheduled'].includes(statusRes.status));
+
+  // Test Navigation URL generator
+  const navUrl = FlightService.getGoogleMapsNavUrl('Elounda Resort', 'HER Airport');
+  assert.ok(navUrl.includes('destination=Elounda%20Resort'));
+  assert.ok(navUrl.includes('origin=HER%20Airport'));
+});
+
+test('TripsStore: getNextUpcomingTrip', async () => {
+  const store = new TripsStore();
+  await new Promise(r => setTimeout(r, 10));
+
+  const t1 = await store.addTrip({ date: '2026-08-14', time: '10:00', clientName: 'First' });
+  const t2 = await store.addTrip({ date: '2026-08-14', time: '14:00', clientName: 'Second' });
+
+  assert.strictEqual(store.getNextUpcomingTrip().id, t1.id);
+
+  // Complete t1
+  await store.updateTripStatus(t1.id, 'completed');
+  assert.strictEqual(store.getNextUpcomingTrip().id, t2.id);
+
+  // Complete t2
+  await store.updateTripStatus(t2.id, 'completed');
+  assert.strictEqual(store.getNextUpcomingTrip(), null);
+});
+

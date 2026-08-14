@@ -64,11 +64,21 @@
       <div class="actions-bar no-print">
         <button id="btn-add-trip" class="btn btn-primary">+ Новая поездка</button>
         <div class="right-actions">
-          <button id="btn-export-csv" class="btn btn-outline">↓ CSV (Excel)</button>
-          <button id="btn-print" class="btn btn-outline" onclick="window.print()">🖨 Печать</button>
+          <button id="btn-driver-hud" class="btn btn-outline" title="Режим за рулем">🚗 HUD</button>
+          <button id="btn-export-csv" class="btn btn-outline">↓ CSV</button>
+          <button id="btn-print" class="btn btn-outline" onclick="window.print()">🖨</button>
         </div>
       </div>
       
+      <!-- NEXT TRIP FOCUS HERO (DRIVER-FIRST) -->
+      <div id="next-trip-hero" class="next-trip-hero no-print">
+        <!-- Dynamic Next Trip Focus Card renders here -->
+      </div>
+
+      <div class="section-divider no-print">
+        <span>Все рейсы на сегодня</span>
+      </div>
+
       <div id="trips-list" class="trips-list">
         <!-- Сюда рендерятся карточки поездок -->
         <div class="empty-state">Поездок пока нет. Добавьте первую!</div>
@@ -256,6 +266,19 @@
           <button type="submit" class="btn btn-primary">Сохранить</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN DRIVER HUD MODAL (WINDSHIELD MOUNTED MODE) -->
+  <div id="modal-driver-hud" class="hud-overlay hidden no-print">
+    <div class="hud-container">
+      <div class="hud-top-bar">
+        <div class="hud-badge">🚗 DRIVER HUD MODE</div>
+        <button id="btn-close-hud" class="hud-close-btn" title="Закрыть HUD">✕</button>
+      </div>
+      <div id="hud-content" class="hud-content">
+        <!-- Renders large driver HUD card -->
+      </div>
     </div>
   </div>
 

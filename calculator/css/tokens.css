@@ -19,6 +19,27 @@
   --status-done-fg:  rgba(148,163,184,0.6); /* Completed text muted  */
   --status-done-bar: rgba(99,102,241,0.25); /* Completed left stripe */
 
+  /* ─── 3-Layer Flight Radar Status Tokens ─── */
+  /* Landed (Neo-Teal / Mint) */
+  --status-landed-fg:   #2dd4bf;
+  --status-landed-bg:   rgba(45, 212, 191, 0.12);
+  --status-landed-glow: rgba(45, 212, 191, 0.25);
+
+  /* In Flight / On Time (Warm Amber) */
+  --status-ontime-fg:   #fbbf24;
+  --status-ontime-bg:   rgba(251, 191, 36, 0.12);
+  --status-ontime-glow: rgba(251, 191, 36, 0.25);
+
+  /* Delayed (Soft Coral) */
+  --status-delayed-fg:   #fb7185;
+  --status-delayed-bg:   rgba(251, 113, 133, 0.12);
+  --status-delayed-glow: rgba(251, 113, 133, 0.25);
+
+  /* Scheduled (Indigo) */
+  --status-sched-fg:   #818cf8;
+  --status-sched-bg:   rgba(129, 140, 248, 0.12);
+  --status-sched-glow: rgba(129, 140, 248, 0.25);
+
   /* Legacy aliases kept for chart.js palette compat */
   --brand-primary:   var(--brand-prim-deep);
   --brand-secondary: var(--brand-cyan);
