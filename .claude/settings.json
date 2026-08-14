@@ -1,0 +1,20 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "C:\\PROJECTS\\TAXI\\.claude\\hooks\\bump-version.mjs"
+            ],
+            "timeout": 10,
+            "statusMessage": "bump version"
+          }
+        ]
+      }
+    ]
+  }
+}

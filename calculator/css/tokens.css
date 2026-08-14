@@ -1,80 +1,136 @@
+/* ==========================================================================
+   GOOGLE STITCH DESIGN SYSTEM (W3C LEVEL 3 DESIGN TOKENS ARCHITECTURE)
+   Smart Transfer CRM · Precision Tactile Bio-Minimalism 2026
+   ========================================================================== */
+
 :root {
-  /* ─── Backgrounds ─── */
-  --bg-vanta:   #020008;
-  --bg-space-1: #070316;
-  --bg-space-2: #0F0726;
+  /* ─── TIER 1: PRIMITIVES (COLOR PALETTE) ─── */
+  --palette-space-950: #020008;
+  --palette-space-900: #060214;
+  --palette-space-850: #0C0622;
+  --palette-space-800: #130A32;
+  --palette-space-700: #1D1048;
 
-  /* ─── Brand Colors ─── */
-  --brand-prim:       #818cf8; /* Indigo — primary action  */
-  --brand-prim-deep:  #6366f1; /* Indigo dark — buttons    */
-  --brand-violet:     #a78bfa; /* Violet — accents         */
-  --brand-cyan:       #22d3ee; /* Cyan — info / secondary  */
-  --brand-warn:       #fbbf24; /* Amber — warnings         */
-  --brand-elite-pink: #FF4D88; /* Elite Pink — high-end status / delete */
+  --palette-indigo-400: #818CF8;
+  --palette-indigo-500: #6366F1;
+  --palette-indigo-600: #4F46E5;
+  --palette-indigo-300: #A5B4FC;
 
-  /* Action semantic (NOT red/green) */
-  --action-confirm:  #818cf8; /* Swipe-right "Complete"   */
-  --action-danger:   #FF4D88; /* Elite Pink — "Delete"    */
+  --palette-teal-300:   #5EEAD4;
+  --palette-teal-400:   #2DD4BF;
+  --palette-teal-500:   #14B8A6;
 
-  /* Status semantic */
-  --status-done-fg:  rgba(148,163,184,0.6); /* Completed text muted  */
-  --status-done-bar: rgba(99,102,241,0.25); /* Completed left stripe */
+  --palette-pink-400:   #FF4D88; /* GIO Elite Pink */
+  --palette-pink-300:   #FF77A8;
+  --palette-rose-400:   #FB7185;
 
-  /* ─── 3-Layer Flight Radar Status Tokens ─── */
-  /* Landed (Neo-Teal / Mint) */
-  --status-landed-fg:   #2dd4bf;
-  --status-landed-bg:   rgba(45, 212, 191, 0.12);
-  --status-landed-glow: rgba(45, 212, 191, 0.25);
+  --palette-amber-400:  #FBBF24;
+  --palette-amber-300:  #FDE047;
 
-  /* In Flight / On Time (Warm Amber) */
-  --status-ontime-fg:   #fbbf24;
-  --status-ontime-bg:   rgba(251, 191, 36, 0.12);
-  --status-ontime-glow: rgba(251, 191, 36, 0.25);
+  --palette-violet-400: #A78BFA;
+  --palette-violet-300: #C4B5FD;
 
-  /* Delayed (Soft Coral / Rose) */
-  --status-delayed-fg:   #fb7185;
-  --status-delayed-bg:   rgba(251, 113, 133, 0.12);
-  --status-delayed-glow: rgba(251, 113, 133, 0.25);
+  /* ─── TIER 2: SEMANTIC TOKENS (STITCH SURFACE TIERS) ─── */
+  --stitch-surface-base:      var(--palette-space-950);
+  --stitch-surface-low:       rgba(12, 6, 34, 0.72);
+  --stitch-surface-mid:       rgba(19, 10, 50, 0.85);
+  --stitch-surface-high:      rgba(27, 15, 68, 0.94);
+  --stitch-surface-highest:   rgba(38, 22, 90, 0.96);
 
-  /* Scheduled (Indigo) */
-  --status-sched-fg:   #818cf8;
-  --status-sched-bg:   rgba(129, 140, 248, 0.12);
-  --status-sched-glow: rgba(129, 140, 248, 0.25);
+  /* Borders & Optical Dividers */
+  --stitch-border-subtle:     rgba(255, 255, 255, 0.06);
+  --stitch-border-mid:        rgba(255, 255, 255, 0.10);
+  --stitch-border-hi:         rgba(255, 255, 255, 0.18);
 
-  /* Legacy aliases kept for chart.js palette compat */
+  /* Typography Colors */
+  --text-hi:                  #F9FAFB;
+  --text-mid:                 #CBD5E1;
+  --text-low:                 #94A3B8; /* AA Compliance */
+
+  /* Semantic Brand Roles */
+  --brand-prim:               var(--palette-indigo-400);
+  --brand-prim-deep:          var(--palette-indigo-500);
+  --brand-cyan:               #22D3EE;
+  --brand-elite-pink:         var(--palette-pink-400);
+  --brand-warn:               var(--palette-amber-400);
+  --brand-violet:             var(--palette-violet-400);
+
+  /* Action & Status Semantics */
+  --action-confirm:           var(--palette-indigo-400);
+  --action-danger:            var(--palette-pink-400);
+  --status-done-fg:           rgba(148, 163, 184, 0.6);
+  --status-done-bar:          rgba(99, 102, 241, 0.25);
+
+  /* 3-Layer Flight Radar Status Tokens */
+  --status-landed-fg:         var(--palette-teal-400);
+  --status-landed-bg:         rgba(45, 212, 191, 0.12);
+  --status-landed-glow:       rgba(45, 212, 191, 0.25);
+
+  --status-ontime-fg:         var(--palette-amber-400);
+  --status-ontime-bg:         rgba(251, 191, 36, 0.12);
+  --status-ontime-glow:       rgba(251, 191, 36, 0.25);
+
+  --status-delayed-fg:        var(--palette-rose-400);
+  --status-delayed-bg:        rgba(251, 113, 133, 0.12);
+  --status-delayed-glow:      rgba(251, 113, 133, 0.25);
+
+  --status-sched-fg:          var(--palette-indigo-400);
+  --status-sched-bg:          rgba(129, 140, 248, 0.12);
+  --status-sched-glow:        rgba(129, 140, 248, 0.25);
+
+  /* ─── TIER 3: COMPONENT SPECULAR RIM LIGHTING & SHADOWS ─── */
+  /* Specular Rim Light: Top reflection + Bottom shadow */
+  --rim-light-neutral: 
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40);
+  
+  --rim-light-indigo: 
+    inset 0 1.5px 0 rgba(165, 180, 252, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+
+  --rim-light-teal: 
+    inset 0 1.5px 0 rgba(94, 234, 212, 0.38),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+
+  --rim-light-pink: 
+    inset 0 1.5px 0 rgba(255, 119, 168, 0.38),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+
+  /* Atmospheric Shadows */
+  --shadow-elevation-1: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-elevation-2: 0 12px 32px -4px rgba(0, 0, 0, 0.55);
+  --shadow-elevation-3: 0 20px 50px -8px rgba(0, 0, 0, 0.70);
+  --shadow-glow-indigo: 0 0 35px -5px rgba(99, 102, 241, 0.25);
+  --shadow-glow-teal:   0 0 40px -5px rgba(45, 212, 191, 0.25);
+  --shadow-glow-pink:   0 0 40px -5px rgba(255, 77, 136, 0.25);
+
+  /* ─── KINETIC SPRING PHYSICS ─── */
+  --spring-tactile: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-smooth:  cubic-bezier(0.16, 1, 0.3, 1);
+  --trans-fast:     0.15s var(--spring-tactile);
+  --trans-smooth:   0.3s var(--spring-smooth);
+
+  /* ─── RADII ─── */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-xl: 36px;
+  --radius-full: 9999px;
+
+  /* ─── TYPOGRAPHY SCALE ─── */
+  --font-display: 'Unbounded', sans-serif;
+  --font-body:    'Manrope', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* Legacy aliases for compatibility */
   --brand-primary:   var(--brand-prim-deep);
   --brand-secondary: var(--brand-cyan);
   --brand-accent:    var(--brand-cyan);
   --brand-danger:    var(--brand-elite-pink);
-
-  /* ─── Text ─── */
-  --text-hi:  #F9FAFB;
-  --text-mid: #CBD5E1;
-  --text-low: #94A3B8;
-
-  /* ─── VisionOS Liquid Glass & Surfaces ─── */
-  --glass-bg:         rgba(15, 10, 32, 0.65);
-  --glass-bg-hover:   rgba(22, 14, 46, 0.80);
-  --glass-border:     rgba(255, 255, 255, 0.08);
-  --glass-border-hi:  rgba(255, 255, 255, 0.16);
-  --glass-glow:       rgba(99, 102, 241, 0.22);
-  --glass-glow-pink:  rgba(255, 77, 136, 0.25);
-
-  /* ─── Atmospheric Shadows ─── */
-  --shadow-sm:         0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-card-deep:  0 16px 40px -8px rgba(0, 0, 0, 0.65);
-  --shadow-neon-indigo:0 0 35px -5px rgba(99, 102, 241, 0.22);
-  --shadow-neon-hover: 0 0 45px -2px rgba(129, 140, 248, 0.35);
-  --shadow-glow:       0 0 24px var(--glass-glow);
-
-  /* ─── Radii ─── */
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
-
-  /* ─── Typography ─── */
-  --font-display: 'Unbounded', sans-serif;
-  --font-body:    'Manrope', sans-serif;
-  --font-mono:    'JetBrains Mono', monospace;
+  --glass-bg:        var(--stitch-surface-mid);
+  --glass-bg-hover:  var(--stitch-surface-high);
+  --glass-border:    var(--stitch-border-subtle);
+  --glass-border-hi: var(--stitch-border-hi);
+  --glass-glow:      rgba(99, 102, 241, 0.22);
 }
