@@ -40,23 +40,38 @@ html, body {
 /* ─── Premium Header ─── */
 .header {
   margin-bottom: 20px;
-  padding: 20px 20px 0;
+  padding: 16px 16px 0;
   position: relative;
-  text-align: center;
 }
-.header-brand {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
+.header-top-row {
+  display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 16px;
 }
+.header-brand {
+  display: flex; align-items: center; gap: 12px;
+}
 .header-logo {
-  width: 36px; height: 36px; border-radius: 10px;
+  width: 38px; height: 38px; border-radius: 12px;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   box-shadow: 0 4px 16px rgba(99,102,241,0.4);
 }
+.btn-top-settings {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-hi);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.btn-top-settings:active { transform: scale(0.92); background: rgba(99, 102, 241, 0.2); }
 .header-title {
-  font-family: var(--font-display); font-size: 20px; font-weight: 600;
+  font-family: var(--font-display); font-size: 19px; font-weight: 600;
   margin: 0; letter-spacing: -0.01em;
   background: linear-gradient(90deg, #e0e7ff 0%, #c4b5fd 50%, #a5f3fc 100%);
   -webkit-background-clip: text; color: transparent;
@@ -868,5 +883,271 @@ input:checked + .slider:before { transform: translateX(20px); }
   color: #a5b4fc;
   outline: 1px solid rgba(255,255,255,0.12);
 }
+
+/* ─── LARGE TRIP MODAL UI (54px Inputs, 52px Equal Buttons) ─── */
+.modal-trip-large {
+  max-width: 440px !important;
+  width: 95% !important;
+  padding: 26px 22px !important;
+  border-radius: 28px !important;
+}
+.input-large {
+  height: 54px !important;
+  font-size: 16px !important;
+  padding: 0 16px !important;
+  border-radius: 14px !important;
+}
+.modal-grid-2 {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.modal-equal-actions {
+  display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px;
+}
+.btn-modal-action {
+  height: 52px !important;
+  font-size: 15px !important;
+  border-radius: 14px !important;
+}
+
+/* ─── Location Chips (Quick 1-Tap) ─── */
+.location-chips-bar {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.chips-label {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-low); text-transform: uppercase; letter-spacing: 0.06em;
+}
+.chips-scroll {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.chips-scroll::-webkit-scrollbar { display: none; }
+.chip-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.05); color: var(--text-mid);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;
+  padding: 6px 12px; font-size: 12px; font-weight: 500;
+  white-space: nowrap; cursor: pointer; transition: background 0.15s, color 0.15s;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+}
+.chip-btn:active { background: rgba(99,102,241,0.25); color: #fff; }
+
+/* ─── Source Tag Selector in Modal ─── */
+.source-pills-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px;
+}
+.source-pill {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  height: 38px; border-radius: 12px; font-size: 12px; font-weight: 600;
+  background: rgba(255,255,255,0.04); color: var(--text-mid);
+  border: 1px solid rgba(255,255,255,0.07); cursor: pointer; transition: 0.15s;
+}
+.source-pill.active[data-source="hotel"] { background: rgba(129,140,248,0.22); color: #a5b4fc; outline: 1px solid rgba(129,140,248,0.4); }
+.source-pill.active[data-source="web"] { background: rgba(45,212,191,0.22); color: #5eead4; outline: 1px solid rgba(45,212,191,0.4); }
+.source-pill.active[data-source="ads"] { background: rgba(255,77,136,0.22); color: #ff85b3; outline: 1px solid rgba(255,77,136,0.4); }
+.source-pill.active[data-source="walkin"] { background: rgba(251,191,36,0.22); color: #fde047; outline: 1px solid rgba(251,191,36,0.4); }
+.source-pill.active[data-source="b2b"] { background: rgba(167,139,250,0.22); color: #c4b5fd; outline: 1px solid rgba(167,139,250,0.4); }
+
+/* ─── Badges on Trip Cards (Source & Conflict) ─── */
+.trip-meta-right {
+  display: flex; align-items: center; gap: 6px;
+}
+.source-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  padding: 2px 7px; border-radius: 12px;
+}
+.source-tag-hotel { background: rgba(129,140,248,0.15); color: #818cf8; }
+.source-tag-web { background: rgba(45,212,191,0.15); color: #2dd4bf; }
+.source-tag-ads { background: rgba(255,77,136,0.15); color: #ff4d88; }
+.source-tag-walkin { background: rgba(251,191,36,0.15); color: #fbbf24; }
+.source-tag-b2b { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+.conflict-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  color: #fb7185; background: rgba(251,113,133,0.18);
+  outline: 1px solid rgba(251,113,133,0.35);
+  padding: 2px 7px; border-radius: 12px;
+  box-shadow: 0 0 10px rgba(251,113,133,0.25);
+  animation: conflictPulse 2s infinite ease-in-out;
+}
+@keyframes conflictPulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 0.8; }
+}
+
+/* ─── Sync Radar Button ─── */
+.flight-radar-row {
+  display: flex; align-items: center; gap: 8px; margin-top: 6px;
+}
+.btn-sync-radar {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-mid); font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  padding: 4px 8px; border-radius: 16px; cursor: pointer;
+}
+.btn-sync-radar:hover { color: #fff; background: rgba(99,102,241,0.2); }
+.btn-sync-radar.spinning svg {
+  animation: spinRadar 0.8s linear infinite;
+}
+@keyframes spinRadar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── OURA SQUIRCLE FUEL TAB (TACTILE BIO-MINIMALISM) ─── */
+.fuel-hero-card {
+  position: relative;
+  background: linear-gradient(165deg, rgba(45,212,191,0.15) 0%, rgba(14,18,30,0.85) 60%, rgba(5,8,16,0.95) 100%);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border-radius: 36px;
+  padding: 26px 22px;
+  /* Oura Specular Light Top & Ambient Sage Glow */
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.32),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 18px 45px -8px rgba(0,0,0,0.7),
+    0 0 45px -5px rgba(45,212,191,0.22);
+  outline: 1px solid rgba(255,255,255,0.08);
+  margin-top: 10px; margin-bottom: 20px;
+  overflow: hidden;
+}
+.fuel-hero-card::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 80% 0%, rgba(45,212,191,0.20) 0%, transparent 60%);
+}
+
+.fuel-hero-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.fuel-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  color: #5eead4; text-transform: uppercase; letter-spacing: 0.08em;
+  background: rgba(45,212,191,0.15); padding: 4px 10px; border-radius: 20px;
+}
+.fuel-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #2dd4bf; box-shadow: 0 0 8px #2dd4bf;
+}
+.fuel-liters-badge {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: #a5b4fc;
+}
+
+.fuel-matrix-wrap {
+  text-align: center; margin: 10px 0 24px;
+}
+.fuel-matrix-value {
+  font-family: var(--font-display); font-size: 44px; font-weight: 700;
+  color: #ffffff; letter-spacing: -0.02em; line-height: 1;
+  text-shadow: 0 0 25px rgba(45,212,191,0.35);
+}
+.fuel-matrix-sub {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-low);
+  letter-spacing: 0.08em; margin-top: 8px; text-transform: uppercase;
+}
+
+/* Recessed Pill Bar (Oura Day/Week Toggle) */
+.recessed-pill-bar {
+  display: flex; gap: 8px;
+  background: rgba(0,0,0,0.35);
+  border-radius: 24px; padding: 5px;
+  box-shadow:
+    inset 0 1.5px 3px rgba(0,0,0,0.6),
+    inset 0 -0.5px 0 rgba(255,255,255,0.05);
+  outline: 1px solid rgba(255,255,255,0.05);
+}
+.fuel-period-btn {
+  flex: 1; height: 40px; border-radius: 20px; border: none;
+  background: transparent; color: var(--text-low);
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: 0.2s;
+}
+.fuel-period-btn.active {
+  background: rgba(255,255,255,0.08);
+  color: #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.3),
+    0 4px 12px rgba(0,0,0,0.3);
+  outline: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Quick Fuel Grid */
+.fuel-quick-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr) 1fr; gap: 10px;
+  margin-bottom: 20px;
+}
+.btn-fuel-action {
+  height: 52px; border-radius: 16px; border: none; cursor: pointer;
+  background: rgba(15,10,32,0.85); color: var(--text-hi);
+  font-family: var(--font-display); font-size: 14px; font-weight: 600;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.3),
+    0 4px 14px rgba(0,0,0,0.35);
+  outline: 1px solid rgba(255,255,255,0.07);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-fuel-action:active { transform: scale(0.95); }
+.btn-fuel-action.highlight {
+  background: linear-gradient(160deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 6px 20px rgba(99,102,241,0.4);
+}
+.btn-fuel-action.custom {
+  font-family: var(--font-body); font-size: 12px; color: var(--text-mid);
+}
+
+/* Fuel Logs List */
+.fuel-logs-list {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.fuel-log-item {
+  background: rgba(14,9,32,0.75);
+  backdrop-filter: blur(20px);
+  border-radius: 16px; padding: 14px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.25);
+  outline: 1px solid rgba(255,255,255,0.05);
+}
+.fuel-log-left {
+  display: flex; align-items: center; gap: 12px;
+}
+.fuel-icon-chip {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(45,212,191,0.12); color: #2dd4bf;
+  display: flex; align-items: center; justify-content: center;
+}
+.fuel-log-station {
+  font-size: 14px; font-weight: 600; color: var(--text-hi);
+}
+.fuel-log-meta {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-low); margin-top: 2px;
+}
+.fuel-log-right {
+  display: flex; align-items: center; gap: 10px;
+}
+.fuel-log-price {
+  font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #fb7185;
+}
+.fuel-log-liters {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-low);
+}
+.fuel-delete-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,0.04); border: none;
+  color: var(--text-low); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.fuel-delete-btn:hover { color: #ff4d88; background: rgba(255,77,136,0.15); }
+
 
 

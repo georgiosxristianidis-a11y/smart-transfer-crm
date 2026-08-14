@@ -119,3 +119,33 @@ test('TripsStore: getNextUpcomingTrip', async () => {
   assert.strictEqual(store.getNextUpcomingTrip(), null);
 });
 
+test('TripsStore: schedule conflicts detection (<45 mins)', async () => {
+  const store = new TripsStore();
+  await new Promise(r => setTimeout(r, 10));
+
+  // t1 at 10:00 and t2 at 10:30 (30 mins apart -> conflict!)
+  const t1 = await store.addTrip({ date: '2026-08-14', time: '10:00', clientName: 'Trip 1' });
+  const t2 = await store.addTrip({ date: '2026-08-14', time: '10:30', clientName: 'Trip 2' });
+  // t3 at 12:00 (90 mins apart -> no conflict)
+  const t3 = await store.addTrip({ date: '2026-08-14', time: '12:00', clientName: 'Trip 3' });
+
+  const conflicts = store.getConflicts();
+  assert.ok(conflicts.has(t1.id), 'Trip 1 has conflict');
+  assert.ok(conflicts.has(t2.id), 'Trip 2 has conflict');
+  assert.ok(!conflicts.has(t3.id), 'Trip 3 has no conflict');
+});
+
+test('FuelStore: Logging and metrics calculation', async () => {
+  const { FuelStore } = await import('../js/fuel.store.js');
+  const fuelStore = new FuelStore();
+
+  const log1 = fuelStore.addFuelLog(50, 26.3, 'Shell');
+  assert.strictEqual(log1.amount, 50);
+  assert.strictEqual(log1.liters, 26.3);
+
+  const metrics = fuelStore.getMetrics();
+  assert.ok(metrics.todayAmount >= 50);
+  assert.ok(metrics.monthAmount >= 50);
+});
+
+

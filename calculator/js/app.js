@@ -2,15 +2,19 @@ import { CalculatorStore } from './calculator.store.js';
 import { CalculatorView } from './calculator.view.js';
 import { TripsStore } from './trips.store.js';
 import { TripsView } from './trips.view.js';
+import { FuelStore } from './fuel.store.js';
+import { FuelView } from './fuel.view.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Stores
   const calcStore = new CalculatorStore();
   const tripsStore = new TripsStore();
+  const fuelStore = new FuelStore();
 
   // Initialize Views
   const calcView = new CalculatorView(calcStore);
   const tripsView = new TripsView(tripsStore);
+  const fuelView = new FuelView(fuelStore);
 
   // Live header stats
   const elTodayRev = document.getElementById('hdr-today-rev');
@@ -35,14 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cross-store sync logic
   tripsStore.subscribe(trips => {
     updateHeaderStats(trips);
-    // When trips update, we could update analytics
-    // E.g., pass the actual completed revenue to calcStore or override something
-    const today = new Date();
-    const actualRev = tripsStore.getCompletedRevenueForMonth(today.getFullYear(), today.getMonth());
-    
-    // For now, we just log it. The UI already has predictions vs actuals if we map it properly.
-    console.log(`Actual completed revenue for current month: €${actualRev}`);
   });
+
+  // Persistent Top-Right 3-Lines Settings Button
+  const btnGlobalSettings = document.getElementById('btn-global-settings');
+  const modalSettings = document.getElementById('modal-calc-settings');
+  if (btnGlobalSettings && modalSettings) {
+    btnGlobalSettings.addEventListener('click', () => {
+      if (navigator.vibrate) navigator.vibrate(30);
+      modalSettings.classList.remove('hidden');
+    });
+  }
 
   // Tab Navigation Logic
   const navs = document.querySelectorAll('.nav-item');

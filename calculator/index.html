@@ -3,29 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:;">
-  <script>
-    // NUCLEAR SW CLEANER — runs before anything else, kills all foreign SWs
-    (function() {
-      if (!('serviceWorker' in navigator)) return;
-      navigator.serviceWorker.getRegistrations().then(function(regs) {
-        regs.forEach(function(reg) {
-          // Kill any SW that is NOT our taxi-crm sw.js
-          reg.active && reg.active.scriptURL && !reg.active.scriptURL.includes('taxi.localhost') && reg.unregister();
-        });
-      });
-      caches.keys().then(function(keys) {
-        keys.forEach(function(key) {
-          if (key !== 'taxi-crm-v1') { caches.delete(key); }
-        });
-      });
-    })();
-  </script>
-  <title>Smart Transfer CRM</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://*.flightradar24.com https://*.flightaware.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; script-src-attr 'unsafe-inline';">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <title>Smart Transfer — Unit Calc CRM 2026</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&family=Unbounded:wght@400;600;700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="manifest" href="manifest.json">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -35,15 +22,28 @@
 
   <div class="app-container">
     <div class="header no-print">
-      <div class="header-brand">
-        <div class="header-logo">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+      <div class="header-top-row">
+        <div class="header-brand">
+          <div class="header-logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          </div>
+          <div>
+            <h1 class="header-title">Smart Transfer</h1>
+            <div class="header-sub">CRM · Dispatch · 2026</div>
+          </div>
         </div>
-        <div>
-          <h1 class="header-title">Smart Transfer</h1>
-          <div class="header-sub">CRM · Dispatch · 2026</div>
-        </div>
+
+        <!-- PERSISTENT TOP-RIGHT SETTINGS BUTTON (3 VERTICAL LINES) -->
+        <button id="btn-global-settings" class="btn-top-settings" title="Настройки и параметры">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+            <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+            <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+          </svg>
+        </button>
       </div>
+
       <div class="header-stats">
         <div class="hstat">
           <div class="hstat-label">Сегодня €</div>
@@ -63,11 +63,22 @@
     <!-- TAB 1: TRIPS DISPATCH -->
     <div id="tab-trips" class="tab-content active">
       <div class="actions-bar no-print">
-        <button id="btn-add-trip" class="btn btn-primary">+ Новая поездка</button>
+        <button id="btn-add-trip" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Новая поездка
+        </button>
         <div class="right-actions">
-          <button id="btn-driver-hud" class="btn btn-outline" title="Режим за рулем">🚗 HUD</button>
-          <button id="btn-export-csv" class="btn btn-outline">↓ CSV</button>
-          <button id="btn-print" class="btn btn-outline" onclick="window.print()">🖨</button>
+          <button id="btn-driver-hud" class="btn btn-outline" title="Режим за рулем">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+            HUD
+          </button>
+          <button id="btn-export-csv" class="btn btn-outline" title="Экспорт в CSV">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            CSV
+          </button>
+          <button id="btn-print" class="btn btn-outline" onclick="window.print()" title="Печать">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          </button>
         </div>
       </div>
       
@@ -180,73 +191,200 @@
       </div>
     </div>
 
-    <!-- TAB 4: B2B PRO -->
+    <!-- TAB 4: FUEL & EXPENSES (OURA SQUIRCLE STYLE) -->
+    <div id="tab-fuel" class="tab-content no-print">
+      <div class="fuel-hero-card">
+        <div class="fuel-hero-top">
+          <div class="fuel-badge">
+            <span class="fuel-dot"></span>
+            РАСХОД ТОПЛИВА
+          </div>
+          <div class="fuel-liters-badge" id="fuel-hero-liters">0.0 L</div>
+        </div>
+
+        <div class="fuel-matrix-wrap">
+          <div class="fuel-matrix-value" id="fuel-hero-amount">€0</div>
+          <div class="fuel-matrix-sub" id="fuel-hero-period-lbl">ЗА ТЕКУЩИЙ МЕСЯЦ</div>
+        </div>
+
+        <!-- RECESSED PERIOD PILLS (DAY / WEEK / MONTH) -->
+        <div class="recessed-pill-bar">
+          <button class="fuel-period-btn" data-period="day">День</button>
+          <button class="fuel-period-btn" data-period="week">Неделя</button>
+          <button class="fuel-period-btn active" data-period="month">Месяц</button>
+        </div>
+      </div>
+
+      <!-- QUICK FUEL ACTION BUTTONS -->
+      <div class="fuel-quick-grid">
+        <button id="btn-fuel-quick-20" class="btn btn-fuel-action">+ €20</button>
+        <button id="btn-fuel-quick-50" class="btn btn-fuel-action">+ €50</button>
+        <button id="btn-fuel-quick-90" class="btn btn-fuel-action highlight">+ €90 (Бак)</button>
+        <button id="btn-fuel-custom" class="btn btn-fuel-action custom">Ввести €</button>
+      </div>
+
+      <div class="section-divider">
+        <span>История заправок</span>
+      </div>
+
+      <div id="fuel-logs-list" class="fuel-logs-list">
+        <!-- Logs render dynamically -->
+      </div>
+    </div>
+
+    <!-- TAB 5: B2B PRO -->
     <div id="tab-b2b" class="tab-content no-print">
       <div class="hero-card" style="text-align: center; margin-top: 20px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--brand-prim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--brand-prim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <div class="hero-label">B2B Strategy & Marketing</div>
         <div class="hero-sub">Phase 6 module (In Development)</div>
         <p style="color: var(--text-mid); font-size: 14px; margin-top: 15px;">Здесь будет CRM для турагентств, отелей и генерация коммерческих предложений.</p>
       </div>
     </div>
 
-    <!-- BOTTOM NAV -->
+    <!-- BOTTOM NAV (5 TABS WITH CLEAN SVGS) -->
     <div class="nav-bottom no-print">
       <div class="nav-item active" data-target="tab-trips">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/></svg>
         <span>Диспетчер</span>
       </div>
       <div class="nav-item" data-target="tab-analytics">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
         <span>Аналитика</span>
       </div>
       <div class="nav-item" data-target="tab-calc">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/></svg>
         <span>Калькулятор</span>
       </div>
+      <div class="nav-item" data-target="tab-fuel">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/><path d="M15 11h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2v0a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1"/><rect x="6" y="6" width="6" height="5" rx="1"/></svg>
+        <span>Бензин</span>
+      </div>
       <div class="nav-item" data-target="tab-b2b">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <span>B2B Pro</span>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Add Trip -->
+  <!-- MODAL: ADD TRIP (LARGE 54PX UI & LOCATION CHIPS) -->
   <div id="modal-add-trip" class="modal-overlay hidden no-print">
-    <div class="modal-content">
-      <h2 style="margin-top:0; margin-bottom: 20px; font-size: 18px; color: var(--text-hi);">Новый Трансфер</h2>
-      <form id="form-trip">
-        <div class="control-group">
-          <label class="control-title">Имя клиента / Рейс</label>
-          <input type="text" id="trip-client" required class="input-text" placeholder="John Doe, U2 4531">
+    <div class="modal-content modal-trip-large">
+      <div class="modal-header-row">
+        <h2 style="margin:0; font-size: 20px; font-weight: 700; color: var(--text-hi);">Новый Трансфер</h2>
+        <button type="button" id="btn-cancel-trip-x" class="btn-close-modal" title="Закрыть">✕</button>
+      </div>
+
+      <form id="form-trip" class="modal-trip-form">
+        <!-- Client Name / Flight -->
+        <div class="control-group mt-15">
+          <label class="control-title">Имя клиента / Номер рейса</label>
+          <input type="text" id="trip-client" required class="input-text input-large" placeholder="John Doe, U2 4531">
         </div>
-        <div class="flex-row mt-15" style="gap: 15px;">
-          <div class="control-group" style="flex:1;">
+
+        <!-- Date & Time -->
+        <div class="modal-grid-2 mt-15">
+          <div class="control-group">
             <label class="control-title">Дата</label>
-            <input type="date" id="trip-date" required class="input-text">
+            <input type="date" id="trip-date" required class="input-text input-large">
           </div>
-          <div class="control-group" style="flex:1;">
-            <label class="control-title">Время</label>
-            <input type="time" id="trip-time" required class="input-text">
-          </div>
-        </div>
-        <div class="flex-row mt-15" style="gap: 15px;">
-          <div class="control-group" style="flex:1;">
-            <label class="control-title">Откуда</label>
-            <input type="text" id="trip-pickup" required class="input-text" placeholder="HER Airport">
-          </div>
-          <div class="control-group" style="flex:1;">
-            <label class="control-title">Куда</label>
-            <input type="text" id="trip-dropoff" required class="input-text" placeholder="Elounda">
+          <div class="control-group">
+            <label class="control-title">Время подачи</label>
+            <input type="time" id="trip-time" required class="input-text input-large">
           </div>
         </div>
+
+        <!-- Quick Location Chips -->
+        <div class="location-chips-bar mt-15">
+          <span class="chips-label">Быстрый выбор:</span>
+          <div class="chips-scroll">
+            <button type="button" class="chip-btn" data-val="HER (Heraklion Airport)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+              HER Airport
+            </button>
+            <button type="button" class="chip-btn" data-val="CHQ (Chania Airport)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+              CHQ Chania
+            </button>
+            <button type="button" class="chip-btn" data-val="Port Heraklion">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg>
+              Port
+            </button>
+            <button type="button" class="chip-btn" data-val="Elounda Beach Resort">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
+              Elounda
+            </button>
+            <button type="button" class="chip-btn" data-val="Hersonissos">Hersonissos</button>
+            <button type="button" class="chip-btn" data-val="Agios Nikolaos">Agios Nikolaos</button>
+          </div>
+        </div>
+
+        <!-- Pickup & Dropoff -->
+        <div class="modal-grid-2 mt-15">
+          <div class="control-group">
+            <label class="control-title">Откуда (Подача)</label>
+            <input type="text" id="trip-pickup" list="locations-list" required class="input-text input-large" placeholder="HER Airport">
+          </div>
+          <div class="control-group">
+            <label class="control-title">Куда (Финиш)</label>
+            <input type="text" id="trip-dropoff" list="locations-list" required class="input-text input-large" placeholder="Elounda">
+          </div>
+        </div>
+
+        <!-- Datalist Dictionary for Crete -->
+        <datalist id="locations-list">
+          <option value="HER (Heraklion Airport 'N. Kazantzakis')">
+          <option value="CHQ (Chania Airport 'I. Daskalogiannis')">
+          <option value="JSH (Sitia Airport)">
+          <option value="Port Heraklion (Ferry Terminal)">
+          <option value="Port Souda (Chania)">
+          <option value="Elounda Resort">
+          <option value="Hersonissos Center">
+          <option value="Agios Nikolaos Port">
+          <option value="Malia Beach">
+          <option value="Rethymno Old Town">
+          <option value="Chania Venetian Harbor">
+          <option value="Plakias Beach">
+          <option value="Ierapetra Center">
+        </datalist>
+
+        <!-- Source Tag Selector -->
+        <div class="control-group mt-15">
+          <label class="control-title">Источник заказа</label>
+          <div class="source-pills-grid">
+            <button type="button" class="source-pill active" data-source="hotel">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
+              Гостиница
+            </button>
+            <button type="button" class="source-pill" data-source="web">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+              Web / Сайт
+            </button>
+            <button type="button" class="source-pill" data-source="ads">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+              Реклама
+            </button>
+            <button type="button" class="source-pill" data-source="walkin">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Прямой
+            </button>
+            <button type="button" class="source-pill" data-source="b2b">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              B2B
+            </button>
+          </div>
+        </div>
+
+        <!-- Price -->
         <div class="control-group mt-15">
           <label class="control-title">Цена (€)</label>
-          <input type="number" id="trip-price" required class="input-text" min="0" step="0.1" value="45">
+          <input type="number" id="trip-price" required class="input-text input-large" min="0" step="0.1" value="45">
         </div>
-        <div class="modal-actions mt-15" style="display:flex; justify-content: flex-end; gap: 10px;">
-          <button type="button" id="btn-cancel-trip" class="btn btn-outline">Отмена</button>
-          <button type="submit" class="btn btn-primary">Сохранить</button>
+
+        <!-- Actions (Equal 52px buttons) -->
+        <div class="modal-equal-actions mt-20">
+          <button type="button" id="btn-cancel-trip" class="btn btn-outline btn-modal-action">Отмена</button>
+          <button type="submit" class="btn btn-primary btn-modal-action">Сохранить трансфер</button>
         </div>
       </form>
     </div>
@@ -256,7 +394,10 @@
   <div id="modal-driver-hud" class="hud-overlay hidden no-print">
     <div class="hud-container">
       <div class="hud-top-bar">
-        <div class="hud-badge">🚗 DRIVER HUD MODE</div>
+        <div class="hud-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+          DRIVER HUD MODE
+        </div>
         <button id="btn-close-hud" class="hud-close-btn" title="Закрыть HUD">✕</button>
       </div>
       <div id="hud-content" class="hud-content">
@@ -265,7 +406,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ADVANCED SETTINGS (3-DOTS) -->
+  <!-- MODAL: ADVANCED SETTINGS (3-DOTS & TOP-RIGHT BUTTON) -->
   <div id="modal-calc-settings" class="modal-overlay hidden no-print">
     <div class="modal-content">
       <div class="modal-header-row">
@@ -320,8 +461,8 @@
         </div>
       </div>
 
-      <div class="modal-actions mt-15" style="display:flex; justify-content: flex-end;">
-        <button type="button" id="btn-done-calc-settings" class="btn btn-primary" style="width: 100%;">Готово</button>
+      <div class="modal-actions mt-20">
+        <button type="button" id="btn-done-calc-settings" class="btn btn-primary" style="width: 100%; height: 52px;">Готово</button>
       </div>
     </div>
   </div>

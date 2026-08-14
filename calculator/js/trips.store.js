@@ -41,6 +41,7 @@ export class TripsStore {
       dropoff: tripData.dropoff || '',
       price: parseFloat(tripData.price) || 0,
       status: tripData.status || 'pending',
+      source: tripData.source || 'hotel', // 'hotel' | 'web' | 'ads' | 'walkin' | 'b2b'
       createdAt: Date.now()
     };
 
@@ -50,6 +51,31 @@ export class TripsStore {
     await this.db.saveTrip(trip);
     this.notify();
     return trip;
+  }
+
+  /**
+   * Identifies any trips that conflict in schedule (<45 mins apart on the same date).
+   */
+  getConflicts() {
+    const activeTrips = this.trips.filter(t => t.status !== 'completed');
+    const conflictSet = new Set();
+
+    for (let i = 0; i < activeTrips.length; i++) {
+      for (let j = i + 1; j < activeTrips.length; j++) {
+        const t1 = activeTrips[i];
+        const t2 = activeTrips[j];
+        if (t1.date === t2.date) {
+          const d1 = new Date(`${t1.date}T${t1.time}`);
+          const d2 = new Date(`${t2.date}T${t2.time}`);
+          const diffMins = Math.abs(d2 - d1) / (1000 * 60);
+          if (diffMins < 45) {
+            conflictSet.add(t1.id);
+            conflictSet.add(t2.id);
+          }
+        }
+      }
+    }
+    return conflictSet;
   }
 
   async updateTripStatus(id, newStatus) {
