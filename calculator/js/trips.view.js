@@ -171,26 +171,47 @@ export class TripsView {
       const isCompleted = t.status === 'completed';
       const statusClass = isCompleted ? 'completed' : '';
       const gcalLink = this.store.generateGCalLink(t);
-      // clean ID for CSS view-transition-name
       const vtId = t.id.replace(/[^a-zA-Z0-9]/g, '');
       
+      const actionBtn = isCompleted
+        ? html`<span class="trip-done-badge">Завершено</span>`
+        : html`<a href="${gcalLink}" target="_blank" class="trip-gcal-btn" title="Добавить в Google Calendar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </a>`;
+
       return html`
         <div class="swipe-container" style="view-transition-name: trip-${vtId};">
-          <div class="swipe-actions-bg swipe-bg-complete" id="bg-c-${t.id}" style="opacity:0">✓ Завершить</div>
-          <div class="swipe-actions-bg swipe-bg-delete" id="bg-d-${t.id}" style="opacity:0">✕ Удалить</div>
+          <div class="swipe-actions-bg swipe-bg-complete" id="bg-c-${t.id}" style="opacity:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Завершить
+          </div>
+          <div class="swipe-actions-bg swipe-bg-delete" id="bg-d-${t.id}" style="opacity:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Удалить
+          </div>
           
           <div class="swipe-content ${statusClass}" data-id="${t.id}" id="swp-${t.id}">
-            <div class="trip-info">
-              <div class="trip-time">${t.date} ${t.time}</div>
-              <div class="trip-client">${t.clientName} <span style="font-weight:normal; color:#888;">(€${t.price})</span></div>
-              <div class="trip-route">${t.pickup} ➔ ${t.dropoff}</div>
+            <div class="trip-meta">
+              <div class="trip-datetime">
+                <span class="trip-date">${t.date}</span>
+                <span class="trip-time-badge">${t.time}</span>
+              </div>
             </div>
-            <div class="trip-actions no-print">
-              ${!isCompleted ? html`<a href="${gcalLink}" target="_blank" class="btn btn-outline" style="text-decoration:none; padding:4px 8px; font-size:12px;" title="В календарь">📅</a>` : html`<span style="color:var(--brand-accent); font-size:12px; margin-right:10px;">Завершено</span>`}
+            <div class="trip-body">
+              <div class="trip-client">${t.clientName}</div>
+              <div class="trip-route">
+                <span class="trip-point">${t.pickup}</span>
+                <svg class="trip-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                <span class="trip-point">${t.dropoff}</span>
+              </div>
+            </div>
+            <div class="trip-footer">
+              <span class="trip-price">€${t.price}</span>
+              ${actionBtn}
             </div>
           </div>
         </div>
-      `;
+      `.value;
     }).join('');
   }
 }
