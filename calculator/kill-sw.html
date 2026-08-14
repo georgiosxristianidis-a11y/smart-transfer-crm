@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clearing cache...</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0f;
+      color: #fff;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 20px;
+    }
+    .status { color: #7c3aed; font-size: 14px; }
+    .done { color: #10b981; font-size: 16px; font-weight: bold; }
+    .log { font-size: 12px; color: #555; max-width: 400px; text-align: left; }
+    .log div { margin: 4px 0; }
+    .log div::before { content: '> '; color: #7c3aed; }
+  </style>
+</head>
+<body>
+  <div class="status" id="status">Уничтожение всех Service Workers...</div>
+  <div class="log" id="log"></div>
+  <div class="done" id="done" style="display:none">Готово! Перенаправление...</div>
+
+  <script>
+    const log = document.getElementById('log');
+    const status = document.getElementById('status');
+    const done = document.getElementById('done');
+
+    function addLog(msg) {
+      const el = document.createElement('div');
+      el.textContent = msg;
+      log.appendChild(el);
+    }
+
+    async function nukeAll() {
+      // 1. Unregister all service workers
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        addLog(`Найдено SW: ${regs.length}`);
+        for (const reg of regs) {
+          await reg.unregister();
+          addLog(`Удален: ${reg.scope}`);
+        }
+      }
+
+      // 2. Clear ALL caches
+      const keys = await caches.keys();
+      addLog(`Найдено кэшей: ${keys.length}`);
+      for (const key of keys) {
+        await caches.delete(key);
+        addLog(`Очищен: ${key}`);
+      }
+
+      status.style.display = 'none';
+      done.style.display = 'block';
+
+      // 3. Redirect to main app after 1.5s
+      setTimeout(() => {
+        window.location.href = './index.html?nocache=' + Date.now();
+      }, 1500);
+    }
+
+    nukeAll().catch(err => {
+      addLog('Ошибка: ' + err.message);
+    });
+  </script>
+</body>
+</html>

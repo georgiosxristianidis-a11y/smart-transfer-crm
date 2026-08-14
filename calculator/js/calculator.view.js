@@ -37,7 +37,8 @@ export class CalculatorView {
 
     this.tabs = document.querySelectorAll('.tab-content');
     this.navs = document.querySelectorAll('.nav-item');
-    this.ctx = document.getElementById('expensesChart').getContext('2d');
+    // ctx is grabbed lazily in renderChart so hidden canvas doesn't crash
+    this.ctx = null;
   }
 
   bindEvents() {
@@ -53,21 +54,14 @@ export class CalculatorView {
     this.bindSegment(this.els.segOwners, 'ownersCount');
     this.bindSegment(this.els.segDrivers, 'hiredDrivers');
 
-    this.navs.forEach(nav => {
-      nav.addEventListener('click', (e) => {
-        this.navs.forEach(n => n.classList.remove('active'));
-        this.tabs.forEach(t => t.classList.remove('active'));
-        e.currentTarget.classList.add('active');
-        document.getElementById(e.currentTarget.dataset.target).classList.add('active');
-      });
-    });
   }
 
   bindSlider(input, label, stateKey, prefix = '') {
     input.value = this.store.state[stateKey];
+    label.textContent = prefix + this.store.state[stateKey];
     input.addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
-      label.textContent = html`${prefix}${val}`;
+      label.textContent = prefix + val;
       this.store.update({ [stateKey]: val });
     });
   }
@@ -120,6 +114,13 @@ export class CalculatorView {
       metrics.safetyNet,
       metrics.netProfitYear
     ];
+
+    // Grab canvas context lazily — canvas may be in hidden tab at boot
+    if (!this.ctx) {
+      const canvas = document.getElementById('expensesChart');
+      if (!canvas) return;
+      this.ctx = canvas.getContext('2d');
+    }
     
     if (this.chart) {
       this.chart.data.datasets[0].data = data;

@@ -10,7 +10,10 @@ const assetsToCache = [
   './js/app.js',
   './js/calculator.store.js',
   './js/calculator.view.js',
+  './js/trips.store.js',
+  './js/trips.view.js',
   './js/shared/utils.js',
+  './js/shared/db.js',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
   'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@300;400;500;600;700&family=Unbounded:wght@400;600&display=swap'
 ];
