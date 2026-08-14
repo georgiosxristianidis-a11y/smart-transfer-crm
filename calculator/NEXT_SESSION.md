@@ -5,7 +5,7 @@
 
 ## ⚠️ Read before touching any code
 
-`docs/handoff/AUDIT_2026-08-14.md` (35 findings) and `docs/handoff/cards/` (13 cards). Every card carries a **STOP** field — the edit boundary. Do not cross it. Older docs are partly wrong; the audits supersede them.
+`docs/handoff/AUDIT_2026-08-14.md` (35 findings) and `docs/handoff/audit/` (13 cards). Every card carries a **STOP** field — the edit boundary. Do not cross it. Older docs are partly wrong; the audits supersede them.
 
 ## State — 2026-08-14
 

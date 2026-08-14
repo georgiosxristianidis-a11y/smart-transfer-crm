@@ -9,7 +9,7 @@
 
 **Sequential by default, parallel only when proven safe.**
 
-A worktree isolates an agent's context; it does not imply parallel work. Only 🟠 LEAD may authorise parallel work, and only when file zones provably do not overlap. Typical safe pair: 🟢 GEMINI in `css/` ‖ 🔵 HORSE in `js/`.
+A worktree isolates an agent's context; it does not imply parallel work. Only 🟠 LEAD authorises parallel work, and only when file zones provably do not overlap. Typical safe pair: 🟢 GEMINI in `css/` ‖ 🔵 HORSE in `js/`.
 
 > **One-file rule.** Two agents never open the same file at the same time. Not "try not to" — **never**. A card that needs both `js/` and `css/` is not parallelised; it is split into two sequential cards.
 
@@ -18,7 +18,8 @@ A worktree isolates an agent's context; it does not imply parallel work. Only �
 ## 1. Card format — nine fields
 
 One card = one file = one branch = one agent = one squashed commit.
-Path: `docs/handoff/cards/<ID>-<slug>.md` · Template: `cards/_TEMPLATE.md`
+Path: `docs/handoff/cards/<ID>-<slug>.md` · Template: `cards/_TEMPLATE.md` · Cap 2000 chars.
+`docs/handoff/audit/` is a different genre: imported findings, read-only history, cap 2500. A finding becomes a work card when the queue reaches it — it is not edited in place.
 
 | Field | Req. | Content |
 |---|:---:|---|
@@ -32,17 +33,13 @@ Path: `docs/handoff/cards/<ID>-<slug>.md` · Template: `cards/_TEMPLATE.md`
 | **Done when** | ✅ | A checkable criterion, not "finished" |
 | **Gates** | ✅ | Commands that must print `0` before the PR |
 
-**No `STOP` and no `Scope` → the card is not started.** Their absence is what produces an agent that "fixed something nearby on the way" and left a branch to rot. **`Size: XL` is not a card** — it goes back to 🟠 LEAD to be split.
+**No `STOP` and no `Scope` → the card is not started.** Their absence produces an agent that "fixed something nearby on the way" and left a branch to rot. **`Size: XL` is not a card** — back to 🟠 LEAD to split.
 
 ---
 
 ## 2. Card lifecycle
 
-```
-🟠 LEAD writes the card  →  branch off fresh master  →  agent works
-      →  gates print 0  →  rebase onto master  →  PR  →  squash merge
-      →  branch deleted  →  🟠 LEAD updates QUEUE.md and NEXT_SESSION.md
-```
+🟠 LEAD writes the card → branch off fresh master → agent works → gates print `0` → rebase → PR → squash merge → branch deleted → 🟠 LEAD updates `QUEUE.md` and `NEXT_SESSION.md`.
 
 The card is written **before** the work starts. It is a contract, not a report.
 
@@ -77,7 +74,7 @@ FINISH: gates print 0 → rebase → PR
 
 The repository is **private**: the docs carry business economics (owner shares, driver wage, taxes).
 
-**A PR is an automated gate, not a review.** There is no second human. The PR exists because a machine checks what agents forget: offline broke not from bad code but because a manual step written in `CLAUDE.md` was skipped.
+**A PR is an automated gate, not a review.** There is no second human. It exists because a machine checks what agents forget: offline broke not from bad code but because a manual step written in `CLAUDE.md` was skipped.
 
 Anti-bureaucracy rule: gates green → merge, no comments for their own sake.
 
@@ -87,7 +84,7 @@ Anti-bureaucracy rule: gates green → merge, no comments for their own sake.
 
 > **An agent never ends a session with untracked files.** Finishing means committing to your own branch, even mid-task (`wip: ...`). **Uncommitted means non-existent.**
 
-This is what makes the TTL rule safe: a branch can be deleted because everything valuable is in commits.
+This makes the TTL rule safe: a branch is deletable because everything valuable is in commits.
 
 ### Before deleting a branch or worktree
 
@@ -99,11 +96,9 @@ git -C .claude/worktrees/NAME status --porcelain     # uncommitted and untracked
 git -C .claude/worktrees/NAME stash list             # stashes
 ```
 
-`untracked` is the dangerous one: such files exist in no branch and cannot be recovered.
+`untracked` is the dangerous one: such files exist in no branch and cannot be recovered. `git worktree remove` refuses a dirty worktree without `--force`; two commands are fatal — `git worktree remove --force` and `git clean -fd`.
 
-`git worktree remove` refuses a dirty worktree without `--force`. Two commands are fatal: `git worktree remove --force` and `git clean -fd`.
-
-*Precedent 2026-08-14: two rotten worktrees held untracked work — 13 audit cards and a 35-finding document. Rescued as `c9c9a43` and `6d8936e`. This rule exists because of that.*
+*Precedent 2026-08-14: two rotten worktrees held untracked work — 13 audit cards and a 35-finding document. Rescued, then merged. This rule exists because of that.*
 
 ---
 
@@ -122,10 +117,8 @@ No conflicts by construction: every file has exactly one writer.
 
 ## 7. Docs budget
 
-A rule without a number and without a check does not work — proven by `npm run build:sw`, which everyone read and nobody ran.
+A rule without a number and without a check does not work — proven by `npm run build:sw`, which everyone read and nobody ran. Limits live in `scripts/check-docs-budget.mjs`; the gate `npm run docs:budget` prints `0` when within budget. When a doc overflows, cut the doc — never raise the limit to fit it.
 
-Character limits live in `scripts/check-docs-budget.mjs`; the gate is `npm run docs:budget` and prints `0` when within budget. A card is capped at **2000 characters** — if it does not fit, it is not a card (STOP #5).
+**Language:** everything machine-facing is English — code, comments, commits, `CLAUDE.md`, cards, briefs. Russian survives in one file: `docs/RULES.md`, the owner's glossary and working agreement. Chat stays Russian.
 
-**Language rule:** everything machine-facing is English — code, comments, commits, `CLAUDE.md`, cards, briefs. Russian survives in exactly one place: `docs/RULES.md`, the owner's plain-language contract and glossary. Chat stays Russian.
-
-Conflict resolution: see `CLAUDE.md`. If 🔵 or 🟢 is unsure, they do not decide — they escalate to 🟠 LEAD.
+Conflicts: see `CLAUDE.md`. If 🔵 or 🟢 is unsure, they escalate to 🟠 LEAD.
