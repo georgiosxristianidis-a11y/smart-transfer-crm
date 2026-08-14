@@ -104,12 +104,23 @@ export class TripsStore {
   }
 
   /**
-   * Returns the nearest upcoming active (non-completed) trip.
+   * Returns the nearest upcoming active (non-completed) trip whose datetime >= now.
+   * Uses local time to avoid UTC date-shift (AUDIT-03).
+   * Past pending trips (forgotten from yesterday) are intentionally excluded.
+   *
+   * @param {Date} [now] - Optional reference time for testing; defaults to current local time.
+   * @returns {Object|null}
    */
-  getNextUpcomingTrip() {
-    const activeTrips = this.trips.filter(t => t.status !== 'completed');
-    if (activeTrips.length === 0) return null;
-    return activeTrips[0];
+  getNextUpcomingTrip(now = new Date()) {
+    const nowMs = now.getTime();
+    const upcoming = this.trips.filter(t => {
+      if (t.status === 'completed') return false;
+      // Parse as local time by appending no timezone — avoids UTC midnight shift
+      const tripMs = new Date(`${t.date}T${t.time}`).getTime();
+      return tripMs >= nowMs;
+    });
+    // trips are already sorted ascending by date+time in addTrip/loadInitialData
+    return upcoming.length > 0 ? upcoming[0] : null;
   }
 
   generateGCalLink(trip) {

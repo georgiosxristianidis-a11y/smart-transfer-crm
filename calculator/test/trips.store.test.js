@@ -105,18 +105,39 @@ test('TripsStore: getNextUpcomingTrip', async () => {
   const store = new TripsStore();
   await new Promise(r => setTimeout(r, 10));
 
-  const t1 = await store.addTrip({ date: '2026-08-14', time: '10:00', clientName: 'First' });
-  const t2 = await store.addTrip({ date: '2026-08-14', time: '14:00', clientName: 'Second' });
+  // Use a fixed "now" so tests are deterministic regardless of real clock
+  const refNow = new Date('2026-08-15T12:00:00');
 
-  assert.strictEqual(store.getNextUpcomingTrip().id, t1.id);
+  // Both trips are in the future relative to refNow
+  const t1 = await store.addTrip({ date: '2026-08-15', time: '13:00', clientName: 'First' });
+  const t2 = await store.addTrip({ date: '2026-08-15', time: '14:00', clientName: 'Second' });
 
-  // Complete t1
+  assert.strictEqual(store.getNextUpcomingTrip(refNow).id, t1.id, 'Returns earliest future trip');
+
+  // Complete t1 — t2 becomes next
   await store.updateTripStatus(t1.id, 'completed');
-  assert.strictEqual(store.getNextUpcomingTrip().id, t2.id);
+  assert.strictEqual(store.getNextUpcomingTrip(refNow).id, t2.id, 'Returns next after completion');
 
-  // Complete t2
+  // Complete t2 — nothing left
   await store.updateTripStatus(t2.id, 'completed');
-  assert.strictEqual(store.getNextUpcomingTrip(), null);
+  assert.strictEqual(store.getNextUpcomingTrip(refNow), null, 'Returns null when all done');
+});
+
+test('TripsStore: getNextUpcomingTrip — past pending trips are excluded', async () => {
+  const store = new TripsStore();
+  await new Promise(r => setTimeout(r, 10));
+
+  // Yesterday's trip left pending (driver forgot to mark it)
+  const past = await store.addTrip({ date: '2026-08-14', time: '10:00', clientName: 'Stale' });
+  // Today's upcoming trip
+  const future = await store.addTrip({ date: '2026-08-15', time: '15:00', clientName: 'Upcoming' });
+
+  const refNow = new Date('2026-08-15T12:00:00');
+
+  // Must NOT return the stale past trip even though it is pending
+  const next = store.getNextUpcomingTrip(refNow);
+  assert.strictEqual(next.id, future.id, 'Past pending trip must not be returned');
+  assert.notStrictEqual(next.id, past.id, 'Stale trip must be excluded');
 });
 
 test('TripsStore: schedule conflicts detection (<45 mins)', async () => {
