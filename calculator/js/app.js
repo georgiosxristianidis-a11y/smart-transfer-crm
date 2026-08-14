@@ -16,29 +16,71 @@ document.addEventListener('DOMContentLoaded', () => {
   const tripsView = new TripsView(tripsStore);
   const fuelView = new FuelView(fuelStore);
 
-  // Live header stats
+  // Live header stats & Shift Norm Elements (NAV-05)
   const elTodayRev = document.getElementById('hdr-today-rev');
   const elTodayTrips = document.getElementById('hdr-today-trips');
+  const elNormTarget = document.getElementById('hdr-norm-target');
   const elMonthRev = document.getElementById('hdr-month-rev');
+  const elShiftFraction = document.getElementById('shift-norm-fraction');
+  const elShiftFill = document.getElementById('shift-norm-fill');
+  const elShiftProgress = document.getElementById('shift-norm-progressbar');
 
-  function updateHeaderStats(trips) {
-    const todayStr = new Date().toISOString().split('T')[0];
+  let currentTrips = [];
+
+  function updateNormAndStats() {
+    // Use local date, not UTC — toISOString() returns UTC and shifts date by -3h before 03:00 local
     const now = new Date();
+    const todayStr = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0')
+    ].join('-');
+    const trips = currentTrips;
     const todayTrips = trips.filter(t => t.date === todayStr && t.status === 'completed');
     const monthTrips = trips.filter(t => {
-      const d = new Date(t.date);
+      const d = new Date(t.date + 'T00:00:00');
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && t.status === 'completed';
     });
     const todayRev = todayTrips.reduce((s, t) => s + t.price, 0);
     const monthRev = monthTrips.reduce((s, t) => s + t.price, 0);
+    const norm = (calcStore.state && calcStore.state.tripsPerDay) ? calcStore.state.tripsPerDay : 13;
+    const completedCount = todayTrips.length;
+    const pct = Math.min(100, Math.round((completedCount / (norm || 1)) * 100));
+
     if (elTodayRev) elTodayRev.textContent = todayRev.toFixed(0);
-    if (elTodayTrips) elTodayTrips.textContent = todayTrips.length;
+    if (elTodayTrips) elTodayTrips.textContent = completedCount;
+    if (elNormTarget) elNormTarget.textContent = norm;
     if (elMonthRev) elMonthRev.textContent = monthRev.toFixed(0);
+
+    if (elShiftFraction) {
+      if (completedCount >= norm && norm > 0) {
+        elShiftFraction.textContent = `${completedCount} из ${norm} (норма выполнена!)`;
+      } else {
+        elShiftFraction.textContent = `${completedCount} из ${norm} поездок`;
+      }
+    }
+    if (elShiftFill) {
+      elShiftFill.style.width = `${pct}%`;
+      if (completedCount >= norm && norm > 0) {
+        elShiftFill.classList.add('goal-reached');
+      } else {
+        elShiftFill.classList.remove('goal-reached');
+      }
+    }
+    if (elShiftProgress) {
+      elShiftProgress.setAttribute('aria-valuenow', completedCount);
+      elShiftProgress.setAttribute('aria-valuemax', norm);
+    }
   }
 
   // Cross-store sync logic
   tripsStore.subscribe(trips => {
-    updateHeaderStats(trips);
+    currentTrips = trips || [];
+    updateNormAndStats();
+  });
+
+  calcStore.subscribe(() => {
+    updateNormAndStats();
   });
 
   // Persistent Top-Right 3-Lines Settings Button
