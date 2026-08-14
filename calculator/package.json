@@ -1,6 +1,6 @@
 {
   "name": "unit-calc-pro",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Smart Calculator for Minivan Transfers",
   "type": "module",
   "scripts": {
@@ -8,6 +8,7 @@
     "dev": "npx http-server . -p 12345 -c-1 -a taxi.localhost",
     "serve": "npx http-server . -p 8888 -c-1",
     "build:sw": "node scripts/build-sw.mjs",
+    "docs:budget": "node scripts/check-docs-budget.mjs",
     "lhci": "npx -y @lhci/cli autorun"
   },
   "devDependencies": {
