@@ -14,18 +14,23 @@ html, body {
   -webkit-font-smoothing: antialiased; 
 }
 
-/* Background effects */
+/* ─── Space Atmosphere Background ─── */
 .cosmic-bg { 
   position: fixed; inset: 0; z-index: -2; 
-  background: radial-gradient(ellipse at 20% 10%, rgba(139, 92, 246, 0.08), transparent 50%), 
-              radial-gradient(ellipse at 80% 70%, rgba(34, 211, 238, 0.06), transparent 50%), 
-              linear-gradient(180deg, var(--bg-vanta) 0%, var(--bg-space-1) 50%, var(--bg-vanta) 100%); 
+  background:
+    radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(56, 189, 248, 0.15) 0%, transparent 50%),
+    linear-gradient(180deg, #020008 0%, #08031a 45%, #03000a 100%); 
 }
 .particles-layer {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background-image: radial-gradient(var(--glass-glow-green) 1px, transparent 1px);
-  background-size: 30px 30px;
-  opacity: 0.15;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+  background-size: 50px 50px, 100px 100px;
+  background-position: 0 0, 25px 25px;
+  opacity: 0.4;
 }
 
 .app-container { 
@@ -417,20 +422,28 @@ input:checked + .slider:before { transform: translateX(20px); }
 .swipe-content {
   position: relative;
   z-index: 2;
-  background: rgba(12, 8, 28, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-  border-radius: 14px;
-  padding: 14px 16px;
+  background: rgba(14, 9, 32, 0.78);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 16px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  /* Facet bevel — Oura-style */
+  /* VisionOS Facet Bevel */
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.10),
-    inset 0 -1px 0 rgba(0,0,0,0.25),
-    0 4px 16px rgba(0,0,0,0.35);
+    inset 0 1.2px 0 rgba(255,255,255,0.14),
+    inset 0 -1px 0 rgba(0,0,0,0.3),
+    0 6px 20px rgba(0,0,0,0.4);
   outline: 1px solid rgba(255,255,255,0.06);
+}
+.swipe-container:hover .swipe-content:not(.dragging) {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 0 rgba(0,0,0,0.3),
+    0 10px 28px rgba(0,0,0,0.5),
+    0 0 25px rgba(99,102,241,0.22);
 }
 .swipe-content.completed {
   border-color: rgba(255,255,255,0.05);
@@ -463,23 +476,32 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 .hero-focus-card {
   position: relative;
-  background: linear-gradient(165deg, rgba(99,102,241,0.18) 0%, rgba(15,10,35,0.85) 60%, rgba(7,3,22,0.95) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: linear-gradient(165deg, rgba(99,102,241,0.22) 0%, rgba(18,11,42,0.85) 60%, rgba(7,3,22,0.95) 100%);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border-radius: var(--radius-xl);
-  padding: 22px 20px;
-  /* Oura Facet Bevel */
+  padding: 24px 22px;
+  /* VisionOS Liquid Glass & Specular Facets */
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.22),
-    inset 0 -1px 0 rgba(0,0,0,0.35),
-    0 8px 32px rgba(0,0,0,0.45),
-    0 0 30px rgba(99,102,241,0.12);
+    inset 0 1.5px 0 rgba(255,255,255,0.24),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 16px 40px -8px rgba(0,0,0,0.65),
+    0 0 35px -5px rgba(99,102,241,0.25);
   outline: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-focus-card:hover {
+  transform: translateY(-3px) scale(1.008);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.32),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 20px 48px -8px rgba(0,0,0,0.75),
+    0 0 45px rgba(129,140,248,0.38);
 }
 .hero-focus-card::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse at 80% 0%, rgba(99,102,241,0.22) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 80% 0%, rgba(99,102,241,0.25) 0%, transparent 60%);
 }
 
 .hero-focus-top {

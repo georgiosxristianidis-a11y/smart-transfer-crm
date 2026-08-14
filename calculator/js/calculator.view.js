@@ -135,9 +135,16 @@ export class CalculatorView {
         datasets: [{
           data: data,
           backgroundColor: [
-            '#EF4444', '#FBBF24', '#6B7280', '#E879F9', '#8B5CF6', '#10B981'
+            '#FF4D88', // Elite Pink (Fuel)
+            '#FB7185', // Soft Coral (Maintenance)
+            '#A78BFA', // Violet Mist (Admin / Insurance)
+            '#818CF8', // Indigo Light (Drivers)
+            '#6366F1', // Indigo Deep (Safety Net)
+            '#2DD4BF'  // Neo-Teal / Mint (Net Profit)
           ],
-          borderWidth: 0
+          borderWidth: 3,
+          borderColor: 'rgba(12, 8, 28, 0.95)',
+          hoverOffset: 6
         }]
       },
       options: {

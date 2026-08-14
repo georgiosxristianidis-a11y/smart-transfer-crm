@@ -5,15 +5,16 @@
   --bg-space-2: #0F0726;
 
   /* ─── Brand Colors ─── */
-  --brand-prim:      #818cf8; /* Indigo — primary action  */
-  --brand-prim-deep: #6366f1; /* Indigo dark — buttons    */
-  --brand-violet:    #a78bfa; /* Violet — accents         */
-  --brand-cyan:      #22d3ee; /* Cyan — info / secondary  */
-  --brand-warn:      #fbbf24; /* Amber — warnings         */
+  --brand-prim:       #818cf8; /* Indigo — primary action  */
+  --brand-prim-deep:  #6366f1; /* Indigo dark — buttons    */
+  --brand-violet:     #a78bfa; /* Violet — accents         */
+  --brand-cyan:       #22d3ee; /* Cyan — info / secondary  */
+  --brand-warn:       #fbbf24; /* Amber — warnings         */
+  --brand-elite-pink: #FF4D88; /* Elite Pink — high-end status / delete */
 
   /* Action semantic (NOT red/green) */
   --action-confirm:  #818cf8; /* Swipe-right "Complete"   */
-  --action-danger:   #f472b6; /* Elite Pink — "Delete"    */
+  --action-danger:   #FF4D88; /* Elite Pink — "Delete"    */
 
   /* Status semantic */
   --status-done-fg:  rgba(148,163,184,0.6); /* Completed text muted  */
@@ -30,7 +31,7 @@
   --status-ontime-bg:   rgba(251, 191, 36, 0.12);
   --status-ontime-glow: rgba(251, 191, 36, 0.25);
 
-  /* Delayed (Soft Coral) */
+  /* Delayed (Soft Coral / Rose) */
   --status-delayed-fg:   #fb7185;
   --status-delayed-bg:   rgba(251, 113, 133, 0.12);
   --status-delayed-glow: rgba(251, 113, 133, 0.25);
@@ -44,23 +45,27 @@
   --brand-primary:   var(--brand-prim-deep);
   --brand-secondary: var(--brand-cyan);
   --brand-accent:    var(--brand-cyan);
-  --brand-danger:    var(--action-danger);
+  --brand-danger:    var(--brand-elite-pink);
 
   /* ─── Text ─── */
   --text-hi:  #F9FAFB;
   --text-mid: #B0B6C4;
   --text-low: #6B7280;
 
-  /* ─── Surfaces & Glassmorphism ─── */
-  --glass-bg:         rgba(15, 10, 30, 0.55);
+  /* ─── VisionOS Liquid Glass & Surfaces ─── */
+  --glass-bg:         rgba(15, 10, 32, 0.65);
+  --glass-bg-hover:   rgba(22, 14, 46, 0.80);
   --glass-border:     rgba(255, 255, 255, 0.08);
-  --glass-glow:       rgba(99, 102, 241, 0.15);
-  --glass-glow-green: rgba(99, 102, 241, 0.10);
+  --glass-border-hi:  rgba(255, 255, 255, 0.16);
+  --glass-glow:       rgba(99, 102, 241, 0.22);
+  --glass-glow-pink:  rgba(255, 77, 136, 0.25);
 
-  /* ─── Shadows ─── */
-  --shadow-sm:        0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-glow:      0 0 24px var(--glass-glow);
-  --shadow-glow-green:0 0 24px var(--glass-glow);
+  /* ─── Atmospheric Shadows ─── */
+  --shadow-sm:         0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-card-deep:  0 16px 40px -8px rgba(0, 0, 0, 0.65);
+  --shadow-neon-indigo:0 0 35px -5px rgba(99, 102, 241, 0.22);
+  --shadow-neon-hover: 0 0 45px -2px rgba(129, 140, 248, 0.35);
+  --shadow-glow:       0 0 24px var(--glass-glow);
 
   /* ─── Radii ─── */
   --radius-sm: 8px;
