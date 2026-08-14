@@ -1,39 +1,54 @@
 :root {
-  /* Air Minimalism Brand Colors */
-  --bg-vanta: #020008;
+  /* ─── Backgrounds ─── */
+  --bg-vanta:   #020008;
   --bg-space-1: #070316;
   --bg-space-2: #0F0726;
-  
-  --brand-primary: #8B5CF6; /* V2 Purple */
-  --brand-secondary: #22D3EE; /* Cyan */
-  --brand-accent: #10B981; /* Green glowing (Readiness 94% ref) */
-  --brand-warn: #FBBF24; /* Amber */
-  --brand-danger: #EF4444; /* Red */
 
-  /* Text Colors */
-  --text-hi: #F9FAFB;
+  /* ─── Brand Colors ─── */
+  --brand-prim:      #818cf8; /* Indigo — primary action  */
+  --brand-prim-deep: #6366f1; /* Indigo dark — buttons    */
+  --brand-violet:    #a78bfa; /* Violet — accents         */
+  --brand-cyan:      #22d3ee; /* Cyan — info / secondary  */
+  --brand-warn:      #fbbf24; /* Amber — warnings         */
+
+  /* Action semantic (NOT red/green) */
+  --action-confirm:  #818cf8; /* Swipe-right "Complete"   */
+  --action-danger:   #f472b6; /* Elite Pink — "Delete"    */
+
+  /* Status semantic */
+  --status-done-fg:  rgba(148,163,184,0.6); /* Completed text muted  */
+  --status-done-bar: rgba(99,102,241,0.25); /* Completed left stripe */
+
+  /* Legacy aliases kept for chart.js palette compat */
+  --brand-primary:   var(--brand-prim-deep);
+  --brand-secondary: var(--brand-cyan);
+  --brand-accent:    var(--brand-cyan);
+  --brand-danger:    var(--action-danger);
+
+  /* ─── Text ─── */
+  --text-hi:  #F9FAFB;
   --text-mid: #B0B6C4;
   --text-low: #6B7280;
 
-  /* Surfaces & Glassmorphism */
-  --glass-bg: rgba(15, 10, 30, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-glow: rgba(139, 92, 246, 0.15);
-  --glass-glow-green: rgba(16, 185, 129, 0.15);
-  
-  /* Shadows */
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 24px var(--glass-glow);
-  --shadow-glow-green: 0 0 24px var(--glass-glow-green);
-  
-  /* Radii */
+  /* ─── Surfaces & Glassmorphism ─── */
+  --glass-bg:         rgba(15, 10, 30, 0.55);
+  --glass-border:     rgba(255, 255, 255, 0.08);
+  --glass-glow:       rgba(99, 102, 241, 0.15);
+  --glass-glow-green: rgba(99, 102, 241, 0.10);
+
+  /* ─── Shadows ─── */
+  --shadow-sm:        0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-glow:      0 0 24px var(--glass-glow);
+  --shadow-glow-green:0 0 24px var(--glass-glow);
+
+  /* ─── Radii ─── */
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-xl: 32px;
-  
-  /* Typography */
+
+  /* ─── Typography ─── */
   --font-display: 'Unbounded', sans-serif;
-  --font-body: 'Manrope', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-body:    'Manrope', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
 }

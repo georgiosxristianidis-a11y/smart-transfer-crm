@@ -300,8 +300,16 @@ input:checked + .slider:before { transform: translateX(20px); }
   font-weight: 600;
   z-index: 1;
 }
-.swipe-bg-delete { background: var(--brand-danger); color: white; justify-content: flex-end; }
-.swipe-bg-complete { background: var(--brand-accent); color: white; justify-content: flex-start; }
+.swipe-bg-delete {
+  background: linear-gradient(90deg, rgba(244,114,182,0.15) 0%, rgba(244,114,182,0.85) 100%);
+  color: white; justify-content: flex-end; gap: 8px;
+  font-size: 13px; letter-spacing: 0.02em;
+}
+.swipe-bg-complete {
+  background: linear-gradient(90deg, rgba(129,140,248,0.85) 0%, rgba(129,140,248,0.15) 100%);
+  color: white; justify-content: flex-start; gap: 8px;
+  font-size: 13px; letter-spacing: 0.02em;
+}
 .swipe-content {
   position: relative;
   z-index: 2;
@@ -314,7 +322,13 @@ input:checked + .slider:before { transform: translateX(20px); }
   flex-direction: column;
 }
 .swipe-content.completed {
-  border-color: rgba(16, 185, 129, 0.3);
+  border-color: rgba(255,255,255,0.05);
+  border-left: 3px solid var(--status-done-bar);
+}
+.swipe-content.completed .trip-client,
+.swipe-content.completed .trip-point,
+.swipe-content.completed .trip-price {
+  color: var(--status-done-fg);
 }
 .swipe-content.dragging {
   transition: none;
