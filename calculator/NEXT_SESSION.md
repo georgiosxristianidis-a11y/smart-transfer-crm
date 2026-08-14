@@ -13,12 +13,11 @@
 - Multi-agent protocol approved: sequential by default, card = branch = commit, squash into `master`.
 - Docs budget gate added (`npm run docs:budget`). System docs are English; `docs/RULES.md` is the single Russian file.
 - Both rescued audits merged into `master`. Work queue consolidated in `docs/handoff/QUEUE.md`.
+- **Item 1 (AUDIT-01)**: SW register + manifest + dynamic asset scan + Chart.js 4.4.1 — **done** (`f24979c`).
 
 ## In progress
 
-| # | Task | Owner | Where |
-|---|---|---|---|
-| 1 | Register SW + manifest + honest asset list + Chart.js version | 🔵 HORSE | `claude/sw-manifest-chartjs-6b2de2` — `wip 6911012`, stopped early, unverified |
+*None. Ready for Item 2.*
 
 ## Next
 

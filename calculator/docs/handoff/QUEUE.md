@@ -13,7 +13,7 @@
 
 | # | Task | Owner | Status | Source |
 |---|---|---|---|---|
-| 1 | Register SW + `<link rel="manifest">` + honest asset list + Chart.js `4.4.0`/`4.4.1` | 🟠 | 🔵 **in progress** | AUDIT P0-01 · audit/01 |
+| 1 | Register SW + `<link rel="manifest">` + honest asset list + Chart.js `4.4.1` | 🟠 | ✅ **merged** | AUDIT P0-01 · audit/01 |
 | 2 | Data backup and schema version (JSON export/import, last-backup marker) | 🟠 | — | audit/05 |
 | 3 | Timezone: UTC dates in a local context (+3) | 🔵 | — | audit/04 |
 | 4 | "Next transfer" returns trips in the past | 🔵 | — | audit/03 |
@@ -55,5 +55,5 @@ Both audits are merged into `master`. `docs/handoff/audit/` holds imported findi
 
 | Branch | State |
 |---|---|
-| `master` | Spec, protocol, queue and both audits merged in |
-| `claude/sw-manifest-chartjs-6b2de2` | `wip 6911012` — item 1 started, stopped early, unverified |
+| `master` | Spec, protocol, queue, audits merged in; item 1 (AUDIT-01) merged (`f24979c`) |
+
