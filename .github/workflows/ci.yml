@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: calculator
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run unit tests
+        run: node --test test/calculator.store.test.js test/trips.store.test.js
+
+      - name: Check docs budget
+        run: node scripts/check-docs-budget.mjs
