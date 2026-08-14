@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://*.flightradar24.com https://*.flightaware.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; script-src-attr 'unsafe-inline';">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <title>Smart Transfer — Unit Calc CRM 2026</title>
@@ -109,34 +109,34 @@
       <div class="controls-panel">
         <div class="control-group">
           <div class="control-header">
-            <span class="control-title">Брутто Чек (вкл. 13% НДС)</span>
+            <label for="inp-check" class="control-title">Брутто Чек (вкл. 13% НДС)</label>
             <span class="control-val" id="lbl-check">€45</span>
           </div>
-          <input type="range" id="inp-check" min="20" max="150" step="1" value="45">
+          <input type="range" id="inp-check" aria-label="Брутто Чек" min="20" max="150" step="1" value="45">
         </div>
         
         <div class="control-group">
           <div class="control-header">
-            <span class="control-title">Поездок в день</span>
+            <label for="inp-trips" class="control-title">Поездок в день</label>
             <span class="control-val" id="lbl-trips">13</span>
           </div>
-          <input type="range" id="inp-trips" min="2" max="25" step="1" value="13">
+          <input type="range" id="inp-trips" aria-label="Поездок в день" min="2" max="25" step="1" value="13">
         </div>
         
         <div class="control-group">
           <div class="control-header">
-            <span class="control-title">Дней в сезоне</span>
+            <label for="inp-season" class="control-title">Дней в сезоне</label>
             <span class="control-val" id="lbl-season">122</span>
           </div>
-          <input type="range" id="inp-season" min="30" max="250" step="1" value="122">
+          <input type="range" id="inp-season" aria-label="Дней в сезоне" min="30" max="250" step="1" value="122">
         </div>
         
         <div class="control-group">
           <div class="control-header">
-            <span class="control-title">Чаевые кэшем / поездка</span>
+            <label for="inp-tips" class="control-title">Чаевые кэшем / поездка</label>
             <span class="control-val" id="lbl-tips">€5</span>
           </div>
-          <input type="range" id="inp-tips" min="0" max="30" step="1" value="5">
+          <input type="range" id="inp-tips" aria-label="Чаевые кэшем за поездку" min="0" max="30" step="1" value="5">
         </div>
 
         <!-- VISIONOS STEPPER: OWNERS (DEFAULT 2, MAX 3) -->
@@ -278,18 +278,18 @@
       <form id="form-trip" class="modal-trip-form">
         <!-- Client Name / Flight -->
         <div class="control-group mt-15">
-          <label class="control-title">Имя клиента / Номер рейса</label>
+          <label for="trip-client" class="control-title">Имя клиента / Номер рейса</label>
           <input type="text" id="trip-client" required class="input-text input-large" placeholder="John Doe, U2 4531">
         </div>
 
         <!-- Date & Time -->
         <div class="modal-grid-2 mt-15">
           <div class="control-group">
-            <label class="control-title">Дата</label>
+            <label for="trip-date" class="control-title">Дата</label>
             <input type="date" id="trip-date" required class="input-text input-large">
           </div>
           <div class="control-group">
-            <label class="control-title">Время подачи</label>
+            <label for="trip-time" class="control-title">Время подачи</label>
             <input type="time" id="trip-time" required class="input-text input-large">
           </div>
         </div>
@@ -322,11 +322,11 @@
         <!-- Pickup & Dropoff -->
         <div class="modal-grid-2 mt-15">
           <div class="control-group">
-            <label class="control-title">Откуда (Подача)</label>
+            <label for="trip-pickup" class="control-title">Откуда (Подача)</label>
             <input type="text" id="trip-pickup" list="locations-list" required class="input-text input-large" placeholder="HER Airport">
           </div>
           <div class="control-group">
-            <label class="control-title">Куда (Финиш)</label>
+            <label for="trip-dropoff" class="control-title">Куда (Финиш)</label>
             <input type="text" id="trip-dropoff" list="locations-list" required class="input-text input-large" placeholder="Elounda">
           </div>
         </div>
@@ -350,7 +350,7 @@
 
         <!-- Source Tag Selector -->
         <div class="control-group mt-15">
-          <label class="control-title">Источник заказа</label>
+          <span class="control-title">Источник заказа</span>
           <div class="source-pills-grid">
             <button type="button" class="source-pill active" data-source="hotel">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
@@ -377,7 +377,7 @@
 
         <!-- Price -->
         <div class="control-group mt-15">
-          <label class="control-title">Цена (€)</label>
+          <label for="trip-price" class="control-title">Цена (€)</label>
           <input type="number" id="trip-price" required class="input-text input-large" min="0" step="0.1" value="45">
         </div>
 

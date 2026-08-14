@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test",
     "dev": "npx http-server . -p 12345 -c-1 -a taxi.localhost",
-    "build:sw": "node scripts/build-sw.mjs"
+    "build:sw": "node scripts/build-sw.mjs",
+    "lhci": "npx -y @lhci/cli autorun"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
