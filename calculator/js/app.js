@@ -12,8 +12,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcView = new CalculatorView(calcStore);
   const tripsView = new TripsView(tripsStore);
 
+  // Live header stats
+  const elTodayRev = document.getElementById('hdr-today-rev');
+  const elTodayTrips = document.getElementById('hdr-today-trips');
+  const elMonthRev = document.getElementById('hdr-month-rev');
+
+  function updateHeaderStats(trips) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const todayTrips = trips.filter(t => t.date === todayStr && t.status === 'completed');
+    const monthTrips = trips.filter(t => {
+      const d = new Date(t.date);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && t.status === 'completed';
+    });
+    const todayRev = todayTrips.reduce((s, t) => s + t.price, 0);
+    const monthRev = monthTrips.reduce((s, t) => s + t.price, 0);
+    if (elTodayRev) elTodayRev.textContent = todayRev.toFixed(0);
+    if (elTodayTrips) elTodayTrips.textContent = todayTrips.length;
+    if (elMonthRev) elMonthRev.textContent = monthRev.toFixed(0);
+  }
+
   // Cross-store sync logic
   tripsStore.subscribe(trips => {
+    updateHeaderStats(trips);
     // When trips update, we could update analytics
     // E.g., pass the actual completed revenue to calcStore or override something
     const today = new Date();
