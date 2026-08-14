@@ -30,6 +30,7 @@
 <body>
 
   <div class="cosmic-bg"></div>
+  <div class="horizon-beam"></div>
   <div class="particles-layer"></div>
 
   <div class="app-container">
@@ -85,9 +86,15 @@
       </div>
     </div>
 
-    <!-- TAB 2: CALCULATOR SANDBOX -->
+    <!-- TAB 2: CALCULATOR SANDBOX (AIR MINIMALISM) -->
     <div id="tab-calc" class="tab-content no-print">
-      <!-- MAIN CONTROLS -->
+      <!-- CALC ACTION BAR -->
+      <div class="calc-top-bar">
+        <div class="calc-title-badge">ПАРАМЕТРЫ РАСЧЕТА</div>
+        <button id="btn-calc-settings" class="btn-settings-dots" title="Дополнительные расходы и налоги">···</button>
+      </div>
+
+      <!-- MAIN CONTROLS PANEL (AIR PHILOSOPHY) -->
       <div class="controls-panel">
         <div class="control-group">
           <div class="control-header">
@@ -120,46 +127,18 @@
           </div>
           <input type="range" id="inp-tips" min="0" max="30" step="1" value="5">
         </div>
-      </div>
 
-      <div class="controls-panel">
-        <div class="flex-row">
-          <span class="control-title">Количество владельцев (Доли)</span>
-          <div class="segmented-control" id="seg-owners">
-            <div class="seg-btn active" data-val="2">2 (50/50)</div>
-            <div class="seg-btn" data-val="3">3 (33x3)</div>
+        <!-- VISIONOS STEPPER: OWNERS (DEFAULT 2, MAX 3) -->
+        <div class="stepper-row">
+          <div class="stepper-label-block">
+            <span class="control-title">Владельцев</span>
+            <span class="stepper-sub">доли</span>
           </div>
-        </div>
-        
-        <div class="flex-row">
-          <span class="control-title">Наемных водителей</span>
-          <div class="segmented-control" id="seg-drivers">
-            <div class="seg-btn active" data-val="0">0</div>
-            <div class="seg-btn" data-val="1">1</div>
-            <div class="seg-btn" data-val="2">2</div>
+          <div class="stepper-control">
+            <button id="btn-owner-dec" class="stepper-btn" title="Уменьшить">−</button>
+            <span id="val-owners-count" class="stepper-val">2</span>
+            <button id="btn-owner-inc" class="stepper-btn" title="Увеличить">+</button>
           </div>
-        </div>
-
-        <div class="flex-row mt-15">
-          <span class="control-title">Сборы портов/АП (€2/поездка)</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="tog-port" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div class="flex-row">
-          <span class="control-title">Страховка Такси (ΔΧ)</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="tog-ins" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div class="flex-row">
-          <span class="control-title">Премиум Мойка</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="tog-wash" checked>
-            <span class="slider"></span>
-          </label>
         </div>
       </div>
     </div>
@@ -190,9 +169,13 @@
       </div>
 
       <div class="chart-wrap">
-        <div class="control-title" style="margin-bottom:10px;">Структура расходов (Год)</div>
+        <div class="control-title" style="margin-bottom:12px;">Структура расходов и прибыли (Год)</div>
         <div class="chart-container">
           <canvas id="expensesChart"></canvas>
+          <div class="chart-center-hub" id="chart-center-hub">
+            <div class="center-hub-label">ЧИСТАЯ ПРИБЫЛЬ</div>
+            <div class="center-hub-val" id="chart-center-profit">€0</div>
+          </div>
         </div>
       </div>
     </div>
@@ -278,6 +261,67 @@
       </div>
       <div id="hud-content" class="hud-content">
         <!-- Renders large driver HUD card -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADVANCED SETTINGS (3-DOTS) -->
+  <div id="modal-calc-settings" class="modal-overlay hidden no-print">
+    <div class="modal-content">
+      <div class="modal-header-row">
+        <h2 style="margin:0; font-size: 18px; color: var(--text-hi);">Параметры и расходы</h2>
+        <button type="button" id="btn-close-calc-settings" class="btn-close-modal" title="Закрыть">✕</button>
+      </div>
+      
+      <div class="settings-content-list mt-15">
+        <div class="flex-row">
+          <div>
+            <div class="control-title">Наемных водителей</div>
+            <div class="control-sub-desc">Зарплата €2000/мес + налоги</div>
+          </div>
+          <div class="segmented-control" id="seg-drivers">
+            <div class="seg-btn active" data-val="0">0</div>
+            <div class="seg-btn" data-val="1">1</div>
+            <div class="seg-btn" data-val="2">2</div>
+          </div>
+        </div>
+
+        <div class="flex-row">
+          <div>
+            <div class="control-title">Сборы портов / АП</div>
+            <div class="control-sub-desc">€2 за каждый рейс</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tog-port" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="flex-row">
+          <div>
+            <div class="control-title">Страховка Такси (ΔΧ)</div>
+            <div class="control-sub-desc">Профессиональный полис</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tog-ins" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="flex-row">
+          <div>
+            <div class="control-title">Премиум Мойка</div>
+            <div class="control-sub-desc">Ежедневный детейлинг</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tog-wash" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-actions mt-15" style="display:flex; justify-content: flex-end;">
+        <button type="button" id="btn-done-calc-settings" class="btn btn-primary" style="width: 100%;">Готово</button>
       </div>
     </div>
   </div>

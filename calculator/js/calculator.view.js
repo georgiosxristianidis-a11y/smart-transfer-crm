@@ -17,6 +17,7 @@ export class CalculatorView {
       safetyDay: document.getElementById('val-safety-day'),
       yearRev: document.getElementById('val-year-rev'),
       yearProfit: document.getElementById('val-year-profit'),
+      chartCenterProfit: document.getElementById('chart-center-profit'),
       
       inpCheck: document.getElementById('inp-check'),
       lblCheck: document.getElementById('lbl-check'),
@@ -27,17 +28,23 @@ export class CalculatorView {
       inpTips: document.getElementById('inp-tips'),
       lblTips: document.getElementById('lbl-tips'),
       
+      // VisionOS Stepper Elements
+      btnOwnerDec: document.getElementById('btn-owner-dec'),
+      btnOwnerInc: document.getElementById('btn-owner-inc'),
+      valOwnersCount: document.getElementById('val-owners-count'),
+
+      // Settings Modal & 3-Dots Button
+      btnCalcSettings: document.getElementById('btn-calc-settings'),
+      modalCalcSettings: document.getElementById('modal-calc-settings'),
+      btnCloseCalcSettings: document.getElementById('btn-close-calc-settings'),
+      btnDoneCalcSettings: document.getElementById('btn-done-calc-settings'),
+
       togPort: document.getElementById('tog-port'),
       togIns: document.getElementById('tog-ins'),
       togWash: document.getElementById('tog-wash'),
-      
-      segOwners: document.getElementById('seg-owners'),
       segDrivers: document.getElementById('seg-drivers')
     };
 
-    this.tabs = document.querySelectorAll('.tab-content');
-    this.navs = document.querySelectorAll('.nav-item');
-    // ctx is grabbed lazily in renderChart so hidden canvas doesn't crash
     this.ctx = null;
   }
 
@@ -47,16 +54,76 @@ export class CalculatorView {
     this.bindSlider(this.els.inpSeason, this.els.lblSeason, 'seasonDays', '');
     this.bindSlider(this.els.inpTips, this.els.lblTips, 'tipsPerTrip', '€');
 
-    this.bindToggle(this.els.togPort, 'portFeesEnabled');
-    this.bindToggle(this.els.togIns, 'insuranceTaxi');
-    this.bindToggle(this.els.togWash, 'washPremium');
+    // Stepper bindings (Min 1, Max 3, Default 2)
+    this.bindOwnersStepper();
 
-    this.bindSegment(this.els.segOwners, 'ownersCount');
-    this.bindSegment(this.els.segDrivers, 'hiredDrivers');
+    // 3-Dots Settings Modal bindings
+    this.bindSettingsModal();
 
+    if (this.els.togPort) this.bindToggle(this.els.togPort, 'portFeesEnabled');
+    if (this.els.togIns) this.bindToggle(this.els.togIns, 'insuranceTaxi');
+    if (this.els.togWash) this.bindToggle(this.els.togWash, 'washPremium');
+    if (this.els.segDrivers) this.bindSegment(this.els.segDrivers, 'hiredDrivers');
+  }
+
+  bindOwnersStepper() {
+    if (!this.els.btnOwnerDec || !this.els.btnOwnerInc || !this.els.valOwnersCount) return;
+
+    const updateStepperUI = (val) => {
+      this.els.valOwnersCount.textContent = val;
+      this.els.btnOwnerDec.disabled = val <= 1;
+      this.els.btnOwnerInc.disabled = val >= 3;
+      this.els.btnOwnerDec.style.opacity = val <= 1 ? '0.35' : '1';
+      this.els.btnOwnerInc.style.opacity = val >= 3 ? '0.35' : '1';
+    };
+
+    const initialVal = this.store.state.ownersCount || 2;
+    updateStepperUI(initialVal);
+
+    this.els.btnOwnerDec.addEventListener('click', () => {
+      let curr = this.store.state.ownersCount || 2;
+      if (curr > 1) {
+        if (navigator.vibrate) navigator.vibrate(40);
+        curr--;
+        updateStepperUI(curr);
+        this.store.update({ ownersCount: curr });
+      }
+    });
+
+    this.els.btnOwnerInc.addEventListener('click', () => {
+      let curr = this.store.state.ownersCount || 2;
+      if (curr < 3) {
+        if (navigator.vibrate) navigator.vibrate(40);
+        curr++;
+        updateStepperUI(curr);
+        this.store.update({ ownersCount: curr });
+      }
+    });
+  }
+
+  bindSettingsModal() {
+    if (this.els.btnCalcSettings && this.els.modalCalcSettings) {
+      this.els.btnCalcSettings.addEventListener('click', () => {
+        this.els.modalCalcSettings.classList.remove('hidden');
+      });
+    }
+
+    const closeModal = () => {
+      if (this.els.modalCalcSettings) {
+        this.els.modalCalcSettings.classList.add('hidden');
+      }
+    };
+
+    if (this.els.btnCloseCalcSettings) {
+      this.els.btnCloseCalcSettings.addEventListener('click', closeModal);
+    }
+    if (this.els.btnDoneCalcSettings) {
+      this.els.btnDoneCalcSettings.addEventListener('click', closeModal);
+    }
   }
 
   bindSlider(input, label, stateKey, prefix = '') {
+    if (!input || !label) return;
     input.value = this.store.state[stateKey];
     label.textContent = prefix + this.store.state[stateKey];
     input.addEventListener('input', (e) => {
@@ -67,6 +134,7 @@ export class CalculatorView {
   }
 
   bindToggle(checkbox, stateKey) {
+    if (!checkbox) return;
     checkbox.checked = this.store.state[stateKey];
     checkbox.addEventListener('change', (e) => {
       this.store.update({ [stateKey]: e.target.checked });
@@ -74,6 +142,7 @@ export class CalculatorView {
   }
 
   bindSegment(container, stateKey) {
+    if (!container) return;
     const btns = container.querySelectorAll('.seg-btn');
     const initVal = this.store.state[stateKey];
     btns.forEach(btn => {
@@ -91,18 +160,38 @@ export class CalculatorView {
   render(data) {
     const m = data.metrics;
     
-    this.els.dailyNet.textContent = formatCurrency(m.dailyNetPerOwner);
+    if (this.els.dailyNet) this.els.dailyNet.textContent = formatCurrency(m.dailyNetPerOwner);
     
     const dailyTipsPerOwner = m.tipsCashPerOwner / data.state.seasonDays;
     const dailySafety = m.safetyNet / data.state.seasonDays;
     
-    this.els.tipsDay.textContent = formatCurrency(dailyTipsPerOwner);
-    this.els.safetyDay.textContent = formatCurrency(dailySafety);
+    if (this.els.tipsDay) this.els.tipsDay.textContent = formatCurrency(dailyTipsPerOwner);
+    if (this.els.safetyDay) this.els.safetyDay.textContent = formatCurrency(dailySafety);
     
-    this.els.yearRev.textContent = formatCurrency(m.netRevenue);
-    this.els.yearProfit.textContent = formatCurrency(m.netProfitPerOwnerYear);
+    if (this.els.yearRev) this.els.yearRev.textContent = formatCurrency(m.netRevenue);
+    if (this.els.yearProfit) this.els.yearProfit.textContent = formatCurrency(m.netProfitPerOwnerYear);
+    if (this.els.chartCenterProfit) this.els.chartCenterProfit.textContent = formatCurrency(m.netProfitYear);
     
     this.renderChart(m);
+  }
+
+  createCanvasGradients(ctx) {
+    // 6 luminous neon gradient pairs
+    const pairs = [
+      ['#FF4D88', '#FF75A0'], // Fuel (Elite Pink)
+      ['#FB7185', '#FDA4AF'], // Maintenance (Soft Coral)
+      ['#A78BFA', '#DDD6FE'], // Fixed Admin (Violet Pearl)
+      ['#818CF8', '#C7D2FE'], // Drivers (Indigo Light)
+      ['#6366F1', '#818CF8'], // Safety Net (Indigo Deep)
+      ['#2DD4BF', '#99F6E4']  // Net Profit (Neo-Mint Glow)
+    ];
+
+    return pairs.map(([start, end]) => {
+      const grad = ctx.createLinearGradient(0, 0, 200, 200);
+      grad.addColorStop(0, start);
+      grad.addColorStop(1, end);
+      return grad;
+    });
   }
 
   renderChart(metrics) {
@@ -128,31 +217,36 @@ export class CalculatorView {
       return;
     }
 
+    const gradients = this.createCanvasGradients(this.ctx);
+
     this.chart = new Chart(this.ctx, {
       type: 'doughnut',
       data: {
         labels: ['Топливо', 'Износ (ТО)', 'Фиксы (Налоги/Страх)', 'Наемные водители', 'Резерв', 'Чистая Прибыль'],
         datasets: [{
           data: data,
-          backgroundColor: [
-            '#FF4D88', // Elite Pink (Fuel)
-            '#FB7185', // Soft Coral (Maintenance)
-            '#A78BFA', // Violet Mist (Admin / Insurance)
-            '#818CF8', // Indigo Light (Drivers)
-            '#6366F1', // Indigo Deep (Safety Net)
-            '#2DD4BF'  // Neo-Teal / Mint (Net Profit)
-          ],
+          backgroundColor: gradients,
           borderWidth: 3,
           borderColor: 'rgba(12, 8, 28, 0.95)',
-          hoverOffset: 6
+          hoverOffset: 8
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '75%',
+        cutout: '74%',
         plugins: {
-          legend: { position: 'right', labels: { color: '#B0B6C4', font: { family: "'JetBrains Mono', monospace", size: 9 } } }
+          legend: {
+            position: 'right',
+            labels: {
+              color: '#B0B6C4',
+              boxWidth: 10,
+              boxHeight: 10,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              font: { family: "'JetBrains Mono', monospace", size: 10 }
+            }
+          }
         }
       }
     });
