@@ -29,13 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   navs.forEach(nav => {
     nav.addEventListener('click', (e) => {
+      // Capture synchronously — currentTarget is null inside async VT callback
+      const clickedNav = e.currentTarget;
+      const targetId = clickedNav.dataset.target;
+
       const switchTabs = () => {
         navs.forEach(n => n.classList.remove('active'));
         tabs.forEach(t => t.classList.remove('active'));
-        
-        const targetId = e.currentTarget.dataset.target;
-        e.currentTarget.classList.add('active');
-        document.getElementById(targetId).classList.add('active');
+        clickedNav.classList.add('active');
+        const tabEl = document.getElementById(targetId);
+        if (tabEl) tabEl.classList.add('active');
       };
 
       if (document.startViewTransition) {
