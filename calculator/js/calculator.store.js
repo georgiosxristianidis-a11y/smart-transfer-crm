@@ -1,6 +1,7 @@
 /**
  * Core Reactive Store (Athlete Pro pattern)
  */
+import { SCHEMA_VERSION } from './shared/schema.js';
 
 export class CalculatorStore {
   constructor() {
@@ -70,18 +71,43 @@ export class CalculatorStore {
     // For tests running in Node where localStorage is mocked or undefined
     if (typeof window === 'undefined' || !window.localStorage) return;
     const saved = localStorage.getItem('taxi_calc_state');
-    if (saved) {
-      try {
-        this.state = { ...this.state, ...JSON.parse(saved) };
-      } catch (e) {
-        console.error('Failed to parse local storage', e);
-      }
+    if (!saved) return;
+    try {
+      const parsed = JSON.parse(saved);
+      const merged = this._applyPersisted(parsed);
+      if (merged) this.state = { ...this.state, ...merged };
+    } catch (e) {
+      console.error('Failed to parse local storage', e);
     }
+  }
+
+  // Returns the field payload to merge, or null if the payload must be rejected.
+  _applyPersisted(parsed) {
+    if (parsed == null || typeof parsed !== 'object') return null;
+    // Legacy (no schemaVersion): treat as v1 bare-state.
+    if (parsed.schemaVersion === undefined) return parsed;
+    if (parsed.schemaVersion > SCHEMA_VERSION) {
+      console.error(
+        `taxi_calc_state schemaVersion ${parsed.schemaVersion} > current ${SCHEMA_VERSION}. Ignored.`
+      );
+      return null;
+    }
+    return (parsed.state && typeof parsed.state === 'object') ? parsed.state : null;
   }
 
   saveToStorage() {
     if (typeof window === 'undefined' || !window.localStorage) return;
-    localStorage.setItem('taxi_calc_state', JSON.stringify(this.state));
+    const envelope = { schemaVersion: SCHEMA_VERSION, state: this.state };
+    localStorage.setItem('taxi_calc_state', JSON.stringify(envelope));
+  }
+
+  // Backup module surface — do not use in view/store code paths.
+  getStateSnapshot() { return { ...this.state }; }
+  replaceState(nextState) {
+    if (!nextState || typeof nextState !== 'object') throw new Error('replaceState: object required');
+    this.state = { ...this.state, ...nextState };
+    this.saveToStorage();
+    this.notify();
   }
 
   getCalculations() {
