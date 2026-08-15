@@ -16,17 +16,17 @@
 | 1 | Register SW + `<link rel="manifest">` + honest asset list + Chart.js `4.4.1` | 🟠 | ✅ **merged** | AUDIT P0-01 · audit/01 |
 | 2 | Data backup and schema version (JSON export/import, last-backup marker) | 🟠 | — | audit/05 |
 | 3 | Timezone: UTC dates in a local context (+3) | 🔵 | — | audit/04 |
-| 4 | "Next transfer" returns trips in the past | 🔵 | — | audit/03 |
+| 4 | "Next transfer" returns trips in the past | 🔵 | ✅ **merged** | audit/03 |
 | 5 | Flight status: stop passing a simulation off as live data | 🟠 | — | audit/02 |
 | 6 | **NAV-01** — delete the B2B tab, collapse nav to three: Смена · Учёт · Бизнес | 🔵 | — | NAV_SPEC |
 | 7 | **NAV-02** — HUD from modal to the top of the Смена screen | 🔵 | — | NAV_SPEC |
 | 8 | **NAV-03** — fuel: history into Учёт, `⛽` button onto Смена | 🔵 + 🟢 | — | NAV_SPEC |
 | 9 | **NAV-04** — calculator into Бизнес as "daily norm", persist sliders | 🔵 | — | NAV_SPEC |
-| 10 | **NAV-05** — "9 of 13" progress on Смена, one hero per screen | 🔵 + 🟢 | — | NAV_SPEC |
+| 10 | **NAV-05** — "9 of 13" progress on Смена, one hero per screen | 🔵 + 🟢 | ✅ **merged** | NAV_SPEC |
 | 11 | ESLint into the gates (installed but never runs) | 🔵 | — | audit/08 |
 | 12 | CSP is decorative: `unsafe-inline` + `unsafe-eval` | 🔵 | — | audit/06 |
 | 13 | CSV injection + `exportCSV` breaks Store/View | 🔵 | — | audit/07 |
-| 14 | **DS-01** — contrast hierarchy in tokens (hero / primary / decor) | 🟢 | — | NAV_SPEC |
+| 14 | **DS-01** — contrast hierarchy in tokens (hero / primary / decor) | 🟢 | ✅ **merged** | NAV_SPEC |
 | 15 | **NAV-06** — driver-mode seam: marker on money elements | 🔵 | — | NAV_SPEC |
 | 16 | **DEV-01** — version in UI + diagnostics screen behind 5 taps | 🔵 | — | NAV_SPEC |
 | 17 | Full `innerHTML` re-render + subscription leak | 🔵 | — | audit/10 |
@@ -55,5 +55,5 @@ Both audits are merged into `master`. `docs/handoff/audit/` holds imported findi
 
 | Branch | State |
 |---|---|
-| `master` | Spec, protocol, queue, audits merged in; item 1 (AUDIT-01) merged (`f24979c`) |
+| `master` | Spec, protocol, queue, audits merged in; items merged: 1 AUDIT-01 (`f24979c`), 4 AUDIT-03 (`f7f1b46`), 10 NAV-05 (`bc7e88b`), 14 DS-01 (`113d7f9`); CI gate live (`87ac764`) |
 
