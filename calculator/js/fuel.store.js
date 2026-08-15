@@ -1,4 +1,4 @@
-import { DB } from './shared/db.js';
+import { SCHEMA_VERSION } from './shared/schema.js';
 
 export class FuelStore {
   constructor() {
@@ -10,9 +10,21 @@ export class FuelStore {
   loadLocalLogs() {
     try {
       if (typeof localStorage !== 'undefined') {
-        const data = localStorage.getItem(this.storageKey);
-        if (data) {
-          return JSON.parse(data);
+        const raw = localStorage.getItem(this.storageKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          // Legacy bare array
+          if (Array.isArray(parsed)) return parsed;
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.schemaVersion === undefined) return Array.isArray(parsed.logs) ? parsed.logs : [];
+            if (parsed.schemaVersion > SCHEMA_VERSION) {
+              console.error(
+                `${this.storageKey} schemaVersion ${parsed.schemaVersion} > current ${SCHEMA_VERSION}. Ignored.`
+              );
+              return [];
+            }
+            return Array.isArray(parsed.logs) ? parsed.logs : [];
+          }
         }
       }
     } catch (e) {
@@ -28,11 +40,23 @@ export class FuelStore {
   saveLocalLogs() {
     try {
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(this.storageKey, JSON.stringify(this.logs));
+        const envelope = { schemaVersion: SCHEMA_VERSION, logs: this.logs };
+        localStorage.setItem(this.storageKey, JSON.stringify(envelope));
       }
     } catch (e) {
       console.warn('Failed to save fuel logs', e);
     }
+  }
+
+  getAllLogsSnapshot() {
+    return this.logs.map(l => ({ ...l }));
+  }
+
+  replaceAllLogs(list) {
+    if (!Array.isArray(list)) throw new Error('replaceAllLogs: array required');
+    this.logs = list.map(l => ({ ...l }));
+    this.saveLocalLogs();
+    this.notify();
   }
 
   subscribe(listener) {

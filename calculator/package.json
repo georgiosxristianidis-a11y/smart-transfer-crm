@@ -1,6 +1,6 @@
 {
   "name": "unit-calc-pro",
-  "version": "1.0.5",
+  "version": "1.0.14",
   "description": "Smart Calculator for Minivan Transfers",
   "type": "module",
   "scripts": {

@@ -138,6 +138,24 @@ export class TripsStore {
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}`;
   }
 
+  getAllTripsSnapshot() {
+    return this.trips.map(t => ({ ...t }));
+  }
+
+  async replaceAllTrips(list) {
+    if (!Array.isArray(list)) throw new Error('replaceAllTrips: array required');
+    const existing = await this.db.getAllTrips();
+    for (const t of existing) {
+      await this.db.deleteTrip(t.id);
+    }
+    for (const t of list) {
+      await this.db.saveTrip(t);
+    }
+    this.trips = list.map(t => ({ ...t }));
+    this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+    this.notify();
+  }
+
   exportCSV() {
     const headers = ['Дата', 'Время', 'Клиент', 'Откуда', 'Куда', 'Цена (€)', 'Статус'];
     const rows = this.trips.map(t => [
