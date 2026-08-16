@@ -7,26 +7,24 @@
 
 `docs/handoff/AUDIT_2026-08-14.md` (35 findings) and `docs/handoff/audit/` (13 cards). Every card carries a **STOP** field — the edit boundary. Do not cross it. Older docs are partly wrong; the audits supersede them.
 
-## State — 2026-08-14
+## State — 2026-08-16
 
 - Navigation approved: **three tabs — `Смена` · `Учёт` · `Бизнес`**, fourth slot deliberately empty.
-- Multi-agent protocol approved: sequential by default, card = branch = commit, squash into `master`.
-- Docs budget gate added (`npm run docs:budget`). System docs are English; `docs/RULES.md` is the single Russian file.
-- Both rescued audits merged into `master`. Work queue consolidated in `docs/handoff/QUEUE.md`.
-- **Item 1 (AUDIT-01)**: SW register + manifest + dynamic asset scan + Chart.js 4.4.1 — **done** (`f24979c`).
-- **Item 2 (AUDIT-05)**: Data backup, schema version 2, persistent storage, crypto.randomUUID — **done**.
+- Protocol: sequential by default, card = branch = commit, squash into `master`. Remote is live; PRs gate on CI.
+- Merged: AUDIT-01 (SW + manifest), AUDIT-03, AUDIT-05 + DATA-01 (backup, schema v2), NAV-05, DS-01, **CALC-00** (licence regime ΕΔΧ/ΕΙΧ + minimum fare).
 
 ## In progress
 
-*None. Ready for Item 3.*
+*None.*
 
 ## Next
 
-3. Timezone: UTC dates in a local context (+3) · 5. Flight status stops being a simulation.
+**CALC-01** — input VAT 24% is never reclaimed: fuel, servicing, tyres and overheads are expensed gross, overstating cost by ≈€4 900/yr. 🟠 writes the card (which expense line carries which rate — insurance and ΕΦΚΑ are exempt) before 🔵 codes it.
 
-`NAV-01` (delete B2B, collapse to three tabs) depends on nothing and can be taken at any time.
+Open and independent: items 3, 5, `NAV-01`.
 
 ## Owner decisions not yet executed
 
-- Create the private remote. The code exists on one disk only.
+- Which business the defaults model: ΕΔΧ €45 × 13/day or ΕΙΧ €130–180 × 1–2/day. CALC-00 made it a switch, so only defaults hang on it.
+- Confirm `efkaPerOwner`: store says €250/mo, field research €140/mo — €2 640/yr on two owners.
 - Add a gate refusing commits made directly on `master`.
