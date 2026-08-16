@@ -9,7 +9,6 @@
 
 ## State — 2026-08-16
 
-- Navigation approved: **three tabs — `Смена` · `Учёт` · `Бизнес`**, fourth slot deliberately empty.
 - Protocol: sequential by default, card = branch = commit, squash into `master`. Remote is live; PRs gate on CI.
 - Merged: AUDIT-01 (SW + manifest), AUDIT-03, AUDIT-05 + DATA-01 (backup, schema v2), NAV-05, DS-01, **CALC-00** (licence regime ΕΔΧ/ΕΙΧ + minimum fare).
 

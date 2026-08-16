@@ -3,6 +3,7 @@
  */
 import { SCHEMA_VERSION } from './shared/schema.js';
 
+<<<<<<< HEAD
 /**
  * Licence regimes. They price differently, so the model has to know which one.
  * ΕΔΧ ΤΑΞΙ  — metered; the meter sets the price, no legal floor per ride.
@@ -17,6 +18,10 @@ export const LICENSE_MODES = {
 const DEFAULT_STATE = {
   // Inputs
   licenseMode: 'edx',
+=======
+const DEFAULT_STATE = {
+  // Inputs
+>>>>>>> 60d7450 (feat(backup): AUDIT-05 UI integration, persistent storage and IDB v2 support)
   checkGross: 45,
   tripsPerDay: 13,
   seasonDays: 122,
@@ -86,7 +91,6 @@ export class CalculatorStore {
     for (const key of Object.keys(DEFAULT_STATE)) {
       if (key in incoming) {
         const expectedType = typeof DEFAULT_STATE[key];
-        const val = incoming[key];
         if (key === 'licenseMode') {
           // Enum, not free text: an unknown regime would mean an unknown floor.
           if (typeof val === 'string' && Object.prototype.hasOwnProperty.call(LICENSE_MODES, val)) {
