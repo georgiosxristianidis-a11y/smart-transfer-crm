@@ -5,7 +5,7 @@
 
 **Sort order: by dependency and harm.** First what **lies or loses data**, then structure, then presentation.
 
-> Why not "navigation first": `NAV-02` puts the next transfer at the top of the screen and `NAV-05` puts the "9 of 13" progress next to it. But `getNextUpcomingTrip()` returns past trips, dates are shifted by +3 hours, and the flight status is fabricated. Shipping navigation first would take the lie and place it in the most prominent spot, in the largest type, at the highest contrast. The app would not get better — its error would get louder.
+> Why not "navigation first": while dates are +3h off and the flight status is fabricated, `NAV-02` would only move the lie into the largest type at the highest contrast. Full reasoning: `NAV_SPEC.md` §7.
 
 ---
 
@@ -34,8 +34,17 @@
 | 19 | `alert`/`confirm` and modals without a11y | 🟢 | — | audit/12 |
 | 20 | Magic numbers and division by zero in calculations | 🔵 | — | audit/13 |
 | 21 | View layer untested (~800 lines, 0%) | 🔵 | — | audit/09 |
+| 22 | **CALC-00** — licence regime (ΕΔΧ / ΕΙΧ) and minimum fare | 🟠 | ✅ **merged** | economics review |
+| 23 | **CALC-01** — input VAT 24% is never reclaimed (≈€4 900/yr overstated) | 🟠 card · 🔵 code | — | economics review |
+| 24 | **CALC-02** — hotel commission per pickup: absent from the model entirely | 🟠 card · 🔵 code | — | economics review |
+| 25 | **CALC-03** — shoulder and winter seasons; winter reserve replaces the 5% magic number | 🔵 | — | economics review |
+| 26 | **CALC-04** — depreciation, 22% profit tax, break-even fare | 🟠 card · 🔵 code | — | economics review |
 
-**Item 6 stands apart:** `NAV-01` **deletes** code and depends on nothing. It can be taken at any time — it cannot break anything and it shrinks the surface for everything else.
+**Item 6 stands apart:** `NAV-01` **deletes** code and depends on nothing — takeable any time.
+
+**CALC is money math:** 🟠 pins rates and formula in the card before 🔵 types. A wrong VAT rate on the wrong line fails no test, it silently inflates profit. Item 25 also settles item 20's magic `netRevenue * 0.05`.
+
+**Owner decision, defaults only:** ΕΔΧ at €45 × 13/day or ΕΙΧ at €130–180 × 1–2/day. CALC-00 made it a switch, so nothing is blocked.
 
 ---
 
@@ -43,17 +52,8 @@
 
 | Document | Contents |
 |---|---|
-| `docs/handoff/audit/` (13 cards) | Audit P0–P2 with a per-layer verdict table. Imported as `07be5ac` |
-| `docs/handoff/AUDIT_2026-08-14.md` (35 findings) | Technical audit P0–P3 with Severity / Size / Owner / STOP fields. Branch imported as `5fc2a6f` |
+| `docs/handoff/audit/` (13 cards) | Audit P0–P2, per-layer verdicts · `07be5ac` |
+| `docs/handoff/AUDIT_2026-08-14.md` | 35 findings P0–P3 with STOP fields · `5fc2a6f` |
 | `docs/NAV_SPEC.md` | 10 navigation cards |
 
-Both audits are merged into `master`. `docs/handoff/audit/` holds imported findings (read-only history); `docs/handoff/cards/` holds work cards in the single format. Turning a finding into a work card is 🟠 LEAD's job when the queue reaches it.
-
----
-
-## Branches
-
-| Branch | State |
-|---|---|
-| `master` | Spec, protocol, queue, audits merged in; items merged: 1 AUDIT-01 (`f24979c`), 4 AUDIT-03 (`f7f1b46`), 10 NAV-05 (`bc7e88b`), 14 DS-01 (`113d7f9`); CI gate live (`87ac764`) |
-
+`audit/` is read-only imported history; `cards/` holds work cards. Turning a finding into a card is 🟠 LEAD's job when the queue reaches it. Branch state is not tracked here — branches die at merge, so `git log --oneline master` is the honest record.
