@@ -1,4 +1,4 @@
-const CACHE_NAME = 'unit-calc-v1786799357697';
+const CACHE_NAME = 'unit-calc-v1786918970793';
 
 const ASSETS = [
   "./",
@@ -11,6 +11,7 @@ const ASSETS = [
   "./js/fuel.store.js",
   "./js/fuel.view.js",
   "./js/shared/backup.js",
+  "./js/shared/backup.service.js",
   "./js/shared/db.js",
   "./js/shared/flight.service.js",
   "./js/shared/schema.js",

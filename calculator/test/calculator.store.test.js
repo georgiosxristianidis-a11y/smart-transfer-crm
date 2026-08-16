@@ -71,6 +71,52 @@ test('CalculatorStore: 33/33/33 Partner Distribution strictness', (t) => {
   );
 });
 
+test('CalculatorStore: licence regime sets the fare floor', (t) => {
+  const store = new CalculatorStore();
+
+  store.update({ licenseMode: 'edx', checkGross: 45 });
+  let m = store.getCalculations().metrics;
+  assert.strictEqual(m.minFare, 0, 'ΕΔΧ is metered — no legal floor per ride');
+  assert.strictEqual(m.fareBelowMinimum, false, 'Nothing to flag under ΕΔΧ');
+
+  store.update({ licenseMode: 'eix' });
+  m = store.getCalculations().metrics;
+  assert.strictEqual(m.minFare, 82, 'ΕΙΧ contract minimum is €82');
+  assert.strictEqual(m.fareBelowMinimum, true, '€45 is below the ΕΙΧ floor');
+
+  store.update({ checkGross: 85 });
+  m = store.getCalculations().metrics;
+  assert.strictEqual(m.fareBelowMinimum, false, '€85 clears the ΕΙΧ floor');
+});
+
+test('CalculatorStore: the fare is flagged, never clamped', (t) => {
+  const store = new CalculatorStore();
+
+  store.update({ licenseMode: 'eix', checkGross: 45 });
+
+  assert.strictEqual(
+    store.getCalculations().state.checkGross,
+    45,
+    'The owner typed 45 — the store must not rewrite it to 82'
+  );
+});
+
+test('CalculatorStore: licenseMode rejects unknown regimes', (t) => {
+  const store = new CalculatorStore();
+
+  store.update({ licenseMode: 'eix' });
+  store.update({ licenseMode: 'uber' });
+
+  assert.strictEqual(
+    store.getCalculations().state.licenseMode,
+    'eix',
+    'An unknown regime would mean an unknown floor — it must be dropped'
+  );
+
+  store.update({ licenseMode: 42 });
+  assert.strictEqual(store.getCalculations().state.licenseMode, 'eix', 'Non-string rejected too');
+});
+
 test('CalculatorStore: Wear and Tear Math', (t) => {
   const store = new CalculatorStore();
   

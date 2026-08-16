@@ -125,6 +125,9 @@
             <span class="control-val" id="lbl-check">€45</span>
           </div>
           <input type="range" id="inp-check" aria-label="Брутто Чек" min="20" max="150" step="1" value="45">
+          <p id="warn-min-fare" class="control-warn is-hidden" role="status">
+            ΕΙΧ με οδηγό: минимум €82 за договор. Ниже — штраф, а не низкая цена.
+          </p>
         </div>
         
         <div class="control-group">
@@ -427,6 +430,17 @@
       </div>
       
       <div class="settings-content-list mt-15">
+        <div class="flex-row">
+          <div>
+            <div class="control-title">Режим лицензии</div>
+            <div class="control-sub-desc">ΕΔΧ — по счётчику · ΕΙΧ — договор от €82</div>
+          </div>
+          <div class="segmented-control" id="seg-license">
+            <div class="seg-btn active" data-val="edx">ΕΔΧ</div>
+            <div class="seg-btn" data-val="eix">ΕΙΧ</div>
+          </div>
+        </div>
+
         <div class="flex-row">
           <div>
             <div class="control-title">Наемных водителей</div>

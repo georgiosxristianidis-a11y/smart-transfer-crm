@@ -3,8 +3,20 @@
  */
 import { SCHEMA_VERSION } from './shared/schema.js';
 
+/**
+ * Licence regimes. They price differently, so the model has to know which one.
+ * ΕΔΧ ΤΑΞΙ  — metered; the meter sets the price, no legal floor per ride.
+ * ΕΙΧ με οδηγό — contract hire; on the islands a contract carries a legal
+ *                minimum (ΥΑ 89095/2026). Below it the ride is fineable, not cheap.
+ */
+export const LICENSE_MODES = {
+  edx: { minFare: 0 },
+  eix: { minFare: 82 },
+};
+
 const DEFAULT_STATE = {
   // Inputs
+  licenseMode: 'edx',
   checkGross: 45,
   tripsPerDay: 13,
   seasonDays: 122,
@@ -75,7 +87,12 @@ export class CalculatorStore {
       if (key in incoming) {
         const expectedType = typeof DEFAULT_STATE[key];
         const val = incoming[key];
-        if (expectedType === 'number') {
+        if (key === 'licenseMode') {
+          // Enum, not free text: an unknown regime would mean an unknown floor.
+          if (typeof val === 'string' && Object.prototype.hasOwnProperty.call(LICENSE_MODES, val)) {
+            sanitized[key] = val;
+          }
+        } else if (expectedType === 'number') {
           const num = Number(val);
           if (!isNaN(num) && isFinite(num)) {
             sanitized[key] = num;
@@ -154,6 +171,11 @@ export class CalculatorStore {
     
     const totalTrips = s.tripsPerDay * s.seasonDays;
     const checkNet = s.checkGross / 1.13;
+
+    // Flag, never clamp: the owner's number stays the owner's number.
+    const regime = LICENSE_MODES[s.licenseMode] || LICENSE_MODES.edx;
+    const minFare = regime.minFare;
+    const fareBelowMinimum = s.checkGross < minFare;
     
     const totalPortFees = s.portFeesEnabled ? totalTrips * s.portFee : 0;
     
@@ -195,6 +217,8 @@ export class CalculatorStore {
     return {
       state: s,
       metrics: {
+        minFare,
+        fareBelowMinimum,
         totalTrips,
         totalKm,
         grossRevenue,

@@ -39,6 +39,9 @@ export class CalculatorView {
       btnCloseCalcSettings: document.getElementById('btn-close-calc-settings'),
       btnDoneCalcSettings: document.getElementById('btn-done-calc-settings'),
 
+      warnMinFare: document.getElementById('warn-min-fare'),
+      segLicense: document.getElementById('seg-license'),
+
       togPort: document.getElementById('tog-port'),
       togIns: document.getElementById('tog-ins'),
       togWash: document.getElementById('tog-wash'),
@@ -64,6 +67,7 @@ export class CalculatorView {
     if (this.els.togIns) this.bindToggle(this.els.togIns, 'insuranceTaxi');
     if (this.els.togWash) this.bindToggle(this.els.togWash, 'washPremium');
     if (this.els.segDrivers) this.bindSegment(this.els.segDrivers, 'hiredDrivers');
+    if (this.els.segLicense) this.bindSegment(this.els.segLicense, 'licenseMode', (v) => v);
   }
 
   bindOwnersStepper() {
@@ -141,18 +145,20 @@ export class CalculatorView {
     });
   }
 
-  bindSegment(container, stateKey) {
+  // `parse` maps the data-val attribute onto the store's type — numeric by default,
+  // identity for enum fields such as licenseMode.
+  bindSegment(container, stateKey, parse = (v) => parseInt(v)) {
     if (!container) return;
     const btns = container.querySelectorAll('.seg-btn');
     const initVal = this.store.state[stateKey];
     btns.forEach(btn => {
-      if (parseInt(btn.dataset.val) === initVal) btn.classList.add('active');
+      if (parse(btn.dataset.val) === initVal) btn.classList.add('active');
       else btn.classList.remove('active');
-      
+
       btn.addEventListener('click', (e) => {
         btns.forEach(b => b.classList.remove('active'));
         e.currentTarget.classList.add('active');
-        this.store.update({ [stateKey]: parseInt(e.currentTarget.dataset.val) });
+        this.store.update({ [stateKey]: parse(e.currentTarget.dataset.val) });
       });
     });
   }
@@ -171,7 +177,11 @@ export class CalculatorView {
     if (this.els.yearRev) this.els.yearRev.textContent = formatCurrency(m.netRevenue);
     if (this.els.yearProfit) this.els.yearProfit.textContent = formatCurrency(m.netProfitPerOwnerYear);
     if (this.els.chartCenterProfit) this.els.chartCenterProfit.textContent = formatCurrency(m.netProfitYear);
-    
+
+    if (this.els.warnMinFare) {
+      this.els.warnMinFare.classList.toggle('is-hidden', !m.fareBelowMinimum);
+    }
+
     this.renderChart(m);
   }
 
