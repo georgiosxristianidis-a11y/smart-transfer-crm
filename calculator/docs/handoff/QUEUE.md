@@ -14,7 +14,7 @@
 | # | Task | Owner | Status | Source |
 |---|---|---|---|---|
 | 1 | Register SW + `<link rel="manifest">` + honest asset list + Chart.js `4.4.1` | 🟠 | ✅ **merged** | AUDIT P0-01 · audit/01 |
-| 2 | Data backup and schema version (JSON export/import, last-backup marker) | 🟠 | — | audit/05 |
+| 2 | Data backup and schema version (JSON export/import, last-backup marker) | 🟢 | ✅ **merged** | audit/05 |
 | 3 | Timezone: UTC dates in a local context (+3) | 🔵 | — | audit/04 |
 | 4 | "Next transfer" returns trips in the past | 🔵 | ✅ **merged** | audit/03 |
 | 5 | Flight status: stop passing a simulation off as live data | 🟠 | — | audit/02 |

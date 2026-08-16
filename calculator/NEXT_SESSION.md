@@ -14,14 +14,15 @@
 - Docs budget gate added (`npm run docs:budget`). System docs are English; `docs/RULES.md` is the single Russian file.
 - Both rescued audits merged into `master`. Work queue consolidated in `docs/handoff/QUEUE.md`.
 - **Item 1 (AUDIT-01)**: SW register + manifest + dynamic asset scan + Chart.js 4.4.1 — **done** (`f24979c`).
+- **Item 2 (AUDIT-05)**: Data backup, schema version 2, persistent storage, crypto.randomUUID — **done**.
 
 ## In progress
 
-*None. Ready for Item 2.*
+*None. Ready for Item 3.*
 
 ## Next
 
-2. Backup and schema version · 3. Timezone +3 · 4. "Next transfer" returns the past · 5. Flight status stops being a simulation.
+3. Timezone: UTC dates in a local context (+3) · 5. Flight status stops being a simulation.
 
 `NAV-01` (delete B2B, collapse to three tabs) depends on nothing and can be taken at any time.
 

@@ -357,6 +357,15 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 .control-sub-desc { font-size: 11px; color: var(--text-low); margin-top: 2px; }
 
+/* Legal floor warning under the fare slider — CALC-00 */
+.control-warn {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--action-danger);
+  margin: 8px 0 0;
+}
+.control-warn.is-hidden { display: none; }
+
 /* ─── Chart Container & Luminous Center Hub ─── */
 .chart-wrap {
   background: rgba(12, 8, 28, 0.7);

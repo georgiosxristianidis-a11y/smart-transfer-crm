@@ -3,50 +3,63 @@
  */
 import { SCHEMA_VERSION } from './shared/schema.js';
 
+/**
+ * Licence regimes. They price differently, so the model has to know which one.
+ * ΕΔΧ ΤΑΞΙ  — metered; the meter sets the price, no legal floor per ride.
+ * ΕΙΧ με οδηγό — contract hire; on the islands a contract carries a legal
+ *                minimum (ΥΑ 89095/2026). Below it the ride is fineable, not cheap.
+ */
+export const LICENSE_MODES = {
+  edx: { minFare: 0 },
+  eix: { minFare: 82 },
+};
+
+const DEFAULT_STATE = {
+  // Inputs
+  licenseMode: 'edx',
+  checkGross: 45,
+  tripsPerDay: 13,
+  seasonDays: 122,
+  ownersCount: 2, // 2 or 3
+  hiredDrivers: 0,
+  
+  // Cost & Specs
+  fuelPrice: 1.78,
+  kmPerTrip: 50,
+  emptyLegRatio: 1.3, // +30%
+  
+  // Toggles
+  portFeesEnabled: true,
+  portFee: 2,
+  insuranceTaxi: true,
+  washPremium: true,
+  
+  // Tips
+  tipsPerTrip: 5,
+  
+  // Fixed Expenses (Annual)
+  insuranceTaxiCost: 4800,
+  insuranceBasicCost: 1200,
+  washPremiumCost: 200 * 12,
+  washBasicCost: 40 * 12,
+  efkaPerOwner: 250 * 12,
+  accountant: 1800,
+  
+  // Driver Costs
+  hiredDriverAnnual: 19500,
+  
+  // Wear and Tear
+  oilInterval: 15000,
+  oilCost: 250,
+  clutchInterval: 60000,
+  clutchCost: 1200,
+  tiresInterval: 40000,
+  tiresCost: 800,
+};
+
 export class CalculatorStore {
   constructor() {
-    this.state = {
-      // Inputs
-      checkGross: 45,
-      tripsPerDay: 13,
-      seasonDays: 122,
-      ownersCount: 2, // 2 or 3
-      hiredDrivers: 0,
-      
-      // Cost & Specs
-      fuelPrice: 1.78,
-      kmPerTrip: 50,
-      emptyLegRatio: 1.3, // +30%
-      
-      // Toggles
-      portFeesEnabled: true,
-      portFee: 2,
-      insuranceTaxi: true,
-      washPremium: true,
-      
-      // Tips
-      tipsPerTrip: 5,
-      
-      // Fixed Expenses (Annual)
-      insuranceTaxiCost: 4800,
-      insuranceBasicCost: 1200,
-      washPremiumCost: 200 * 12,
-      washBasicCost: 40 * 12,
-      efkaPerOwner: 250 * 12,
-      accountant: 1800,
-      
-      // Driver Costs
-      hiredDriverAnnual: 19500,
-      
-      // Wear and Tear
-      oilInterval: 15000,
-      oilCost: 250,
-      clutchInterval: 60000,
-      clutchCost: 1200,
-      tiresInterval: 40000,
-      tiresCost: 800,
-    };
-
+    this.state = { ...DEFAULT_STATE };
     this.listeners = [];
     this.loadFromStorage();
   }
@@ -57,7 +70,7 @@ export class CalculatorStore {
   }
 
   update(updates) {
-    this.state = { ...this.state, ...updates };
+    this.state = { ...this.state, ...this._sanitizeState(updates) };
     this.saveToStorage();
     this.notify();
   }
@@ -65,6 +78,33 @@ export class CalculatorStore {
   notify() {
     const calc = this.getCalculations();
     this.listeners.forEach(listener => listener(calc));
+  }
+
+  _sanitizeState(incoming) {
+    if (!incoming || typeof incoming !== 'object') return {};
+    const sanitized = {};
+    for (const key of Object.keys(DEFAULT_STATE)) {
+      if (key in incoming) {
+        const expectedType = typeof DEFAULT_STATE[key];
+        const val = incoming[key];
+        if (key === 'licenseMode') {
+          // Enum, not free text: an unknown regime would mean an unknown floor.
+          if (typeof val === 'string' && Object.prototype.hasOwnProperty.call(LICENSE_MODES, val)) {
+            sanitized[key] = val;
+          }
+        } else if (expectedType === 'number') {
+          const num = Number(val);
+          if (!isNaN(num) && isFinite(num)) {
+            sanitized[key] = num;
+          }
+        } else if (expectedType === 'boolean') {
+          sanitized[key] = Boolean(val);
+        } else if (expectedType === typeof val) {
+          sanitized[key] = val;
+        }
+      }
+    }
+    return sanitized;
   }
 
   loadFromStorage() {
@@ -75,7 +115,10 @@ export class CalculatorStore {
     try {
       const parsed = JSON.parse(saved);
       const merged = this._applyPersisted(parsed);
-      if (merged) this.state = { ...this.state, ...merged };
+      if (merged) {
+        const validated = this._sanitizeState(merged);
+        this.state = { ...DEFAULT_STATE, ...validated };
+      }
     } catch (e) {
       console.error('Failed to parse local storage', e);
     }
@@ -105,9 +148,22 @@ export class CalculatorStore {
   getStateSnapshot() { return { ...this.state }; }
   replaceState(nextState) {
     if (!nextState || typeof nextState !== 'object') throw new Error('replaceState: object required');
-    this.state = { ...this.state, ...nextState };
+    const validated = this._sanitizeState(nextState);
+    this.state = { ...DEFAULT_STATE, ...validated };
     this.saveToStorage();
     this.notify();
+  }
+
+  exportState() {
+    return { ...this.state };
+  }
+
+  importState(newState) {
+    const validated = this._sanitizeState(newState);
+    this.state = { ...DEFAULT_STATE, ...validated };
+    this.saveToStorage();
+    this.notify();
+    return true;
   }
 
   getCalculations() {
@@ -115,6 +171,11 @@ export class CalculatorStore {
     
     const totalTrips = s.tripsPerDay * s.seasonDays;
     const checkNet = s.checkGross / 1.13;
+
+    // Flag, never clamp: the owner's number stays the owner's number.
+    const regime = LICENSE_MODES[s.licenseMode] || LICENSE_MODES.edx;
+    const minFare = regime.minFare;
+    const fareBelowMinimum = s.checkGross < minFare;
     
     const totalPortFees = s.portFeesEnabled ? totalTrips * s.portFee : 0;
     
@@ -156,6 +217,8 @@ export class CalculatorStore {
     return {
       state: s,
       metrics: {
+        minFare,
+        fareBelowMinimum,
         totalTrips,
         totalKm,
         grossRevenue,
