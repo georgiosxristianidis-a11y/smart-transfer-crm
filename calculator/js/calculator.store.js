@@ -3,50 +3,51 @@
  */
 import { SCHEMA_VERSION } from './shared/schema.js';
 
+const DEFAULT_STATE = {
+  // Inputs
+  checkGross: 45,
+  tripsPerDay: 13,
+  seasonDays: 122,
+  ownersCount: 2, // 2 or 3
+  hiredDrivers: 0,
+  
+  // Cost & Specs
+  fuelPrice: 1.78,
+  kmPerTrip: 50,
+  emptyLegRatio: 1.3, // +30%
+  
+  // Toggles
+  portFeesEnabled: true,
+  portFee: 2,
+  insuranceTaxi: true,
+  washPremium: true,
+  
+  // Tips
+  tipsPerTrip: 5,
+  
+  // Fixed Expenses (Annual)
+  insuranceTaxiCost: 4800,
+  insuranceBasicCost: 1200,
+  washPremiumCost: 200 * 12,
+  washBasicCost: 40 * 12,
+  efkaPerOwner: 250 * 12,
+  accountant: 1800,
+  
+  // Driver Costs
+  hiredDriverAnnual: 19500,
+  
+  // Wear and Tear
+  oilInterval: 15000,
+  oilCost: 250,
+  clutchInterval: 60000,
+  clutchCost: 1200,
+  tiresInterval: 40000,
+  tiresCost: 800,
+};
+
 export class CalculatorStore {
   constructor() {
-    this.state = {
-      // Inputs
-      checkGross: 45,
-      tripsPerDay: 13,
-      seasonDays: 122,
-      ownersCount: 2, // 2 or 3
-      hiredDrivers: 0,
-      
-      // Cost & Specs
-      fuelPrice: 1.78,
-      kmPerTrip: 50,
-      emptyLegRatio: 1.3, // +30%
-      
-      // Toggles
-      portFeesEnabled: true,
-      portFee: 2,
-      insuranceTaxi: true,
-      washPremium: true,
-      
-      // Tips
-      tipsPerTrip: 5,
-      
-      // Fixed Expenses (Annual)
-      insuranceTaxiCost: 4800,
-      insuranceBasicCost: 1200,
-      washPremiumCost: 200 * 12,
-      washBasicCost: 40 * 12,
-      efkaPerOwner: 250 * 12,
-      accountant: 1800,
-      
-      // Driver Costs
-      hiredDriverAnnual: 19500,
-      
-      // Wear and Tear
-      oilInterval: 15000,
-      oilCost: 250,
-      clutchInterval: 60000,
-      clutchCost: 1200,
-      tiresInterval: 40000,
-      tiresCost: 800,
-    };
-
+    this.state = { ...DEFAULT_STATE };
     this.listeners = [];
     this.loadFromStorage();
   }
@@ -57,7 +58,7 @@ export class CalculatorStore {
   }
 
   update(updates) {
-    this.state = { ...this.state, ...updates };
+    this.state = { ...this.state, ...this._sanitizeState(updates) };
     this.saveToStorage();
     this.notify();
   }
@@ -65,6 +66,28 @@ export class CalculatorStore {
   notify() {
     const calc = this.getCalculations();
     this.listeners.forEach(listener => listener(calc));
+  }
+
+  _sanitizeState(incoming) {
+    if (!incoming || typeof incoming !== 'object') return {};
+    const sanitized = {};
+    for (const key of Object.keys(DEFAULT_STATE)) {
+      if (key in incoming) {
+        const expectedType = typeof DEFAULT_STATE[key];
+        const val = incoming[key];
+        if (expectedType === 'number') {
+          const num = Number(val);
+          if (!isNaN(num) && isFinite(num)) {
+            sanitized[key] = num;
+          }
+        } else if (expectedType === 'boolean') {
+          sanitized[key] = Boolean(val);
+        } else if (expectedType === typeof val) {
+          sanitized[key] = val;
+        }
+      }
+    }
+    return sanitized;
   }
 
   loadFromStorage() {
@@ -75,7 +98,10 @@ export class CalculatorStore {
     try {
       const parsed = JSON.parse(saved);
       const merged = this._applyPersisted(parsed);
-      if (merged) this.state = { ...this.state, ...merged };
+      if (merged) {
+        const validated = this._sanitizeState(merged);
+        this.state = { ...DEFAULT_STATE, ...validated };
+      }
     } catch (e) {
       console.error('Failed to parse local storage', e);
     }
@@ -105,9 +131,22 @@ export class CalculatorStore {
   getStateSnapshot() { return { ...this.state }; }
   replaceState(nextState) {
     if (!nextState || typeof nextState !== 'object') throw new Error('replaceState: object required');
-    this.state = { ...this.state, ...nextState };
+    const validated = this._sanitizeState(nextState);
+    this.state = { ...DEFAULT_STATE, ...validated };
     this.saveToStorage();
     this.notify();
+  }
+
+  exportState() {
+    return { ...this.state };
+  }
+
+  importState(newState) {
+    const validated = this._sanitizeState(newState);
+    this.state = { ...DEFAULT_STATE, ...validated };
+    this.saveToStorage();
+    this.notify();
+    return true;
   }
 
   getCalculations() {

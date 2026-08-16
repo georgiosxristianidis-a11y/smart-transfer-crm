@@ -28,7 +28,10 @@ export class TripsStore {
   }
 
   generateId() {
-    return 'trip-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    return 'trip-' + Date.now() + '-' + Math.random().toString(36).slice(2, 11);
   }
 
   async addTrip(tripData) {
@@ -42,15 +45,49 @@ export class TripsStore {
       price: parseFloat(tripData.price) || 0,
       status: tripData.status || 'pending',
       source: tripData.source || 'hotel', // 'hotel' | 'web' | 'ads' | 'walkin' | 'b2b'
-      createdAt: Date.now()
+      createdAt: tripData.createdAt || Date.now()
     };
 
     this.trips.push(trip);
     this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
     
     await this.db.saveTrip(trip);
+    this.db.requestPersistence();
     this.notify();
     return trip;
+  }
+
+  /**
+   * Bulk import trips from backup snapshot.
+   * @param {Array} tripsList 
+   */
+  async importTrips(tripsList) {
+    if (!Array.isArray(tripsList)) return false;
+    
+    await this.db.clearTrips();
+    this.trips = [];
+
+    for (const item of tripsList) {
+      if (!item || typeof item !== 'object') continue;
+      const trip = {
+        id: item.id || this.generateId(),
+        clientName: item.clientName || 'Без имени',
+        date: item.date || new Date().toISOString().split('T')[0],
+        time: item.time || '12:00',
+        pickup: item.pickup || '',
+        dropoff: item.dropoff || '',
+        price: parseFloat(item.price) || 0,
+        status: item.status || 'pending',
+        source: item.source || 'hotel',
+        createdAt: item.createdAt || Date.now()
+      };
+      this.trips.push(trip);
+      await this.db.saveTrip(trip);
+    }
+
+    this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+    this.notify();
+    return true;
   }
 
   /**

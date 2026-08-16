@@ -4,6 +4,7 @@ import { TripsStore } from './trips.store.js';
 import { TripsView } from './trips.view.js';
 import { FuelStore } from './fuel.store.js';
 import { FuelView } from './fuel.view.js';
+import { BackupService } from './shared/backup.service.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Stores
@@ -15,6 +16,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcView = new CalculatorView(calcStore);
   const tripsView = new TripsView(tripsStore);
   const fuelView = new FuelView(fuelStore);
+
+  // Backup & Restore handlers (AUDIT-05)
+  const lblLastBackup = document.getElementById('lbl-last-backup');
+  const btnExportBackup = document.getElementById('btn-export-backup');
+  const btnTriggerImport = document.getElementById('btn-trigger-import');
+  const inputBackupFile = document.getElementById('input-backup-file');
+
+  const refreshBackupLabel = () => {
+    if (lblLastBackup) {
+      lblLastBackup.textContent = `Последний бэкап: ${BackupService.getLastBackupDate()}`;
+    }
+  };
+  refreshBackupLabel();
+
+  if (btnExportBackup) {
+    btnExportBackup.addEventListener('click', () => {
+      if (navigator.vibrate) navigator.vibrate(30);
+      const snapshot = BackupService.exportBackup({ tripsStore, fuelStore, calcStore });
+      BackupService.downloadBackupFile(snapshot);
+      refreshBackupLabel();
+    });
+  }
+
+  if (btnTriggerImport && inputBackupFile) {
+    btnTriggerImport.addEventListener('click', () => {
+      if (navigator.vibrate) navigator.vibrate(30);
+      inputBackupFile.click();
+    });
+
+    inputBackupFile.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const json = JSON.parse(text);
+        const res = await BackupService.importBackup(json, { tripsStore, fuelStore, calcStore });
+        refreshBackupLabel();
+        alert(`Данные успешно восстановлены!\nПоездок: ${res.stats.tripsCount}, Заправок: ${res.stats.fuelLogsCount}`);
+      } catch (err) {
+        alert('Ошибка при импорте резервной копии: ' + err.message);
+      } finally {
+        inputBackupFile.value = '';
+      }
+    });
+  }
 
   // Live header stats & Shift Norm Elements (NAV-05)
   const elTodayRev = document.getElementById('hdr-today-rev');

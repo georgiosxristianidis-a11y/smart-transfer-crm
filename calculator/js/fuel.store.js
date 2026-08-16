@@ -1,7 +1,9 @@
 import { SCHEMA_VERSION } from './shared/schema.js';
+import { DB } from './shared/db.js';
 
 export class FuelStore {
   constructor() {
+    this.db = new DB();
     this.storageKey = 'smart_transfer_fuel_logs_v1';
     this.logs = this.loadLocalLogs();
     this.listeners = [];
@@ -78,7 +80,7 @@ export class FuelStore {
     const now = new Date();
 
     const log = {
-      id: 'fuel-' + Date.now(),
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'fuel-' + Date.now(),
       date: now.toISOString().split('T')[0],
       time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
       amount: cost,
@@ -88,6 +90,8 @@ export class FuelStore {
 
     this.logs.unshift(log);
     this.saveLocalLogs();
+    this.db.saveFuelLog(log);
+    this.db.requestPersistence();
     this.notify();
     return log;
   }
@@ -95,7 +99,33 @@ export class FuelStore {
   deleteFuelLog(id) {
     this.logs = this.logs.filter(l => l.id !== id);
     this.saveLocalLogs();
+    this.db.deleteFuelLog(id);
     this.notify();
+  }
+
+  /**
+   * Bulk import fuel logs from backup snapshot.
+   * @param {Array} logsList 
+   */
+  importFuelLogs(logsList) {
+    if (!Array.isArray(logsList)) return false;
+
+    this.logs = logsList.map(item => ({
+      id: item.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'fuel-' + Date.now()),
+      date: item.date || new Date().toISOString().split('T')[0],
+      time: item.time || '12:00',
+      amount: parseFloat(item.amount) || 0,
+      liters: parseFloat(item.liters) || 0,
+      station: item.station || 'Заправка'
+    }));
+
+    this.saveLocalLogs();
+    this.db.clearFuelLogs().then(() => {
+      this.logs.forEach(log => this.db.saveFuelLog(log));
+    }).catch(() => {});
+
+    this.notify();
+    return true;
   }
 
   getMetrics() {
