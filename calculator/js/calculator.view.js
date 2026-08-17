@@ -1,4 +1,4 @@
-import { formatCurrency, formatNumber, html } from './shared/utils.js';
+import { formatCurrency } from './shared/utils.js';
 
 export class CalculatorView {
   constructor(store) {

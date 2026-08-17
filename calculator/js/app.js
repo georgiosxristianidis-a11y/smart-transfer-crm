@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const fuelStore = new FuelStore();
 
   // Initialize Views
-  const calcView = new CalculatorView(calcStore);
-  const tripsView = new TripsView(tripsStore);
-  const fuelView = new FuelView(fuelStore);
+  new CalculatorView(calcStore);
+  new TripsView(tripsStore);
+  new FuelView(fuelStore);
 
   // Backup & Restore handlers (AUDIT-05)
   const lblLastBackup = document.getElementById('lbl-last-backup');

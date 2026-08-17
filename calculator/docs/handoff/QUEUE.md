@@ -23,7 +23,7 @@
 | 8 | **NAV-03** — fuel: history into Учёт, `⛽` button onto Смена | 🔵 + 🟢 | — | NAV_SPEC |
 | 9 | **NAV-04** — calculator into Бизнес as "daily norm", persist sliders | 🔵 | — | NAV_SPEC |
 | 10 | **NAV-05** — "9 of 13" progress on Смена, one hero per screen | 🔵 + 🟢 | ✅ **merged** | NAV_SPEC |
-| 11 | ESLint into the gates (installed but never runs) | 🔵 | — | audit/08 |
+| 11 | ESLint into the gates (installed but never runs) | 🔵 | ✅ **merged** | audit/08 |
 | 12 | CSP is decorative: `unsafe-inline` + `unsafe-eval` | 🔵 | — | audit/06 |
 | 13 | CSV injection + `exportCSV` breaks Store/View | 🔵 | — | audit/07 |
 | 14 | **DS-01** — contrast hierarchy in tokens (hero / primary / decor) | 🟢 | ✅ **merged** | NAV_SPEC |

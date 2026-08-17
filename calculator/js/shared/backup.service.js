@@ -5,7 +5,6 @@
  */
 
 import { exportAll, importAll } from './backup.js';
-import { SCHEMA_VERSION } from './schema.js';
 
 const LAST_BACKUP_KEY = 'smart_transfer_last_backup_ts';
 

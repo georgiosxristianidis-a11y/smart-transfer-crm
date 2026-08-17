@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test \"test/*.test.js\"",
+    "lint": "eslint js scripts sw.js test",
+    "check": "npm run lint && npm test",
     "dev": "npx http-server . -p 12345 -c-1 -a taxi.localhost",
     "serve": "npx http-server . -p 8888 -c-1",
     "build:sw": "node scripts/build-sw.mjs",

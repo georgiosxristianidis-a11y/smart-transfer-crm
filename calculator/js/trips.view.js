@@ -284,7 +284,7 @@ export class TripsView {
       }
     });
 
-    this.els.list.addEventListener('pointerup', async (e) => {
+    this.els.list.addEventListener('pointerup', async () => {
       if (!draggingElement) return;
       
       const swipeThreshold = 80;

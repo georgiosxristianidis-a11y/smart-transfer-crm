@@ -8,7 +8,7 @@ global.localStorage = {
   setItem: () => {}
 };
 
-test('CalculatorStore: Basic Revenue and VAT calculations', (t) => {
+test('CalculatorStore: Basic Revenue and VAT calculations', () => {
   const store = new CalculatorStore();
   
   // Set test scenario
@@ -31,7 +31,7 @@ test('CalculatorStore: Basic Revenue and VAT calculations', (t) => {
   assert.ok(Math.abs(m.netRevenue - expectedNet) < 0.01, 'Net revenue should correctly deduct 13% VAT');
 });
 
-test('CalculatorStore: 50/50 Partner Distribution strictness', (t) => {
+test('CalculatorStore: 50/50 Partner Distribution strictness', () => {
   const store = new CalculatorStore();
   
   store.update({
@@ -54,7 +54,7 @@ test('CalculatorStore: 50/50 Partner Distribution strictness', (t) => {
   );
 });
 
-test('CalculatorStore: 33/33/33 Partner Distribution strictness', (t) => {
+test('CalculatorStore: 33/33/33 Partner Distribution strictness', () => {
   const store = new CalculatorStore();
   
   store.update({
@@ -71,7 +71,7 @@ test('CalculatorStore: 33/33/33 Partner Distribution strictness', (t) => {
   );
 });
 
-test('CalculatorStore: licence regime sets the fare floor', (t) => {
+test('CalculatorStore: licence regime sets the fare floor', () => {
   const store = new CalculatorStore();
 
   store.update({ licenseMode: 'edx', checkGross: 45 });
@@ -89,7 +89,7 @@ test('CalculatorStore: licence regime sets the fare floor', (t) => {
   assert.strictEqual(m.fareBelowMinimum, false, '€85 clears the ΕΙΧ floor');
 });
 
-test('CalculatorStore: the fare is flagged, never clamped', (t) => {
+test('CalculatorStore: the fare is flagged, never clamped', () => {
   const store = new CalculatorStore();
 
   store.update({ licenseMode: 'eix', checkGross: 45 });
@@ -101,7 +101,7 @@ test('CalculatorStore: the fare is flagged, never clamped', (t) => {
   );
 });
 
-test('CalculatorStore: licenseMode rejects unknown regimes', (t) => {
+test('CalculatorStore: licenseMode rejects unknown regimes', () => {
   const store = new CalculatorStore();
 
   store.update({ licenseMode: 'eix' });
@@ -117,7 +117,7 @@ test('CalculatorStore: licenseMode rejects unknown regimes', (t) => {
   assert.strictEqual(store.getCalculations().state.licenseMode, 'eix', 'Non-string rejected too');
 });
 
-test('CalculatorStore: Wear and Tear Math', (t) => {
+test('CalculatorStore: Wear and Tear Math', () => {
   const store = new CalculatorStore();
   
   store.update({

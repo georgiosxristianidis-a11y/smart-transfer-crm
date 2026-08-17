@@ -29,7 +29,10 @@ Conflicts: readability > beauty · predictability > dev convenience · budget > 
 Card = file = branch = agent = one squashed commit. Fields `STOP` and `Границы файлов` are mandatory. TTL one session. Base branch `master`, rebase before PR, delete branch after merge. **Never end a session with untracked files.**
 
 ## Gates — "done" is a hypothesis until a gate prints 0
+- `npm run lint` — ESLint + security rules (0 errors, 0 warnings)
+- `npm run check` — full gate (`lint` && `test`)
 - `npm test` — unit math (50/50 split, VAT 13%)
 - `npm run docs:budget` — system docs size limits
 - `npm run build:sw` — never hand-edit `ASSETS` in `sw.js`
+
 

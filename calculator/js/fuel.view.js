@@ -1,4 +1,4 @@
-import { formatCurrency, html } from './shared/utils.js';
+import { html } from './shared/utils.js';
 
 export class FuelView {
   constructor(fuelStore) {
