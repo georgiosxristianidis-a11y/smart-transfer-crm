@@ -5,6 +5,7 @@ import { TripsView } from './trips.view.js';
 import { FuelStore } from './fuel.store.js';
 import { FuelView } from './fuel.view.js';
 import { BackupService } from './shared/backup.service.js';
+import { localDateKey, parseLocalDate } from './shared/utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Stores
@@ -75,17 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentTrips = [];
 
   function updateNormAndStats() {
-    // Use local date, not UTC — toISOString() returns UTC and shifts date by -3h before 03:00 local
+    // Use local date, not UTC — toISOString() returns UTC and shifts date by -3h before 03:00 local (AUDIT-04)
     const now = new Date();
-    const todayStr = [
-      now.getFullYear(),
-      String(now.getMonth() + 1).padStart(2, '0'),
-      String(now.getDate()).padStart(2, '0')
-    ].join('-');
+    const todayStr = localDateKey(now);
     const trips = currentTrips;
     const todayTrips = trips.filter(t => t.date === todayStr && t.status === 'completed');
     const monthTrips = trips.filter(t => {
-      const d = new Date(t.date + 'T00:00:00');
+      const d = parseLocalDate(t.date);
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && t.status === 'completed';
     });
     const todayRev = todayTrips.reduce((s, t) => s + t.price, 0);

@@ -850,6 +850,12 @@ input:checked + .slider:before { transform: translateX(20px); }
   overflow-y: auto;
 }
 .hud-overlay.hidden { display: none !important; }
+/* DRIVE-01: Zero animation on windshield mount */
+.hud-overlay,
+.hud-overlay * {
+  animation: none !important;
+  transition: none !important;
+}
 .hud-container {
   max-width: 480px; width: 100%; margin: 0 auto;
   display: flex; flex-direction: column; height: 100%;
@@ -1220,5 +1226,12 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 .fuel-delete-btn:hover { color: #ff4d88; background: rgba(255,77,136,0.15); }
 
-
-
+/* DRIVE-01: Global reduced motion guard */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

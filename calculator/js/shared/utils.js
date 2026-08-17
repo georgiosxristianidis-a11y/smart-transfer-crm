@@ -38,3 +38,12 @@ export const formatCurrency = (val) => {
 export const formatNumber = (val) => {
   return new Intl.NumberFormat('el-GR', { maximumFractionDigits: 1 }).format(val);
 };
+
+export const localDateKey = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+export const parseLocalDate = (key) => {
+  if (!key || typeof key !== 'string') return new Date();
+  const [y, m, day] = key.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, day || 1);
+};
