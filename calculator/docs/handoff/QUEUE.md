@@ -18,7 +18,7 @@
 | 3 | Timezone: UTC dates in a local context (+3) | 🔵 | — | audit/04 |
 | 4 | "Next transfer" returns trips in the past | 🔵 | ✅ **merged** | audit/03 |
 | 5 | Flight status: stop passing a simulation off as live data | 🟠 | — | audit/02 |
-| 6 | **NAV-01** — delete the B2B tab, collapse nav to three: Смена · Учёт · Бизнес | 🔵 | — | NAV_SPEC |
+| 6 | **NAV-01** — delete the B2B tab, collapse nav to three: Смена · Учёт · Бизнес | 🔵 | ✅ **merged** | NAV_SPEC |
 | 7 | **NAV-02** — HUD from modal to the top of the Смена screen | 🔵 | — | NAV_SPEC |
 | 8 | **NAV-03** — fuel: history into Учёт, `⛽` button onto Смена | 🔵 + 🟢 | — | NAV_SPEC |
 | 9 | **NAV-04** — calculator into Бизнес as "daily norm", persist sliders | 🔵 | — | NAV_SPEC |
