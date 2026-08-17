@@ -4,7 +4,7 @@
   "description": "Smart Calculator for Minivan Transfers",
   "type": "module",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test \"test/*.test.js\"",
     "dev": "npx http-server . -p 12345 -c-1 -a taxi.localhost",
     "serve": "npx http-server . -p 8888 -c-1",
     "build:sw": "node scripts/build-sw.mjs",
