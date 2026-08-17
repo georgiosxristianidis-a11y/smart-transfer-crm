@@ -830,6 +830,19 @@ input:checked + .slider:before { transform: translateX(20px); }
   box-shadow: 0 0 8px var(--status-sched-fg);
 }
 
+/* Status: Unknown / Live Radar (Neutral Glassmorphism) */
+.status-unknown {
+  color: var(--text-high, #f1f5f9);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  outline: 1px solid rgba(56, 189, 248, 0.28);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+}
+.status-unknown .flight-pulse-dot {
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
 .flight-pulse-dot {
   width: 6px; height: 6px; border-radius: 50%;
   animation: flightPulse 2s infinite ease-in-out;
@@ -850,6 +863,12 @@ input:checked + .slider:before { transform: translateX(20px); }
   overflow-y: auto;
 }
 .hud-overlay.hidden { display: none !important; }
+/* DRIVE-01: Zero animation on windshield mount */
+.hud-overlay,
+.hud-overlay * {
+  animation: none !important;
+  transition: none !important;
+}
 .hud-container {
   max-width: 480px; width: 100%; margin: 0 auto;
   display: flex; flex-direction: column; height: 100%;
@@ -896,6 +915,7 @@ input:checked + .slider:before { transform: translateX(20px); }
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 16px; border-radius: 24px;
   font-family: var(--font-mono); font-size: 14px; font-weight: 600; width: fit-content;
+  text-decoration: none; cursor: pointer;
 }
 
 .hud-route-block {
@@ -1048,23 +1068,9 @@ input:checked + .slider:before { transform: translateX(20px); }
   100% { opacity: 0.8; }
 }
 
-/* ─── Sync Radar Button ─── */
+/* ─── Flight Radar Row ─── */
 .flight-radar-row {
   display: flex; align-items: center; gap: 8px; margin-top: 6px;
-}
-.btn-sync-radar {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-  color: var(--text-mid); font-family: var(--font-mono); font-size: 10px; font-weight: 600;
-  padding: 4px 8px; border-radius: 16px; cursor: pointer;
-}
-.btn-sync-radar:hover { color: #fff; background: rgba(99,102,241,0.2); }
-.btn-sync-radar.spinning svg {
-  animation: spinRadar 0.8s linear infinite;
-}
-@keyframes spinRadar {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 /* ─── OURA SQUIRCLE FUEL TAB (TACTILE BIO-MINIMALISM) ─── */
@@ -1220,5 +1226,12 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 .fuel-delete-btn:hover { color: #ff4d88; background: rgba(255,77,136,0.15); }
 
-
-
+/* DRIVE-01: Global reduced motion guard */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

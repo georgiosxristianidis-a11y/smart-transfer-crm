@@ -1,11 +1,12 @@
 import { DB } from './shared/db.js';
+import { localDateKey, parseLocalDate } from './shared/utils.js';
 
 export class TripsStore {
   constructor() {
     this.db = new DB();
     this.trips = [];
     this.listeners = [];
-    this.loadInitialData();
+    this.ready = this.loadInitialData();
   }
 
   async loadInitialData() {
@@ -38,6 +39,7 @@ export class TripsStore {
     const trip = {
       id: tripData.id || this.generateId(),
       clientName: tripData.clientName || 'Без имени',
+      flightCode: tripData.flightCode || '',
       date: tripData.date, // YYYY-MM-DD
       time: tripData.time, // HH:MM
       pickup: tripData.pickup || '',
@@ -72,7 +74,8 @@ export class TripsStore {
       const trip = {
         id: item.id || this.generateId(),
         clientName: item.clientName || 'Без имени',
-        date: item.date || new Date().toISOString().split('T')[0],
+        flightCode: item.flightCode || '',
+        date: item.date || localDateKey(),
         time: item.time || '12:00',
         pickup: item.pickup || '',
         dropoff: item.dropoff || '',
@@ -134,7 +137,7 @@ export class TripsStore {
     return this.trips
       .filter(t => t.status === 'completed')
       .filter(t => {
-        const d = new Date(t.date);
+        const d = parseLocalDate(t.date);
         return d.getFullYear() === year && d.getMonth() === month;
       })
       .reduce((sum, t) => sum + t.price, 0);
@@ -166,7 +169,8 @@ export class TripsStore {
     const location = encodeURIComponent(trip.pickup);
     
     // Format dates to YYYYMMDDTHHMMSSZ (UTC). For simplicity, we create local dates and convert to UTC string.
-    const start = new Date(`${trip.date}T${trip.time}`);
+    const time = trip.time && trip.time.trim() ? trip.time.trim() : '12:00';
+    const start = new Date(`${trip.date}T${time}`);
     const end = new Date(start.getTime() + 60 * 60 * 1000); // assume 1 hour duration
     
     const fmt = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
@@ -211,7 +215,7 @@ export class TripsStore {
     
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `trips_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `trips_export_${localDateKey()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -1,4 +1,4 @@
-import { html } from './shared/utils.js';
+import { html, localDateKey } from './shared/utils.js';
 import { FlightService } from './shared/flight.service.js';
 
 export class TripsView {
@@ -48,7 +48,7 @@ export class TripsView {
     };
     
     if (this.els.inpDate) {
-      this.els.inpDate.value = new Date().toISOString().split('T')[0];
+      this.els.inpDate.value = localDateKey();
     }
   }
 
@@ -130,7 +130,7 @@ export class TripsView {
           source: this.selectedSource
         });
         this.els.form.reset();
-        this.els.inpDate.value = new Date().toISOString().split('T')[0];
+        this.els.inpDate.value = localDateKey();
         this.els.modal.classList.add('hidden');
       });
     }
@@ -156,11 +156,11 @@ export class TripsView {
     const flight = FlightService.resolveFlightStatus(t);
     const navUrl = FlightService.getGoogleMapsNavUrl(t.dropoff, t.pickup);
     const flightBadge = flight ? html`
-      <div class="hud-flight-tag status-${flight.status}">
+      <a href="${flight.radarUrl}" target="_blank" rel="noopener noreferrer" class="hud-flight-tag status-${flight.status}">
         <span class="flight-pulse-dot"></span>
         <span class="flight-tag-code">${flight.flightCode}</span>
         <span class="flight-tag-lbl">${flight.label}</span>
-      </div>
+      </a>
     ` : '';
 
     this.els.hudContent.innerHTML = html`
@@ -336,16 +336,12 @@ export class TripsView {
 
     const flightBadge = flight ? html`
       <div class="flight-radar-row">
-        <a href="${flight.radarUrl}" target="_blank" class="flight-radar-badge status-${flight.status}" title="Открыть на Flightradar24">
+        <a href="${flight.radarUrl}" target="_blank" rel="noopener noreferrer" class="flight-radar-badge status-${flight.status}" title="Открыть на Flightradar24">
           <span class="flight-pulse-dot"></span>
           <span class="flight-code">${flight.flightCode}</span>
           <span class="flight-label">${flight.label}</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
-        <button class="btn-sync-radar" id="btn-sync-flight" title="Синхронизировать статус рейса">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-          Sync
-        </button>
       </div>
     ` : '';
 
@@ -392,18 +388,6 @@ export class TripsView {
     if (btnHeroHud) {
       btnHeroHud.addEventListener('click', () => this.openDriverHud());
     }
-
-    const btnSync = document.getElementById('btn-sync-flight');
-    if (btnSync) {
-      btnSync.addEventListener('click', () => {
-        btnSync.classList.add('spinning');
-        if (navigator.vibrate) navigator.vibrate(40);
-        setTimeout(() => {
-          btnSync.classList.remove('spinning');
-          alert(`Рейс ${flight?.flightCode || ''} синхронизирован с радаром!`);
-        }, 800);
-      });
-    }
   }
 
   render(trips) {
@@ -426,7 +410,7 @@ export class TripsView {
       const hasConflict = conflictSet.has(t.id);
 
       const flightBadge = flight ? html`
-        <a href="${flight.radarUrl}" target="_blank" class="flight-mini-badge status-${flight.status}" title="Flightradar24">
+        <a href="${flight.radarUrl}" target="_blank" rel="noopener noreferrer" class="flight-mini-badge status-${flight.status}" title="Flightradar24">
           <span class="flight-pulse-dot"></span>
           <span>${flight.flightCode}</span>
           <span class="flight-mini-lbl">${flight.label}</span>
