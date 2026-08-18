@@ -3,17 +3,106 @@
  * Parses flight codes, calculates ETA, formats live radar URLs, and navigation shortcuts.
  */
 
+// Comprehensive allow-list of IATA 2-character airline codes operating in Greece/Crete,
+// Europe, and major international carriers.
+export const KNOWN_IATA_CODES = new Set([
+  // Greece & Cyprus
+  'A3', // Aegean Airlines
+  'OA', // Olympic Air
+  'GQ', // SKY express
+  'CY', // Cyprus Airways
+
+  // Low-Cost & Charter Carriers (Crete / Mediterranean)
+  'U2', // easyJet
+  'FR', // Ryanair
+  'W6', // Wizz Air
+  'W4', // Wizz Air Malta
+  'LS', // Jet2.com
+  'TO', // Transavia France
+  'HV', // Transavia Netherlands
+  'VY', // Vueling
+  'V7', // Volotea
+  'EW', // Eurowings
+  'DE', // Condor
+  'X3', // TUIfly Germany
+  'TB', // TUI fly Belgium
+  'BY', // TUI Airways UK
+  'OR', // TUI fly Netherlands
+  'QS', // Smartwings
+  'NO', // Neos
+  'XC', // Corendon Airlines
+  'CD', // Corendon Dutch
+  'XR', // Corendon Europe
+  'DI', // Marabu
+  '4Y', // Discover Airlines
+
+  // Major European Full-Service Carriers
+  'LH', // Lufthansa
+  'BA', // British Airways
+  'AF', // Air France
+  'KL', // KLM Royal Dutch Airlines
+  'LX', // SWISS
+  'OS', // Austrian Airlines
+  'SN', // Brussels Airlines
+  'AZ', // ITA Airways
+  'IB', // Iberia
+  'TP', // TAP Air Portugal
+  'SK', // SAS Scandinavian Airlines
+  'DY', // Norwegian Air Shuttle
+  'D8', // Norwegian Air Sweden
+  'AY', // Finnair
+  'LO', // LOT Polish Airlines
+  'RO', // TAROM
+  'FB', // Bulgaria Air
+  'JU', // Air Serbia
+  'OU', // Croatia Airlines
+  'KM', // KM Malta Airlines
+  'BT', // airBaltic
+
+  // Middle East, Mediterranean & International
+  'TK', // Turkish Airlines
+  'PC', // Pegasus Airlines
+  'XQ', // SunExpress
+  'ME', // Middle East Airlines (MEA)
+  'RJ', // Royal Jordanian
+  'MS', // EgyptAir
+  'LY', // El Al
+  '6H', // Israir
+  'IZ', // Arkia
+  'EK', // Emirates
+  'FZ', // flydubai
+  'QR', // Qatar Airways
+  'EY', // Etihad Airways
+  'G9', // Air Arabia
+  'J9', // Jazeera Airways
+  'SV', // Saudia
+  'GF', // Gulf Air
+  'WY', // Oman Air
+  'SU', // Aeroflot
+  'S7', // S7 Airlines
+  'DP', // Pobeda
+  'UT', // UTair
+]);
+
 export class FlightService {
   /**
-   * Matches common IATA airline flight designators:
+   * Matches and validates IATA airline flight designators (3 to 4 digit flight numbers):
    * e.g., 'U2 4531', 'U24531', 'A3 312', 'FR 8214', 'LH 1234', 'BA 632', 'W6 4412', 'XQ 123'
+   * Rejects non-flight false positives like 'Room 1205', '+30 694 1234', 'ул. 25 Августа 1234', 'A3 12', 'GQ 5'.
+   * 
+   * @param {string} text 
+   * @param {boolean} strictAllowList If true, carrier must be in KNOWN_IATA_CODES (for inferred text).
    */
-  static extractFlightCode(text) {
+  static extractFlightCode(text, strictAllowList = true) {
     if (!text || typeof text !== 'string') return null;
-    const regex = /\b([A-Z0-9]{2})\s?([0-9]{3,4})\b/i;
-    const match = text.match(regex);
-    if (match) {
-      return `${match[1].toUpperCase()}${match[2]}`;
+    const regex = /\b([A-Z0-9]{2})[\s-]?([0-9]{3,4})\b/gi;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      const carrier = match[1].toUpperCase();
+      const flightNum = match[2];
+      if (!strictAllowList || KNOWN_IATA_CODES.has(carrier)) {
+        return `${carrier}${flightNum}`;
+      }
     }
     return null;
   }
@@ -36,7 +125,9 @@ export class FlightService {
    *  - 'scheduled': 🔵 Ожидается
    */
   static resolveFlightStatus(trip) {
-    const flightCode = trip.flightCode || this.extractFlightCode(trip.clientName) || this.extractFlightCode(trip.pickup);
+    const flightCode = this.extractFlightCode(trip.flightCode, false)
+      || this.extractFlightCode(trip.clientName, true)
+      || this.extractFlightCode(trip.pickup, true);
     if (!flightCode) return null;
 
     // Check if pickup or dropoff is airport

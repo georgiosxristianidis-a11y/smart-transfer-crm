@@ -85,8 +85,8 @@ export class CalculatorStore {
     const sanitized = {};
     for (const key of Object.keys(DEFAULT_STATE)) {
       if (key in incoming) {
-        const expectedType = typeof DEFAULT_STATE[key];
         const val = incoming[key];
+        const expectedType = typeof DEFAULT_STATE[key];
         if (key === 'licenseMode') {
           // Enum, not free text: an unknown regime would mean an unknown floor.
           if (typeof val === 'string' && Object.prototype.hasOwnProperty.call(LICENSE_MODES, val)) {

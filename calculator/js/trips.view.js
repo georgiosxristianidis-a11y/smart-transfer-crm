@@ -1,4 +1,4 @@
-import { html } from './shared/utils.js';
+import { html, localDateKey } from './shared/utils.js';
 import { FlightService } from './shared/flight.service.js';
 
 export class TripsView {
@@ -48,7 +48,7 @@ export class TripsView {
     };
     
     if (this.els.inpDate) {
-      this.els.inpDate.value = new Date().toISOString().split('T')[0];
+      this.els.inpDate.value = localDateKey();
     }
   }
 
@@ -130,7 +130,7 @@ export class TripsView {
           source: this.selectedSource
         });
         this.els.form.reset();
-        this.els.inpDate.value = new Date().toISOString().split('T')[0];
+        this.els.inpDate.value = localDateKey();
         this.els.modal.classList.add('hidden');
       });
     }

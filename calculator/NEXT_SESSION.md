@@ -9,9 +9,8 @@
 
 ## State — 2026-08-16
 
-- Navigation approved: **three tabs — `Смена` · `Учёт` · `Бизнес`**, fourth slot deliberately empty.
 - Protocol: sequential by default, card = branch = commit, squash into `master`. Remote is live; PRs gate on CI.
-- Merged: AUDIT-01 (SW + manifest), AUDIT-03, AUDIT-05 + DATA-01 (backup, schema v2), NAV-05, DS-01, **CALC-00** (licence regime ΕΔΧ/ΕΙΧ + minimum fare).
+- Merged: AUDIT-01 (SW + manifest), AUDIT-03, AUDIT-04 (TRUTH-02: timezone local date), AUDIT-05 + DATA-01 (backup, schema v2), NAV-01 (delete B2B tab), NAV-05, DS-01, **CALC-00** (licence regime ΕΔΧ/ΕΙΧ + minimum fare).
 
 ## In progress
 
@@ -21,7 +20,7 @@
 
 **CALC-01** — input VAT 24% is never reclaimed: fuel, servicing, tyres and overheads are expensed gross, overstating cost by ≈€4 900/yr. 🟠 writes the card (which expense line carries which rate — insurance and ΕΦΚΑ are exempt) before 🔵 codes it.
 
-Open and independent: items 3, 5, `NAV-01`.
+Open and independent: item 5.
 
 ## Owner decisions not yet executed
 
