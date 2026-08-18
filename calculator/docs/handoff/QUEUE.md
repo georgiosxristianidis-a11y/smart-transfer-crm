@@ -15,7 +15,7 @@
 |---|---|---|---|---|
 | 1 | Register SW + `<link rel="manifest">` + honest asset list + Chart.js `4.4.1` | 🟠 | ✅ **merged** | AUDIT P0-01 · audit/01 |
 | 2 | Data backup and schema version (JSON export/import, last-backup marker) | 🟢 | ✅ **merged** | audit/05 |
-| 3 | Timezone: UTC dates in a local context (+3) | 🔵 | — | audit/04 |
+| 3 | Timezone: UTC dates in a local context (+3) | 🔵 | ✅ **done** (AUDIT-04) | audit/04 |
 | 4 | "Next transfer" returns trips in the past | 🔵 | ✅ **merged** | audit/03 |
 | 5 | Flight status: stop passing a simulation off as live data | 🟠 | — | audit/02 |
 | 6 | **NAV-01** — delete the B2B tab, collapse nav to three: Смена · Учёт · Бизнес | 🔵 | ✅ **merged** | NAV_SPEC |
@@ -52,8 +52,9 @@
 
 | Document | Contents |
 |---|---|
-| `docs/handoff/audit/` (13 cards) | Audit P0–P2, per-layer verdicts · `07be5ac` |
-| `docs/handoff/AUDIT_2026-08-14.md` | 35 findings P0–P3 with STOP fields · `5fc2a6f` |
+| `docs/handoff/audit/` | Audit P0–P2, per-layer verdicts |
+| `docs/handoff/AUDIT_2026-08-14.md` | 35 findings P0–P3 with STOP fields |
 | `docs/NAV_SPEC.md` | 10 navigation cards |
 
-`audit/` is read-only imported history; `cards/` holds work cards. Turning a finding into a card is 🟠 LEAD's job when the queue reaches it. Branch state is not tracked here — branches die at merge, so `git log --oneline master` is the honest record.
+`audit/` is read-only imported history; `cards/` holds work cards.
+
