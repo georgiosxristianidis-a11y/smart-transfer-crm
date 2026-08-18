@@ -39,13 +39,18 @@ export class TripsStore {
     const trip = {
       id: tripData.id || this.generateId(),
       clientName: tripData.clientName || 'Без имени',
+      phone: tripData.phone || '',
       flightCode: tripData.flightCode || '',
-      date: tripData.date, // YYYY-MM-DD
-      time: tripData.time, // HH:MM
+      date: tripData.date || localDateKey(), // YYYY-MM-DD
+      time: tripData.time || '12:00', // HH:MM
       pickup: tripData.pickup || '',
       dropoff: tripData.dropoff || '',
       price: parseFloat(tripData.price) || 0,
       status: tripData.status || 'pending',
+      paymentStatus: tripData.paymentStatus || 'unpaid', // 'unpaid' | 'paid' | 'cash' | 'card' | 'hotel'
+      pax: parseInt(tripData.pax, 10) || 1,
+      roomNumber: tripData.roomNumber || '',
+      notes: tripData.notes || '',
       source: tripData.source || 'hotel', // 'hotel' | 'web' | 'ads' | 'walkin' | 'b2b'
       createdAt: tripData.createdAt || Date.now()
     };
@@ -74,6 +79,7 @@ export class TripsStore {
       const trip = {
         id: item.id || this.generateId(),
         clientName: item.clientName || 'Без имени',
+        phone: item.phone || '',
         flightCode: item.flightCode || '',
         date: item.date || localDateKey(),
         time: item.time || '12:00',
@@ -81,6 +87,10 @@ export class TripsStore {
         dropoff: item.dropoff || '',
         price: parseFloat(item.price) || 0,
         status: item.status || 'pending',
+        paymentStatus: item.paymentStatus || 'unpaid',
+        pax: parseInt(item.pax, 10) || 1,
+        roomNumber: item.roomNumber || '',
+        notes: item.notes || '',
         source: item.source || 'hotel',
         createdAt: item.createdAt || Date.now()
       };
@@ -91,6 +101,57 @@ export class TripsStore {
     this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
     this.notify();
     return true;
+  }
+
+  /**
+   * Batch import trips from CSV/WhatsApp parser.
+   * @param {Array} newTrips 
+   * @param {Object} [options]
+   * @param {string} [options.mode] - 'append' (default) | 'replace'
+   * @param {string} [options.targetDate] - if replace mode, deletes existing trips for targetDate
+   */
+  async importTripsBatch(newTrips, options = {}) {
+    if (!Array.isArray(newTrips) || newTrips.length === 0) return 0;
+    const mode = options.mode || 'append';
+    const targetDate = options.targetDate;
+
+    if (mode === 'replace' && targetDate) {
+      const toDelete = this.trips.filter(t => t.date === targetDate);
+      for (const t of toDelete) {
+        await this.db.deleteTrip(t.id);
+      }
+      this.trips = this.trips.filter(t => t.date !== targetDate);
+    }
+
+    const saved = [];
+    for (const raw of newTrips) {
+      const trip = {
+        id: raw.id || this.generateId(),
+        clientName: raw.clientName || 'Без имени',
+        phone: raw.phone || '',
+        flightCode: raw.flightCode || '',
+        date: raw.date || targetDate || localDateKey(),
+        time: raw.time || '12:00',
+        pickup: raw.pickup || '',
+        dropoff: raw.dropoff || '',
+        price: parseFloat(raw.price) || 0,
+        status: raw.status || 'pending',
+        paymentStatus: raw.paymentStatus || 'unpaid',
+        pax: parseInt(raw.pax, 10) || 1,
+        roomNumber: raw.roomNumber || '',
+        notes: raw.notes || '',
+        source: raw.source || 'hotel',
+        createdAt: raw.createdAt || Date.now()
+      };
+      this.trips.push(trip);
+      await this.db.saveTrip(trip);
+      saved.push(trip);
+    }
+
+    this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+    this.db.requestPersistence();
+    this.notify();
+    return saved.length;
   }
 
   /**
@@ -116,6 +177,15 @@ export class TripsStore {
       }
     }
     return conflictSet;
+  }
+
+  async updateTripPaymentStatus(id, newPaymentStatus) {
+    const trip = this.trips.find(t => t.id === id);
+    if (trip) {
+      trip.paymentStatus = newPaymentStatus;
+      await this.db.saveTrip(trip);
+      this.notify();
+    }
   }
 
   async updateTripStatus(id, newStatus) {
@@ -165,7 +235,7 @@ export class TripsStore {
 
   generateGCalLink(trip) {
     const text = encodeURIComponent(`Трансфер: ${trip.clientName}`);
-    const details = encodeURIComponent(`Маршрут: ${trip.pickup} -> ${trip.dropoff}\nЦена: ${trip.price}€`);
+    const details = encodeURIComponent(`Маршрут: ${trip.pickup} -> ${trip.dropoff}\nЦена: ${trip.price}€\nОплата: ${trip.paymentStatus || 'unpaid'}\nТел: ${trip.phone || '-'}`);
     const location = encodeURIComponent(trip.pickup);
     
     // Format dates to YYYYMMDDTHHMMSSZ (UTC). For simplicity, we create local dates and convert to UTC string.
@@ -173,8 +243,11 @@ export class TripsStore {
     const start = new Date(`${trip.date}T${time}`);
     const end = new Date(start.getTime() + 60 * 60 * 1000); // assume 1 hour duration
     
-    const fmt = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
-    const dates = `${fmt(start)}/${fmt(end)}`;
+    const fmt = (d) => {
+      if (!d || isNaN(d.getTime())) return '';
+      return d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+    };
+    const dates = start && !isNaN(start.getTime()) ? `${fmt(start)}/${fmt(end)}` : '';
     
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}`;
   }
@@ -198,15 +271,22 @@ export class TripsStore {
   }
 
   exportCSV() {
-    const headers = ['Дата', 'Время', 'Клиент', 'Откуда', 'Куда', 'Цена (€)', 'Статус'];
+    const headers = ['Дата', 'Время', 'Клиент', 'Телефон', 'Откуда', 'Куда', 'Пассажиры', 'Цена (€)', 'Оплата', 'Рейс', 'Номер/Комната', 'Статус', 'Источник', 'Примечания'];
     const rows = this.trips.map(t => [
       t.date,
       t.time,
-      `"${t.clientName.replace(/"/g, '""')}"`,
-      `"${t.pickup.replace(/"/g, '""')}"`,
-      `"${t.dropoff.replace(/"/g, '""')}"`,
+      `"${(t.clientName || '').replace(/"/g, '""')}"`,
+      `"${(t.phone || '').replace(/"/g, '""')}"`,
+      `"${(t.pickup || '').replace(/"/g, '""')}"`,
+      `"${(t.dropoff || '').replace(/"/g, '""')}"`,
+      t.pax || 1,
       t.price,
-      t.status
+      `"${(t.paymentStatus || 'unpaid').replace(/"/g, '""')}"`,
+      `"${(t.flightCode || '').replace(/"/g, '""')}"`,
+      `"${(t.roomNumber || '').replace(/"/g, '""')}"`,
+      t.status,
+      t.source || 'hotel',
+      `"${(t.notes || '').replace(/"/g, '""')}"`
     ]);
     
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -215,7 +295,7 @@ export class TripsStore {
     
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `trips_export_${localDateKey()}.csv`);
+    link.setAttribute('download', `trips_crm_export_${localDateKey()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

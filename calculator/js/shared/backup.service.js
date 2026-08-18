@@ -5,6 +5,7 @@
  */
 
 import { exportAll, importAll } from './backup.js';
+import { localDateKey } from './utils.js';
 
 const LAST_BACKUP_KEY = 'smart_transfer_last_backup_ts';
 
@@ -31,7 +32,7 @@ export class BackupService {
     const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
 
-    const nowStr = new Date().toISOString().split('T')[0];
+    const nowStr = localDateKey();
     const link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('download', `smart_transfer_backup_${nowStr}.json`);

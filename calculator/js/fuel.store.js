@@ -1,5 +1,6 @@
 import { SCHEMA_VERSION } from './shared/schema.js';
 import { DB } from './shared/db.js';
+import { localDateKey } from './shared/utils.js';
 
 export class FuelStore {
   constructor() {
@@ -34,7 +35,7 @@ export class FuelStore {
     }
     // Default demo data if empty
     return [
-      { id: 'fuel-1', date: new Date().toISOString().split('T')[0], time: '08:30', amount: 50, liters: 26.3, odo: 142500, station: 'BP Heraklion' },
+      { id: 'fuel-1', date: localDateKey(), time: '08:30', amount: 50, liters: 26.3, odo: 142500, station: 'BP Heraklion' },
       { id: 'fuel-2', date: '2026-08-10', time: '19:15', amount: 90, liters: 47.4, odo: 141950, station: 'Shell Airport' }
     ];
   }
@@ -81,7 +82,7 @@ export class FuelStore {
 
     const log = {
       id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'fuel-' + Date.now(),
-      date: now.toISOString().split('T')[0],
+      date: localDateKey(now),
       time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
       amount: cost,
       liters: lit,
@@ -112,7 +113,7 @@ export class FuelStore {
 
     this.logs = logsList.map(item => ({
       id: item.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'fuel-' + Date.now()),
-      date: item.date || new Date().toISOString().split('T')[0],
+      date: item.date || localDateKey(),
       time: item.time || '12:00',
       amount: parseFloat(item.amount) || 0,
       liters: parseFloat(item.liters) || 0,
@@ -130,7 +131,7 @@ export class FuelStore {
 
   getMetrics() {
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = localDateKey(now);
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
