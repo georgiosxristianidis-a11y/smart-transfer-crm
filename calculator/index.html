@@ -75,10 +75,16 @@
       </div>
 
       <div class="actions-bar no-print">
-        <button id="btn-add-trip" class="btn btn-primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Новая поездка
-        </button>
+        <div class="left-actions" style="display:flex; gap:8px;">
+          <button id="btn-add-trip" class="btn btn-primary" title="Добавить новый трансфер">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Новая
+          </button>
+          <button id="btn-import-csv" class="btn btn-outline" title="Импорт из CSV, файла или WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Импорт
+          </button>
+        </div>
         <div class="right-actions">
           <button id="btn-driver-hud" class="btn btn-outline" title="Режим за рулем">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
@@ -101,6 +107,21 @@
 
       <div class="section-divider no-print">
         <span>Все рейсы на сегодня</span>
+      </div>
+
+      <!-- CRM SEARCH & FILTER TOOLBAR -->
+      <div class="crm-toolbar no-print">
+        <div class="crm-search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="inp-trips-search" placeholder="Поиск по имени, отелю, рейсу, комнате..." class="crm-search-input">
+          <button type="button" id="btn-clear-search" class="btn-clear-search hidden" title="Очистить поиск">✕</button>
+        </div>
+        <div class="crm-filter-pills" id="crm-filter-pills">
+          <button type="button" class="crm-filter-pill active" data-filter="all">Все <span class="pill-count" id="cnt-filter-all">0</span></button>
+          <button type="button" class="crm-filter-pill" data-filter="active">Активные <span class="pill-count" id="cnt-filter-active">0</span></button>
+          <button type="button" class="crm-filter-pill" data-filter="unpaid">К оплате <span class="pill-count" id="cnt-filter-unpaid">0</span></button>
+          <button type="button" class="crm-filter-pill" data-filter="completed">Завершены <span class="pill-count" id="cnt-filter-completed">0</span></button>
+        </div>
       </div>
 
       <div id="trips-list" class="trips-list">
@@ -278,9 +299,15 @@
 
       <form id="form-trip" class="modal-trip-form">
         <!-- Client Name / Flight -->
-        <div class="control-group mt-15">
-          <label for="trip-client" class="control-title">Имя клиента / Номер рейса</label>
-          <input type="text" id="trip-client" required class="input-text input-large" placeholder="John Doe, U2 4531">
+        <div class="modal-grid-2 mt-15">
+          <div class="control-group">
+            <label for="trip-client" class="control-title">Имя клиента / Рейс</label>
+            <input type="text" id="trip-client" required class="input-text input-large" placeholder="John Doe, U2 4531">
+          </div>
+          <div class="control-group">
+            <label for="trip-phone" class="control-title">Телефон / WhatsApp</label>
+            <input type="tel" id="trip-phone" class="input-text input-large" placeholder="+30 691 2345678">
+          </div>
         </div>
 
         <!-- Date & Time -->
@@ -349,6 +376,34 @@
           <option value="Ierapetra Center">
         </datalist>
 
+        <!-- Pax, Room, Price & Payment Status -->
+        <div class="modal-grid-3 mt-15">
+          <div class="control-group">
+            <label for="trip-pax" class="control-title">Пассажиры</label>
+            <input type="number" id="trip-pax" class="input-text input-large" min="1" max="19" value="1">
+          </div>
+          <div class="control-group">
+            <label for="trip-room" class="control-title">Номер комнаты</label>
+            <input type="text" id="trip-room" class="input-text input-large" placeholder="402">
+          </div>
+          <div class="control-group">
+            <label for="trip-price" class="control-title">Цена (€)</label>
+            <input type="number" id="trip-price" required class="input-text input-large" min="0" step="0.1" value="45">
+          </div>
+        </div>
+
+        <!-- Payment Status Selector -->
+        <div class="control-group mt-15">
+          <span class="control-title">Статус оплаты</span>
+          <div class="payment-pills-grid" id="add-trip-payment-pills">
+            <button type="button" class="payment-pill" data-pay="unpaid">Не оплачено</button>
+            <button type="button" class="payment-pill active" data-pay="cash">Наличные</button>
+            <button type="button" class="payment-pill" data-pay="paid">Оплачено (Online)</button>
+            <button type="button" class="payment-pill" data-pay="card">Карта водителю</button>
+            <button type="button" class="payment-pill" data-pay="hotel">Счет отелю</button>
+          </div>
+        </div>
+
         <!-- Source Tag Selector -->
         <div class="control-group mt-15">
           <span class="control-title">Источник заказа</span>
@@ -376,18 +431,112 @@
           </div>
         </div>
 
-        <!-- Price -->
-        <div class="control-group mt-15">
-          <label for="trip-price" class="control-title">Цена (€)</label>
-          <input type="number" id="trip-price" required class="input-text input-large" min="0" step="0.1" value="45">
-        </div>
-
         <!-- Actions (Equal 52px buttons) -->
         <div class="modal-equal-actions mt-20">
           <button type="button" id="btn-cancel-trip" class="btn btn-outline btn-modal-action">Отмена</button>
           <button type="submit" class="btn btn-primary btn-modal-action">Сохранить трансфер</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: BATCH IMPORT TRIPS (CSV / WHATSAPP / FILE) -->
+  <div id="modal-import-trips" class="modal-overlay hidden no-print">
+    <div class="modal-content modal-import-large">
+      <div class="modal-header-row">
+        <div>
+          <h2 style="margin:0; font-size: 20px; font-weight: 700; color: var(--text-hi);">Импорт заказов (CSV / WhatsApp)</h2>
+          <div style="font-size: 13px; color: var(--text-mid); margin-top: 2px;">Загрузите файл или вставьте суточный список от отеля</div>
+        </div>
+        <button type="button" id="btn-close-import-modal" class="btn-close-modal" title="Закрыть">✕</button>
+      </div>
+
+      <!-- Import Tabs -->
+      <div class="import-tabs-bar mt-15">
+        <button type="button" class="import-tab-btn active" id="tab-btn-file" data-tab="file">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: -2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Файл (.csv, .tsv, .txt)
+        </button>
+        <button type="button" class="import-tab-btn" id="tab-btn-paste" data-tab="paste">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: -2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Текст / WhatsApp
+        </button>
+      </div>
+
+      <!-- Tab 1: File Upload (Default) -->
+      <div id="import-panel-file" class="import-tab-panel active mt-15">
+        <label id="import-dropzone" for="import-file-input" class="import-dropzone" style="cursor: pointer;">
+          <input type="file" id="import-file-input" accept=".csv,.tsv,.txt,text/csv,text/plain,text/tab-separated-values" style="display: none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--palette-indigo-400); margin-bottom: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div class="dropzone-title">Выберите файл CSV / TSV / TXT</div>
+          <div class="dropzone-sub">Нажмите в любое место или перетащите файл с телефона / компьютера</div>
+          <div style="margin-top: 12px;">
+            <span id="btn-browse-file" class="btn btn-outline btn-sm" style="padding: 0 16px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Выбрать файл на устройстве
+            </span>
+          </div>
+        </label>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+          <span style="font-size: 11px; color: var(--text-muted);">Форматы: .csv, .tsv, .txt</span>
+          <button type="button" id="btn-load-sample-file" class="btn btn-outline btn-sm" style="font-size: 11px; height: 28px;">Образец: Бразилия 2002 (CSV)</button>
+        </div>
+      </div>
+
+      <!-- Tab 2: Paste Text -->
+      <div id="import-panel-paste" class="import-tab-panel mt-15 hidden">
+        <div class="import-paste-header">
+          <span class="control-title" style="margin:0;">Текст списка заказов</span>
+          <div style="display:flex; gap:8px;">
+            <button type="button" id="btn-paste-clipboard" class="btn btn-outline btn-sm" title="Вставить из буфера обмена">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              Вставить из буфера
+            </button>
+            <button type="button" id="btn-load-sample" class="btn btn-outline btn-sm">Пример (15 рейсов WhatsApp)</button>
+          </div>
+        </div>
+        <textarea id="import-text-input" class="import-textarea mt-10" rows="6" placeholder="Вставьте сюда суточный лист отеля или строки CSV...
+Пример:
+08:30 HER Airport -> Nana Princess, Schmidt x3, Room 402, 65€ Cash, FL: GQ200
+11:15 Creta Maris -> HER, Muller x2, 45 EUR Paid
+14:00 Port -> Elounda, Papadopoulos, +306912345678, 90€ Hotel, Room 112"></textarea>
+      </div>
+
+      <!-- Import Parameters Bar -->
+      <div class="import-settings-row mt-15">
+        <div class="control-group">
+          <label for="import-target-date" class="control-title">Дата для рейсов</label>
+          <input type="date" id="import-target-date" class="input-text">
+        </div>
+        <div class="control-group">
+          <label for="import-default-price" class="control-title">Цена по умолч. (€)</label>
+          <input type="number" id="import-default-price" class="input-text" value="45" min="0" step="1">
+        </div>
+        <div class="control-group">
+          <label class="control-title">Режим записи</label>
+          <div class="segmented-control" id="seg-import-mode">
+            <div class="seg-btn active" data-val="append">Добавить к рейсам</div>
+            <div class="seg-btn" data-val="replace">Заменить на дату</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Preview Table Container -->
+      <div class="import-preview-section mt-15">
+        <div class="preview-header-row">
+          <div class="preview-title" id="import-preview-title">Предпросмотр (0 рейсов)</div>
+          <div id="import-format-badge" class="import-format-badge hidden">CSV</div>
+        </div>
+        <div id="import-preview-container" class="import-preview-table-wrap">
+          <div class="import-empty-preview">Введите текст или выберите файл для распознавания рейсов</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="modal-equal-actions mt-20">
+        <button type="button" id="btn-cancel-import" class="btn btn-outline btn-modal-action">Отмена</button>
+        <button type="button" id="btn-confirm-import" class="btn btn-primary btn-modal-action" disabled>Импортировать (0 рейсов)</button>
+      </div>
     </div>
   </div>
 

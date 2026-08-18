@@ -159,7 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       if (document.startViewTransition) {
-        document.startViewTransition(switchTabs);
+        try {
+          const vt = document.startViewTransition(switchTabs);
+          if (vt && vt.finished) {
+            vt.finished.catch(() => {});
+          }
+        } catch {
+          switchTabs();
+        }
       } else {
         switchTabs();
       }

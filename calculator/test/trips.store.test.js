@@ -234,6 +234,36 @@ test('TripsStore: schedule conflicts detection (<45 mins)', async () => {
   assert.ok(!conflicts.has(t3.id), 'Trip 3 has no conflict');
 });
 
+test('TripsStore: importTripsBatch (append & replace) and payment status update', async () => {
+  const store = new TripsStore();
+  await store.ready;
+
+  const batch1 = [
+    { date: '2026-08-18', time: '09:00', clientName: 'Guest 1', price: 40, paymentStatus: 'paid', pax: 2 },
+    { date: '2026-08-18', time: '11:00', clientName: 'Guest 2', price: 50, paymentStatus: 'cash', phone: '+306912345678' }
+  ];
+
+  const count = await store.importTripsBatch(batch1, { mode: 'append' });
+  assert.strictEqual(count, 2);
+
+  const t2 = store.trips.find(t => t.clientName === 'Guest 2');
+  assert.strictEqual(t2.paymentStatus, 'cash');
+  assert.strictEqual(t2.phone, '+306912345678');
+
+  await store.updateTripPaymentStatus(t2.id, 'card');
+  assert.strictEqual(t2.paymentStatus, 'card');
+
+  // Replace mode for target date
+  const batch2 = [
+    { date: '2026-08-18', time: '14:00', clientName: 'Replaced Guest', price: 75, paymentStatus: 'hotel' }
+  ];
+
+  await store.importTripsBatch(batch2, { mode: 'replace', targetDate: '2026-08-18' });
+  const todayTrips = store.trips.filter(t => t.date === '2026-08-18');
+  assert.strictEqual(todayTrips.length, 1);
+  assert.strictEqual(todayTrips[0].clientName, 'Replaced Guest');
+});
+
 test('FuelStore: Logging and metrics calculation', async () => {
   const { FuelStore } = await import('../js/fuel.store.js');
   const fuelStore = new FuelStore();
@@ -246,5 +276,6 @@ test('FuelStore: Logging and metrics calculation', async () => {
   assert.ok(metrics.todayAmount >= 50);
   assert.ok(metrics.monthAmount >= 50);
 });
+
 
 
