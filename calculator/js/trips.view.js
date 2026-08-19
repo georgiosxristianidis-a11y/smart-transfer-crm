@@ -42,7 +42,6 @@ export class TripsView {
       list: document.getElementById('trips-list'),
       btnAdd: document.getElementById('btn-add-trip'),
       btnExport: document.getElementById('btn-export-csv'),
-      btnHud: document.getElementById('btn-driver-hud'),
       
       // Single Add Modal elements
       modal: document.getElementById('modal-add-trip'),
@@ -93,12 +92,7 @@ export class TripsView {
       cntFilterAll: document.getElementById('cnt-filter-all'),
       cntFilterActive: document.getElementById('cnt-filter-active'),
       cntFilterUnpaid: document.getElementById('cnt-filter-unpaid'),
-      cntFilterCompleted: document.getElementById('cnt-filter-completed'),
-      
-      // HUD Modal elements
-      modalHud: document.getElementById('modal-driver-hud'),
-      btnCloseHud: document.getElementById('btn-close-hud'),
-      hudContent: document.getElementById('hud-content')
+      cntFilterCompleted: document.getElementById('cnt-filter-completed')
     };
     
     if (this.els.inpDate) {
@@ -129,19 +123,6 @@ export class TripsView {
       this.els.btnExport.addEventListener('click', () => {
         if (navigator.vibrate) navigator.vibrate(30);
         this.store.exportCSV();
-      });
-    }
-
-    // Driver HUD open / close
-    if (this.els.btnHud) {
-      this.els.btnHud.addEventListener('click', () => {
-        this.openDriverHud();
-      });
-    }
-
-    if (this.els.btnCloseHud) {
-      this.els.btnCloseHud.addEventListener('click', () => {
-        this.closeDriverHud();
       });
     }
 
@@ -584,78 +565,6 @@ export class TripsView {
     `.value;
   }
 
-  openDriverHud() {
-    const nextTrip = this.store.getNextUpcomingTrip();
-    if (!nextTrip) {
-      alert('Нет активных трансферов для отображения в HUD!');
-      return;
-    }
-    this.renderHudContent(nextTrip);
-    this.els.modalHud.classList.remove('hidden');
-  }
-
-  closeDriverHud() {
-    this.els.modalHud.classList.add('hidden');
-  }
-
-  renderHudContent(t) {
-    const flight = FlightService.resolveFlightStatus(t);
-    const navUrl = FlightService.getGoogleMapsNavUrl(t.dropoff, t.pickup);
-    const flightBadge = flight ? html`
-      <a href="${flight.radarUrl}" target="_blank" rel="noopener noreferrer" class="hud-flight-tag status-${flight.status}">
-        <span class="flight-pulse-dot"></span>
-        <span class="flight-tag-code">${flight.flightCode}</span>
-        <span class="flight-tag-lbl">${flight.label}</span>
-      </a>
-    ` : '';
-
-    this.els.hudContent.innerHTML = html`
-      <div class="hud-main-card">
-        <div class="hud-time-row">
-          <div class="hud-time-val">${t.time}</div>
-          <div class="hud-date-val">${t.date}</div>
-        </div>
-
-        ${flightBadge}
-
-        <div class="hud-route-block">
-          <div class="hud-label">ОТКУДА</div>
-          <div class="hud-address">${t.pickup}</div>
-          <div class="hud-divider">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-          </div>
-          <div class="hud-label">КУДА (ФИНИШ)</div>
-          <div class="hud-address-dest">${t.dropoff}</div>
-        </div>
-
-        <div class="hud-client-row">
-          <div class="hud-client-name">${t.clientName}</div>
-          <div class="hud-price-val">€${t.price}</div>
-        </div>
-
-        <div class="hud-actions-grid">
-          <a href="${navUrl}" target="_blank" class="hud-btn hud-btn-nav" id="hud-nav-btn">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-            НАВИГАТОР
-          </a>
-          <button class="hud-btn hud-btn-done" id="hud-complete-btn">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            ЗАВЕРШИТЬ
-          </button>
-        </div>
-      </div>
-    `.value;
-
-    const btnComplete = document.getElementById('hud-complete-btn');
-    if (btnComplete) {
-      btnComplete.addEventListener('click', async () => {
-        if (navigator.vibrate) navigator.vibrate(80);
-        await this.store.updateTripStatus(t.id, 'completed');
-        this.closeDriverHud();
-      });
-    }
-  }
-
   bindSwipeGestures() {
     let startX = 0;
     let startY = 0;
@@ -862,21 +771,12 @@ export class TripsView {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
             Навигатор
           </a>
-          <button class="btn btn-hero-hud" id="hero-open-hud-btn" title="Развернуть на весь экран">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-            HUD
-          </button>
           <a href="${gcalLink}" target="_blank" class="btn btn-hero-icon" title="В Календарь">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </a>
         </div>
       </div>
     `.value;
-
-    const btnHeroHud = document.getElementById('hero-open-hud-btn');
-    if (btnHeroHud) {
-      btnHeroHud.addEventListener('click', () => this.openDriverHud());
-    }
   }
 
   getFilteredTrips(trips) {

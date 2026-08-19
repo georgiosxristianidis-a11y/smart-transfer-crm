@@ -19,12 +19,12 @@
 | 4 | "Next transfer" returns trips in the past | 🔵 | ✅ **merged** | audit/03 |
 | 5 | Flight status: stop passing a simulation off as live data | 🟠 | — | audit/02 |
 | 6 | **NAV-01** — delete the B2B tab, collapse nav to three: Смена · Учёт · Бизнес | 🔵 | ✅ **merged** | NAV_SPEC |
-| 7 | **NAV-02** — HUD from modal to the top of the Смена screen | 🔵 | — | NAV_SPEC |
-| 8 | **NAV-03** — fuel: history into Учёт, `⛽` button onto Смена | 🔵 + 🟢 | — | NAV_SPEC |
+| 7 | **NAV-02** — HUD from modal to the top of the Смена screen | 🔵 | ✅ **merged** | NAV_SPEC |
+| 8 | **NAV-03** — fuel: history into Учёт, `⛽` button onto Смена | 🔵 + 🟢 | ✅ **merged** | NAV_SPEC |
 | 9 | **NAV-04** — calculator into Бизнес as "daily norm", persist sliders | 🔵 | — | NAV_SPEC |
 | 10 | **NAV-05** — "9 of 13" progress on Смена, one hero per screen | 🔵 + 🟢 | ✅ **merged** | NAV_SPEC |
 | 11 | ESLint into the gates (installed but never runs) | 🔵 | ✅ **merged** | audit/08 |
-| 12 | CSP is decorative: `unsafe-inline` + `unsafe-eval` | 🔵 | — | audit/06 |
+| 12 | CSP is decorative: `unsafe-inline` + `unsafe-eval` | 🔵 | ✅ **done** (AUDIT-06) | audit/06 |
 | 13 | CSV injection + `exportCSV` breaks Store/View | 🔵 | — | audit/07 |
 | 14 | **DS-01** — contrast hierarchy in tokens (hero / primary / decor) | 🟢 | ✅ **merged** | NAV_SPEC |
 | 15 | **NAV-06** — driver-mode seam: marker on money elements | 🔵 | — | NAV_SPEC |

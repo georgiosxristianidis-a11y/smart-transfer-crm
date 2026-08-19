@@ -176,4 +176,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // Print button handler (AUDIT-06)
+  const btnPrint = document.getElementById('btn-print');
+  if (btnPrint) {
+    btnPrint.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+  // Register Service Worker (AUDIT-06)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch((err) => {
+      console.error('[SW] Registration failed:', err);
+    });
+  }
 });

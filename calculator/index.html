@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://*.flightradar24.com https://*.flightaware.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; script-src-attr 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self';">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="manifest" href="manifest.json">
   <title>Smart Transfer — Unit Calc CRM 2026</title>
@@ -80,21 +80,21 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Новая
           </button>
+          <button id="btn-quick-fuel" class="btn btn-outline btn-fuel" title="Быстрая заправка топлива">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/><path d="M15 11h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2v0a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1"/><rect x="6" y="6" width="6" height="5" rx="1"/></svg>
+            Заправка
+          </button>
           <button id="btn-import-csv" class="btn btn-outline" title="Импорт из CSV, файла или WhatsApp">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
             Импорт
           </button>
         </div>
         <div class="right-actions">
-          <button id="btn-driver-hud" class="btn btn-outline" title="Режим за рулем">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-            HUD
-          </button>
           <button id="btn-export-csv" class="btn btn-outline" title="Экспорт в CSV">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             CSV
           </button>
-          <button id="btn-print" class="btn btn-outline" onclick="window.print()" title="Печать">
+          <button id="btn-print" class="btn btn-outline" title="Печать">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
           </button>
         </div>
@@ -227,8 +227,8 @@
       </div>
     </div>
 
-    <!-- TAB 4: FUEL & EXPENSES (OURA SQUIRCLE STYLE) -->
-    <div id="tab-fuel" class="tab-content no-print">
+    <!-- TAB: УЧЁТ (ACCOUNTING & FUEL HISTORY) -->
+    <div id="tab-uchet" class="tab-content no-print">
       <div class="fuel-hero-card">
         <div class="fuel-hero-top">
           <div class="fuel-badge">
@@ -272,7 +272,11 @@
     <div class="nav-bottom no-print">
       <div class="nav-item active" data-target="tab-trips">
         <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/></svg>
-        <span>Диспетчер</span>
+        <span>Смена</span>
+      </div>
+      <div class="nav-item" data-target="tab-uchet">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Учёт</span>
       </div>
       <div class="nav-item" data-target="tab-analytics">
         <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
@@ -281,10 +285,6 @@
       <div class="nav-item" data-target="tab-calc">
         <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/></svg>
         <span>Калькулятор</span>
-      </div>
-      <div class="nav-item" data-target="tab-fuel">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/><path d="M15 11h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2v0a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1"/><rect x="6" y="6" width="6" height="5" rx="1"/></svg>
-        <span>Бензин</span>
       </div>
     </div>
   </div>
@@ -540,21 +540,32 @@
     </div>
   </div>
 
-  <!-- FULLSCREEN DRIVER HUD MODAL (WINDSHIELD MOUNTED MODE) -->
-  <div id="modal-driver-hud" class="hud-overlay hidden no-print">
-    <div class="hud-container">
-      <div class="hud-top-bar">
-        <div class="hud-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-          DRIVER HUD MODE
+  <!-- MODAL: QUICK FUEL (2-TAP REFUELING) -->
+  <div id="modal-quick-fuel" class="modal-overlay hidden no-print">
+    <div class="modal-content modal-fuel-quick">
+      <div class="modal-header-row">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="fuel-icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/><path d="M15 11h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2v0a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1"/><rect x="6" y="6" width="6" height="5" rx="1"/></svg>
+          </div>
+          <div>
+            <h2 style="margin:0; font-size: 18px; font-weight: 700; color: var(--text-hi);">Быстрая заправка</h2>
+            <div style="font-size: 12px; color: var(--text-mid); margin-top: 2px;">Запись расхода на топливо в 1 тап</div>
+          </div>
         </div>
-        <button id="btn-close-hud" class="hud-close-btn" title="Закрыть HUD">✕</button>
+        <button type="button" id="btn-close-quick-fuel" class="btn-close-modal" title="Закрыть">✕</button>
       </div>
-      <div id="hud-content" class="hud-content">
-        <!-- Renders large driver HUD card -->
+
+      <div class="quick-fuel-modal-grid mt-20">
+        <button type="button" id="btn-modal-fuel-20" class="btn btn-fuel-action" data-amount="20">+ €20</button>
+        <button type="button" id="btn-modal-fuel-50" class="btn btn-fuel-action" data-amount="50">+ €50</button>
+        <button type="button" id="btn-modal-fuel-90" class="btn btn-fuel-action highlight" data-amount="90">+ €90 (Бак)</button>
+        <button type="button" id="btn-modal-fuel-custom" class="btn btn-fuel-action custom">Ввести €</button>
       </div>
     </div>
   </div>
+
+
 
   <!-- MODAL: ADVANCED SETTINGS (3-DOTS & TOP-RIGHT BUTTON) -->
   <div id="modal-calc-settings" class="modal-overlay hidden no-print">
@@ -647,12 +658,5 @@
   </div>
 
   <script type="module" src="js/app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(function(err) {
-        console.error('[SW] Registration failed:', err);
-      });
-    }
-  </script>
 </body>
 </html>

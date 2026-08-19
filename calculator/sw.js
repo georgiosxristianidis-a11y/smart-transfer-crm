@@ -14,6 +14,7 @@ const ASSETS = [
   "./js/shared/backup.service.js",
   "./js/shared/db.js",
   "./js/shared/flight.service.js",
+  "./js/shared/import.service.js",
   "./js/shared/schema.js",
   "./js/shared/utils.js",
   "./js/shifts.store.js",
