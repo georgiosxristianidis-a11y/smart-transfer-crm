@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { TripsStore } from '../js/trips.store.js';
+import { ShiftsStore } from '../js/shifts.store.js';
+import { selectNormTrips } from '../js/shifts.view.js';
 import { FuelStore } from '../js/fuel.store.js';
 import { CalculatorStore } from '../js/calculator.store.js';
 import { FlightService } from '../js/shared/flight.service.js';
@@ -194,4 +196,107 @@ test('E2E: Backup Export, State Wipe, and Complete Restore Pipeline', async () =
   assert.strictEqual(fuelStore.logs[0].amount, 70);
   assert.strictEqual(calcStore.state.licenseMode, 'eix');
   assert.strictEqual(calcStore.state.checkGross, 65);
+});
+
+test('E2E: Shift open -> trip -> close, norm survives midnight', async () => {
+  const tripsStore = new TripsStore();
+  const shiftsStore = new ShiftsStore();
+  await tripsStore.ready;
+  await shiftsStore.ready;
+  await tripsStore.replaceAllTrips([]);
+  await shiftsStore.replaceAllShifts([]);
+
+  // Driver opens a shift at 22:00 with the odometer, norm pinned at open.
+  const shift = await shiftsStore.openShift(
+    { odoStart: 142500, normTarget: 13 },
+    new Date(2026, 7, 19, 22, 0)
+  );
+  assert.strictEqual(shiftsStore.getOpenShift().id, shift.id);
+
+  // Two trips land either side of midnight, both belong to the same shift.
+  const t1 = await tripsStore.addTrip({
+    clientName: 'Late Night Guest',
+    date: '2026-08-19',
+    time: '23:30',
+    pickup: 'Airport',
+    dropoff: 'Hotel A',
+    price: 40,
+    status: 'completed',
+    shiftId: shift.id
+  });
+  const t2 = await tripsStore.addTrip({
+    clientName: 'After Midnight Guest',
+    date: '2026-08-20',
+    time: '00:30',
+    pickup: 'Airport',
+    dropoff: 'Hotel B',
+    price: 50,
+    status: 'completed',
+    shiftId: shift.id
+  });
+  assert.strictEqual(t1.shiftId, shift.id);
+  assert.strictEqual(t2.shiftId, shift.id);
+
+  // The norm is read at 00:31 local — the shift is still open, no reset.
+  const openShift = shiftsStore.getOpenShift();
+  const normTrips = selectNormTrips(tripsStore.trips, openShift, '2026-08-20');
+  assert.strictEqual(normTrips.length, 2, 'both trips count toward the running shift, midnight or not');
+
+  // Driver closes the shift with the finishing odometer.
+  const closed = await shiftsStore.closeShift(shift.id, { odoEnd: 142780 }, new Date(2026, 7, 20, 3, 0));
+  assert.strictEqual(closed.status, 'closed');
+  assert.strictEqual(shiftsStore.getShiftDistance(shift.id), 280);
+  assert.strictEqual(shiftsStore.getOpenShift(), null);
+
+  // A trip created after the shift closes gets no shiftId — a shift never gates a trip.
+  const t3 = await tripsStore.addTrip({
+    clientName: 'No Shift Guest',
+    date: '2026-08-20',
+    time: '04:00',
+    pickup: 'Airport',
+    dropoff: 'Hotel C',
+    price: 30,
+    status: 'completed',
+    shiftId: shiftsStore.getOpenShift() ? shiftsStore.getOpenShift().id : null
+  });
+  assert.strictEqual(t3.shiftId, null);
+});
+
+test('E2E: trips imported before the shift still count once the driver completes them', async () => {
+  const tripsStore = new TripsStore();
+  const shiftsStore = new ShiftsStore();
+  await tripsStore.ready;
+  await shiftsStore.ready;
+  await tripsStore.replaceAllTrips([]);
+  await shiftsStore.replaceAllShifts([]);
+
+  // The hotel list arrives the night before: no shift exists yet, so no shiftId.
+  const a = await tripsStore.addTrip({
+    clientName: 'Hotel List Guest A', date: '2026-08-20', time: '09:00',
+    pickup: 'Hotel', dropoff: 'HER Airport', price: 45
+  });
+  const b = await tripsStore.addTrip({
+    clientName: 'Hotel List Guest B', date: '2026-08-20', time: '11:00',
+    pickup: 'Hotel', dropoff: 'HER Airport', price: 55
+  });
+  assert.strictEqual(a.shiftId, null);
+  assert.strictEqual(b.shiftId, null);
+
+  // Morning: the driver opens the shift.
+  const shift = await shiftsStore.openShift({ normTarget: 13 }, new Date(2026, 7, 20, 8, 0));
+
+  // The norm is empty before anything is completed — and does not count
+  // yesterday's pending list as work already done.
+  assert.strictEqual(selectNormTrips(tripsStore.trips, shift, '2026-08-20').length, 0);
+
+  // The driver finishes the first trip: it binds to the running shift on completion.
+  await tripsStore.assignTripToShift(a.id, shift.id);
+  await tripsStore.updateTripStatus(a.id, 'completed');
+
+  const counted = selectNormTrips(tripsStore.trips, shift, '2026-08-20');
+  assert.strictEqual(counted.length, 1, 'a trip typed in before the shift still counts toward it');
+  assert.strictEqual(counted[0].id, a.id);
+
+  // The untouched one stays out of the count until it is actually done.
+  assert.strictEqual(tripsStore.trips.find(t => t.id === b.id).shiftId, null);
 });

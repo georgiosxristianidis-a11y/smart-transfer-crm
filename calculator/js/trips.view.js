@@ -18,8 +18,12 @@ function safeViewTransition(fn) {
 }
 
 export class TripsView {
-  constructor(tripsStore) {
+  constructor(tripsStore, shiftsStore = null) {
     this.store = tripsStore;
+    // DATA-11: a trip binds to the running shift when it is created during one
+    // and, more importantly, when the driver marks it done (see attachToOpenShift).
+    // Without a shift, shiftId stays null — a shift never gates a trip.
+    this.shiftsStore = shiftsStore;
     this.selectedSource = 'hotel';
     this.selectedAddPayment = 'cash';
     this.currentFilter = 'all'; // 'all' | 'active' | 'unpaid' | 'completed'
@@ -170,6 +174,7 @@ export class TripsView {
     if (this.els.form) {
       this.els.form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const openShift = this.shiftsStore ? this.shiftsStore.getOpenShift() : null;
         await this.store.addTrip({
           clientName: this.els.inpClient.value,
           phone: this.els.inpPhone ? this.els.inpPhone.value : '',
@@ -181,7 +186,8 @@ export class TripsView {
           roomNumber: this.els.inpRoom ? this.els.inpRoom.value : '',
           price: this.els.inpPrice.value,
           paymentStatus: this.selectedAddPayment || 'cash',
-          source: this.selectedSource
+          source: this.selectedSource,
+          shiftId: openShift ? openShift.id : null
         });
         this.els.form.reset();
         this.els.inpDate.value = localDateKey();
@@ -649,6 +655,11 @@ export class TripsView {
 
       if (finalX > swipeThreshold) {
         if (navigator.vibrate) navigator.vibrate(50);
+        // DATA-11: a trip joins the shift when the driver marks it done, not when
+        // it was typed in. Most trips are imported from the hotel list the night
+        // before, hours before any shift opens — binding at creation would leave
+        // the norm at "0 из 13" for exactly the driver who works from a list.
+        await this.attachToOpenShift(tId);
         await this.store.updateTripStatus(tId, 'completed');
       } else if (finalX < -swipeThreshold) {
         if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
@@ -657,6 +668,18 @@ export class TripsView {
         }
       }
     });
+  }
+
+  /** Binds a trip to the running shift, unless it already belongs to one. */
+  async attachToOpenShift(tripId) {
+    if (!this.shiftsStore) return;
+    const openShift = this.shiftsStore.getOpenShift();
+    if (!openShift) return;
+
+    const trip = this.store.trips.find(t => t.id === tripId);
+    if (!trip || trip.shiftId) return;
+
+    await this.store.assignTripToShift(tripId, openShift.id);
   }
 
   getSourceIconSVG(source) {

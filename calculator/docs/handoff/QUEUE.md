@@ -1,6 +1,6 @@
 # QUEUE.md — Single work queue
 
-> Owner of this file: 🟠 LEAD-OPUS. Updated on merge.
+> Owner: 🟠 LEAD-OPUS. Updated on merge.
 > Card format and rules: `docs/handoff/PROTOCOL.md` · Product: `docs/NAV_SPEC.md`
 
 **Sort order: by dependency and harm.** First what **lies or loses data**, then structure, then presentation.
@@ -41,20 +41,21 @@
 | 26 | **CALC-04** — depreciation, 22% profit tax, break-even fare | 🟠 card · 🔵 code | — | economics review |
 | 27 | **DATA-10** — shift as an entity (IDB v3), trip gains `shiftId`/`actualLanding` | 🟠 | ✅ **done** (no UI) | DATA-10 |
 | 28 | **INFRA-02** — lint gate red on the import parser | 🟠 | ✅ **done** | INFRA-02 |
+| 29 | **DATA-11** — shift UI: open/close, norm by shift | 🔵 | — | card |
 
 **CALC is money math:** 🟠 pins rates and formula in the card before 🔵 types. A wrong VAT rate on the wrong line fails no test, it silently inflates profit. Item 25 also settles item 20's magic `netRevenue * 0.05`.
 
-**Owner decision, defaults only:** ΕΔΧ at €45 × 13/day or ΕΙΧ at €130–180 × 1–2/day. CALC-00 made it a switch, so nothing is blocked.
+**Owner decision, defaults only:** ΕΔΧ €45 × 13/day or ΕΙΧ €130–180 × 1–2/day. CALC-00 made it a switch, nothing is blocked.
 
 ---
 
 ## Sources
 
-| Document | Contents |
+| Doc | Contents |
 |---|---|
 | `docs/handoff/audit/` | Audit P0–P2, per-layer verdicts |
 | `docs/handoff/AUDIT_2026-08-14.md` | 35 findings P0–P3 with STOP fields |
 | `docs/NAV_SPEC.md` | 10 navigation cards |
 
-`audit/` is read-only imported history; `cards/` holds work cards.
+`audit/` is read-only history; `cards/` holds work cards.
 

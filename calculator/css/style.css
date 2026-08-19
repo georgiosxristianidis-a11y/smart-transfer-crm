@@ -109,6 +109,44 @@ html, body {
   opacity: 0.85;
 }
 
+/* Shift Bar (DATA-11) */
+.shift-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--stitch-surface-mid);
+  border: 1px solid var(--stitch-border-mid);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-elevation-1);
+}
+.shift-bar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.shift-bar-status {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-hi);
+}
+.shift-bar-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-mid);
+  font-variant-numeric: tabular-nums;
+}
+.btn-shift { flex-shrink: 0; }
+.form-error-text {
+  font-size: 12px;
+  color: var(--action-danger);
+  margin: 8px 0 0;
+}
+
 /* Shift Norm Progress Track (NAV-05) */
 .shift-norm-card {
   background: var(--stitch-surface-mid);

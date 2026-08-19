@@ -5,6 +5,7 @@ import { TripsView } from './trips.view.js';
 import { FuelStore } from './fuel.store.js';
 import { FuelView } from './fuel.view.js';
 import { ShiftsStore } from './shifts.store.js';
+import { ShiftsView, selectNormTrips } from './shifts.view.js';
 import { BackupService } from './shared/backup.service.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,14 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcStore = new CalculatorStore();
   const tripsStore = new TripsStore();
   const fuelStore = new FuelStore();
-  // DATA-10: storage only, no UI yet. It exists here so backups carry shifts —
-  // a store outside the backup is a store one cache clear away from gone.
   const shiftsStore = new ShiftsStore();
 
   // Initialize Views
   new CalculatorView(calcStore);
-  new TripsView(tripsStore);
+  new TripsView(tripsStore, shiftsStore);
   new FuelView(fuelStore);
+  new ShiftsView(shiftsStore, calcStore);
 
   // Backup & Restore handlers (AUDIT-05)
   const lblLastBackup = document.getElementById('lbl-last-backup');
@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Live header stats & Shift Norm Elements (NAV-05)
   const elTodayRev = document.getElementById('hdr-today-rev');
+  const elTodayRevLabel = document.getElementById('hdr-today-rev-label');
   const elTodayTrips = document.getElementById('hdr-today-trips');
   const elNormTarget = document.getElementById('hdr-norm-target');
   const elMonthRev = document.getElementById('hdr-month-rev');
@@ -87,18 +88,27 @@ document.addEventListener('DOMContentLoaded', () => {
       String(now.getDate()).padStart(2, '0')
     ].join('-');
     const trips = currentTrips;
-    const todayTrips = trips.filter(t => t.date === todayStr && t.status === 'completed');
+    // DATA-11: with a shift open, the norm counts that shift's own trips —
+    // a night shift crossing midnight no longer resets at 00:00. With no
+    // shift open, this is exactly the prior by-date behaviour.
+    const openShift = shiftsStore.getOpenShift();
+    const normTrips = selectNormTrips(trips, openShift, todayStr);
     const monthTrips = trips.filter(t => {
       const d = new Date(t.date + 'T00:00:00');
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && t.status === 'completed';
     });
-    const todayRev = todayTrips.reduce((s, t) => s + t.price, 0);
+    const todayRev = normTrips.reduce((s, t) => s + t.price, 0);
     const monthRev = monthTrips.reduce((s, t) => s + t.price, 0);
-    const norm = (calcStore.state && calcStore.state.tripsPerDay) ? calcStore.state.tripsPerDay : 13;
-    const completedCount = todayTrips.length;
+    const norm = (openShift && openShift.normTarget)
+      ? openShift.normTarget
+      : ((calcStore.state && calcStore.state.tripsPerDay) ? calcStore.state.tripsPerDay : 13);
+    const completedCount = normTrips.length;
     const pct = Math.min(100, Math.round((completedCount / (norm || 1)) * 100));
 
     if (elTodayRev) elTodayRev.textContent = todayRev.toFixed(0);
+    // The number under this label is the shift's money once a shift runs, and a
+    // night shift reading "Сегодня €" at 00:30 would be showing yesterday's work.
+    if (elTodayRevLabel) elTodayRevLabel.textContent = openShift ? 'Смена €' : 'Сегодня €';
     if (elTodayTrips) elTodayTrips.textContent = completedCount;
     if (elNormTarget) elNormTarget.textContent = norm;
     if (elMonthRev) elMonthRev.textContent = monthRev.toFixed(0);
@@ -131,6 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   calcStore.subscribe(() => {
+    updateNormAndStats();
+  });
+
+  shiftsStore.subscribe(() => {
     updateNormAndStats();
   });
 
