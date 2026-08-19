@@ -42,6 +42,15 @@ export const formatNumber = (val) => {
 export const localDateKey = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
+export const localTimeKey = (d = new Date()) =>
+  `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+/**
+ * Local wall-clock stamp `YYYY-MM-DDTHH:MM` — sortable as a string and free of
+ * the UTC shift that `toISOString()` introduces at +3 (AUDIT-04).
+ */
+export const localStamp = (d = new Date()) => `${localDateKey(d)}T${localTimeKey(d)}`;
+
 export const parseLocalDate = (key) => {
   if (!key || typeof key !== 'string') return new Date();
   const [y, m, day] = key.split('-').map(Number);

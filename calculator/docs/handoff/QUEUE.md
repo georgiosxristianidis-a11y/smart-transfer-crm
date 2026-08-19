@@ -39,6 +39,7 @@
 | 24 | **CALC-02** — hotel commission per pickup: absent from the model entirely | 🟠 card · 🔵 code | — | economics review |
 | 25 | **CALC-03** — shoulder and winter seasons; winter reserve replaces the 5% magic number | 🔵 | — | economics review |
 | 26 | **CALC-04** — depreciation, 22% profit tax, break-even fare | 🟠 card · 🔵 code | — | economics review |
+| 27 | **DATA-10** — shift as an entity (IDB v3), trips gain `shiftId` + `actualLanding` | 🟠 | ✅ **done** (no UI) | DATA-10 |
 
 **Item 6 stands apart:** `NAV-01` **deletes** code and depends on nothing — takeable any time.
 

@@ -1,6 +1,31 @@
 import { DB } from './shared/db.js';
 import { localDateKey, parseLocalDate } from './shared/utils.js';
 
+/**
+ * Landing time as the driver saw it, normalised to a local `YYYY-MM-DDTHH:MM`
+ * stamp. A bare `HH:MM` is read against the trip's own date, so the value stays
+ * comparable with `date` + `time` and free of the UTC shift (AUDIT-04).
+ * Anything unparseable becomes null — a wrong landing time is worse than none.
+ */
+function normalizeActualLanding(value, tripDate) {
+  if (value === null || value === undefined || value === '') return null;
+  if (value instanceof Date) {
+    if (isNaN(value.getTime())) return null;
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}T${pad(value.getHours())}:${pad(value.getMinutes())}`;
+  }
+  if (typeof value !== 'string') return null;
+
+  const raw = value.trim();
+  const timeOnly = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(raw);
+  if (timeOnly) return `${tripDate}T${raw}`;
+
+  const stamp = /^(\d{4}-\d{2}-\d{2})[T ]([01]\d|2[0-3]):([0-5]\d)/.exec(raw);
+  if (stamp) return `${stamp[1]}T${stamp[2]}:${stamp[3]}`;
+
+  return null;
+}
+
 export class TripsStore {
   constructor() {
     this.db = new DB();
@@ -11,7 +36,10 @@ export class TripsStore {
 
   async loadInitialData() {
     try {
-      this.trips = await this.db.getAllTrips();
+      const rows = await this.db.getAllTrips();
+      // Rows written before DATA-10 have no `shiftId`/`actualLanding`; normalising
+      // on load means the rest of the code never has to ask whether they exist.
+      this.trips = rows.map(r => this._normalizeTrip(r));
       this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
       this.notify();
     } catch (e) {
@@ -35,25 +63,42 @@ export class TripsStore {
     return 'trip-' + Date.now() + '-' + Math.random().toString(36).slice(2, 11);
   }
 
-  async addTrip(tripData) {
-    const trip = {
-      id: tripData.id || this.generateId(),
-      clientName: tripData.clientName || 'Без имени',
-      phone: tripData.phone || '',
-      flightCode: tripData.flightCode || '',
-      date: tripData.date || localDateKey(), // YYYY-MM-DD
-      time: tripData.time || '12:00', // HH:MM
-      pickup: tripData.pickup || '',
-      dropoff: tripData.dropoff || '',
-      price: parseFloat(tripData.price) || 0,
-      status: tripData.status || 'pending',
-      paymentStatus: tripData.paymentStatus || 'unpaid', // 'unpaid' | 'paid' | 'cash' | 'card' | 'hotel'
-      pax: parseInt(tripData.pax, 10) || 1,
-      roomNumber: tripData.roomNumber || '',
-      notes: tripData.notes || '',
-      source: tripData.source || 'hotel', // 'hotel' | 'web' | 'ads' | 'walkin' | 'b2b'
-      createdAt: tripData.createdAt || Date.now()
+  /**
+   * Single shape definition for a trip. Every write path goes through here, so a
+   * field cannot exist on one route and be missing on another — which is how
+   * `shiftId` and `actualLanding` would otherwise reach only half the trips.
+   *
+   * @param {Object} raw
+   * @param {string} [fallbackDate] - used when the source row carries no date.
+   */
+  _normalizeTrip(raw = {}, fallbackDate) {
+    const date = raw.date || fallbackDate || localDateKey();
+    return {
+      id: raw.id || this.generateId(),
+      clientName: raw.clientName || 'Без имени',
+      phone: raw.phone || '',
+      flightCode: raw.flightCode || '',
+      date, // YYYY-MM-DD
+      time: raw.time || '12:00', // HH:MM
+      pickup: raw.pickup || '',
+      dropoff: raw.dropoff || '',
+      price: parseFloat(raw.price) || 0,
+      status: raw.status || 'pending',
+      paymentStatus: raw.paymentStatus || 'unpaid', // 'unpaid' | 'paid' | 'cash' | 'card' | 'hotel'
+      pax: parseInt(raw.pax, 10) || 1,
+      roomNumber: raw.roomNumber || '',
+      notes: raw.notes || '',
+      source: raw.source || 'hotel', // 'hotel' | 'web' | 'ads' | 'walkin' | 'b2b'
+      // DATA-10: which working shift this trip belongs to, and when the plane
+      // actually touched down. Both null until a person says otherwise.
+      shiftId: raw.shiftId || null,
+      actualLanding: normalizeActualLanding(raw.actualLanding, date),
+      createdAt: raw.createdAt || Date.now()
     };
+  }
+
+  async addTrip(tripData) {
+    const trip = this._normalizeTrip(tripData);
 
     this.trips.push(trip);
     this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
@@ -76,24 +121,7 @@ export class TripsStore {
 
     for (const item of tripsList) {
       if (!item || typeof item !== 'object') continue;
-      const trip = {
-        id: item.id || this.generateId(),
-        clientName: item.clientName || 'Без имени',
-        phone: item.phone || '',
-        flightCode: item.flightCode || '',
-        date: item.date || localDateKey(),
-        time: item.time || '12:00',
-        pickup: item.pickup || '',
-        dropoff: item.dropoff || '',
-        price: parseFloat(item.price) || 0,
-        status: item.status || 'pending',
-        paymentStatus: item.paymentStatus || 'unpaid',
-        pax: parseInt(item.pax, 10) || 1,
-        roomNumber: item.roomNumber || '',
-        notes: item.notes || '',
-        source: item.source || 'hotel',
-        createdAt: item.createdAt || Date.now()
-      };
+      const trip = this._normalizeTrip(item);
       this.trips.push(trip);
       await this.db.saveTrip(trip);
     }
@@ -125,24 +153,7 @@ export class TripsStore {
 
     const saved = [];
     for (const raw of newTrips) {
-      const trip = {
-        id: raw.id || this.generateId(),
-        clientName: raw.clientName || 'Без имени',
-        phone: raw.phone || '',
-        flightCode: raw.flightCode || '',
-        date: raw.date || targetDate || localDateKey(),
-        time: raw.time || '12:00',
-        pickup: raw.pickup || '',
-        dropoff: raw.dropoff || '',
-        price: parseFloat(raw.price) || 0,
-        status: raw.status || 'pending',
-        paymentStatus: raw.paymentStatus || 'unpaid',
-        pax: parseInt(raw.pax, 10) || 1,
-        roomNumber: raw.roomNumber || '',
-        notes: raw.notes || '',
-        source: raw.source || 'hotel',
-        createdAt: raw.createdAt || Date.now()
-      };
+      const trip = this._normalizeTrip(raw, targetDate);
       this.trips.push(trip);
       await this.db.saveTrip(trip);
       saved.push(trip);
@@ -201,6 +212,57 @@ export class TripsStore {
     this.trips = this.trips.filter(t => t.id !== id);
     await this.db.deleteTrip(id);
     this.notify();
+  }
+
+  /* --- DATA-10: shift link and landing fact --- */
+
+  /**
+   * Attaches a trip to a shift, or detaches it when `shiftId` is null.
+   * The store does not verify that the shift exists — that is the caller's
+   * business and would couple two stores that are deliberately independent.
+   */
+  async assignTripToShift(tripId, shiftId) {
+    const trip = this.trips.find(t => t.id === tripId);
+    if (!trip) throw new Error(`assignTripToShift: unknown trip ${tripId}`);
+
+    trip.shiftId = shiftId || null;
+    await this.db.saveTrip(trip);
+    this.notify();
+    return trip;
+  }
+
+  /**
+   * Records when the plane actually landed. Accepts `HH:MM`, a full
+   * `YYYY-MM-DDTHH:MM` stamp or a Date; anything else clears the field.
+   */
+  async setActualLanding(tripId, value) {
+    const trip = this.trips.find(t => t.id === tripId);
+    if (!trip) throw new Error(`setActualLanding: unknown trip ${tripId}`);
+
+    trip.actualLanding = normalizeActualLanding(value, trip.date);
+    await this.db.saveTrip(trip);
+    this.notify();
+    return trip;
+  }
+
+  /** Trips belonging to one shift — the basis for "9 of 13" that survives midnight. */
+  getTripsForShift(shiftId) {
+    if (!shiftId) return [];
+    return this.trips.filter(t => t.shiftId === shiftId);
+  }
+
+  /**
+   * Minutes between the scheduled pickup and the actual landing.
+   * Positive = the plane was late. Null when nothing was recorded.
+   */
+  getLandingDelayMins(tripId) {
+    const trip = this.trips.find(t => t.id === tripId);
+    if (!trip || !trip.actualLanding) return null;
+
+    const scheduled = new Date(`${trip.date}T${trip.time}`).getTime();
+    const landed = new Date(trip.actualLanding).getTime();
+    if (isNaN(scheduled) || isNaN(landed)) return null;
+    return Math.round((landed - scheduled) / 60000);
   }
 
   getCompletedRevenueForMonth(year, month) {
@@ -263,9 +325,9 @@ export class TripsStore {
       await this.db.deleteTrip(t.id);
     }
     for (const t of list) {
-      await this.db.saveTrip(t);
+      await this.db.saveTrip(this._normalizeTrip(t));
     }
-    this.trips = list.map(t => ({ ...t }));
+    this.trips = list.map(t => this._normalizeTrip(t));
     this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
     this.notify();
   }

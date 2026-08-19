@@ -279,3 +279,61 @@ test('FuelStore: Logging and metrics calculation', async () => {
 
 
 
+
+test('TripsStore: actualLanding accepts HH:MM and anchors it to the trip date', async () => {
+  const store = new TripsStore();
+  await store.ready;
+  await store.replaceAllTrips([]);
+
+  const trip = await store.addTrip({
+    clientName: 'Nikos', flightCode: 'A3 312',
+    date: '2026-08-19', time: '14:00', price: 45
+  });
+  assert.strictEqual(trip.actualLanding, null, 'nothing is recorded until a person records it');
+
+  await store.setActualLanding(trip.id, '14:35');
+  assert.strictEqual(store.trips[0].actualLanding, '2026-08-19T14:35');
+  assert.strictEqual(store.getLandingDelayMins(trip.id), 35, 'the plane was 35 minutes late');
+});
+
+test('TripsStore: actualLanding takes a full stamp, a Date, and rejects garbage', async () => {
+  const store = new TripsStore();
+  await store.ready;
+  await store.replaceAllTrips([]);
+
+  const trip = await store.addTrip({ date: '2026-08-19', time: '23:50', price: 60 });
+
+  // A landing after midnight keeps its own date — it is not folded onto the trip's.
+  await store.setActualLanding(trip.id, '2026-08-20T00:25');
+  assert.strictEqual(store.trips[0].actualLanding, '2026-08-20T00:25');
+  assert.strictEqual(store.getLandingDelayMins(trip.id), 35);
+
+  await store.setActualLanding(trip.id, new Date(2026, 7, 19, 23, 45));
+  assert.strictEqual(store.trips[0].actualLanding, '2026-08-19T23:45');
+
+  await store.setActualLanding(trip.id, 'скоро');
+  assert.strictEqual(store.trips[0].actualLanding, null, 'a wrong landing time is worse than none');
+  assert.strictEqual(store.getLandingDelayMins(trip.id), null);
+
+  await store.setActualLanding(trip.id, '25:99');
+  assert.strictEqual(store.trips[0].actualLanding, null);
+
+  await assert.rejects(() => store.setActualLanding('nope', '10:00'), /unknown trip/);
+});
+
+test('TripsStore: every write path yields the same shape (no half-normalised trips)', async () => {
+  const store = new TripsStore();
+  await store.ready;
+  await store.replaceAllTrips([]);
+
+  const added = await store.addTrip({ date: '2026-08-19', time: '10:00', price: 30 });
+  await store.importTripsBatch([{ clientName: 'CSV row', time: '11:00', price: 40 }], { targetDate: '2026-08-19' });
+  await store.importTrips([...store.getAllTripsSnapshot(), { id: 'legacy', clientName: 'Old', date: '2026-08-18' }]);
+
+  const keys = Object.keys(added).sort();
+  for (const t of store.trips) {
+    assert.deepStrictEqual(Object.keys(t).sort(), keys, `${t.clientName} has a different shape`);
+    assert.strictEqual(t.shiftId, null);
+    assert.strictEqual(t.actualLanding, null);
+  }
+});

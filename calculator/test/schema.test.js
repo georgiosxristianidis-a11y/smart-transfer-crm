@@ -21,8 +21,28 @@ test('schema: migrate throws UnknownSchemaVersionError for future versions', () 
   );
 });
 
-test('schema: migrate throws for gaps in downgrade path (no back-migration)', () => {
-  // from < to but no registered path yet — must throw, not silently pass through.
-  if (SCHEMA_VERSION === 1) return; // no earlier version to test with
-  assert.throws(() => migrate({}, 1, SCHEMA_VERSION), /No migration path/);
+test('schema: migrate throws when a step in the ladder is missing', () => {
+  // v0 was never a thing — an unregistered step must throw, not pass through.
+  assert.throws(() => migrate({}, 0, SCHEMA_VERSION), /No migration path from v0/);
+});
+
+test('schema: v1 → v2 adds shifts and stamps every trip with the new fields', () => {
+  const v1 = {
+    schemaVersion: 1,
+    trips: [
+      { id: 'a', clientName: 'Anna', date: '2026-08-20' },
+      { id: 'b', clientName: 'Boris', date: '2026-08-21', shiftId: 's-9', actualLanding: '2026-08-21T14:05' }
+    ],
+    fuelLogs: [],
+    calcState: {}
+  };
+  const out = migrate(v1, 1, 2);
+
+  assert.strictEqual(out.schemaVersion, 2);
+  assert.deepStrictEqual(out.shifts, []);
+  assert.strictEqual(out.trips[0].shiftId, null);
+  assert.strictEqual(out.trips[0].actualLanding, null);
+  assert.strictEqual(out.trips[1].shiftId, 's-9', 'an existing value is not overwritten');
+  assert.strictEqual(out.trips[1].actualLanding, '2026-08-21T14:05');
+  assert.strictEqual(v1.trips[0].shiftId, undefined, 'the input payload is not mutated');
 });

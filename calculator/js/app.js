@@ -4,6 +4,7 @@ import { TripsStore } from './trips.store.js';
 import { TripsView } from './trips.view.js';
 import { FuelStore } from './fuel.store.js';
 import { FuelView } from './fuel.view.js';
+import { ShiftsStore } from './shifts.store.js';
 import { BackupService } from './shared/backup.service.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcStore = new CalculatorStore();
   const tripsStore = new TripsStore();
   const fuelStore = new FuelStore();
+  // DATA-10: storage only, no UI yet. It exists here so backups carry shifts —
+  // a store outside the backup is a store one cache clear away from gone.
+  const shiftsStore = new ShiftsStore();
 
   // Initialize Views
   new CalculatorView(calcStore);
@@ -33,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnExportBackup) {
     btnExportBackup.addEventListener('click', () => {
       if (navigator.vibrate) navigator.vibrate(30);
-      const snapshot = BackupService.exportBackup({ tripsStore, fuelStore, calcStore });
+      const snapshot = BackupService.exportBackup({ tripsStore, fuelStore, calcStore, shiftsStore });
       BackupService.downloadBackupFile(snapshot);
       refreshBackupLabel();
     });
@@ -52,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const text = await file.text();
         const json = JSON.parse(text);
-        const res = await BackupService.importBackup(json, { tripsStore, fuelStore, calcStore });
+        const res = await BackupService.importBackup(json, { tripsStore, fuelStore, calcStore, shiftsStore });
         refreshBackupLabel();
         alert(`Данные успешно восстановлены!\nПоездок: ${res.stats.tripsCount}, Заправок: ${res.stats.fuelLogsCount}`);
       } catch (err) {

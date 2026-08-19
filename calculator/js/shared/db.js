@@ -1,13 +1,14 @@
 /**
  * Lightweight IndexedDB wrapper for PWA offline storage.
  * Follows 'Offline-first' GIO protocol.
- * Schema Version: 2 (Trips + Fuel stores, Persistent storage support)
+ * Schema Version: 3 (Trips + Fuel + Shifts stores, Persistent storage support)
  */
 
 const DB_NAME = 'UnitCalcDB';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_TRIPS = 'trips';
 const STORE_FUEL = 'fuel';
+const STORE_SHIFTS = 'shifts';
 
 export class DB {
   constructor() {
@@ -28,6 +29,12 @@ export class DB {
 
       request.onerror = () => reject(request.error);
 
+      // Fires when another tab holds the old version open. Without this the
+      // upgrade hangs silently and every read below rejects with no clue why.
+      request.onblocked = () => {
+        console.warn(`[DB] Upgrade to v${DB_VERSION} blocked — another tab holds an older connection open.`);
+      };
+
       request.onsuccess = () => {
         this.db = request.result;
         this.requestPersistence();
@@ -41,6 +48,12 @@ export class DB {
         }
         if (!db.objectStoreNames.contains(STORE_FUEL)) {
           db.createObjectStore(STORE_FUEL, { keyPath: 'id' });
+        }
+        // v3: shifts. Created additively — v2 trips and fuel rows are untouched.
+        if (!db.objectStoreNames.contains(STORE_SHIFTS)) {
+          const shifts = db.createObjectStore(STORE_SHIFTS, { keyPath: 'id' });
+          shifts.createIndex('by_date', 'date', { unique: false });
+          shifts.createIndex('by_status', 'status', { unique: false });
         }
       };
     });
@@ -163,6 +176,52 @@ export class DB {
     if (!this.db && typeof window === 'undefined') return true;
 
     const store = await this._getStore(STORE_FUEL, 'readwrite');
+    return new Promise((resolve, reject) => {
+      const request = store.clear();
+      request.onsuccess = () => resolve(true);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /* --- SHIFTS STORE --- */
+
+  async getAllShifts() {
+    if (!this.db && typeof window === 'undefined') return [];
+
+    const store = await this._getStore(STORE_SHIFTS, 'readonly');
+    return new Promise((resolve, reject) => {
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async saveShift(shift) {
+    if (!this.db && typeof window === 'undefined') return shift;
+
+    const store = await this._getStore(STORE_SHIFTS, 'readwrite');
+    return new Promise((resolve, reject) => {
+      const request = store.put(shift);
+      request.onsuccess = () => resolve(shift);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async deleteShift(id) {
+    if (!this.db && typeof window === 'undefined') return true;
+
+    const store = await this._getStore(STORE_SHIFTS, 'readwrite');
+    return new Promise((resolve, reject) => {
+      const request = store.delete(id);
+      request.onsuccess = () => resolve(true);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async clearShifts() {
+    if (!this.db && typeof window === 'undefined') return true;
+
+    const store = await this._getStore(STORE_SHIFTS, 'readwrite');
     return new Promise((resolve, reject) => {
       const request = store.clear();
       request.onsuccess = () => resolve(true);

@@ -6,7 +6,7 @@ import { SCHEMA_VERSION, UnknownSchemaVersionError } from '../js/shared/schema.j
 // Stub stores — in-Node round-trip test doesn't need real IndexedDB/localStorage,
 // only the interface backup.js relies on: get*Snapshot / replace*.
 function makeStubs(seed = {}) {
-  const state = { calc: seed.calc ?? {}, trips: seed.trips ?? [], logs: seed.logs ?? [] };
+  const state = { calc: seed.calc ?? {}, trips: seed.trips ?? [], logs: seed.logs ?? [], shifts: seed.shifts ?? [] };
   return {
     state,
     calculatorStore: {
@@ -20,6 +20,10 @@ function makeStubs(seed = {}) {
     fuelStore: {
       getAllLogsSnapshot: () => state.logs.map(l => ({ ...l })),
       replaceAllLogs: (list) => { state.logs = list.map(l => ({ ...l })); }
+    },
+    shiftsStore: {
+      getAllShiftsSnapshot: () => state.shifts.map(s => ({ ...s })),
+      replaceAllShifts: async (list) => { state.shifts = list.map(s => ({ ...s })); }
     }
   };
 }
@@ -31,7 +35,7 @@ test('backup: envelope shape has all required keys', () => {
   const env = JSON.parse(json);
   assert.deepStrictEqual(
     Object.keys(env).sort(),
-    ['calcState', 'exportedAt', 'fuelLogs', 'schemaVersion', 'trips']
+    ['calcState', 'exportedAt', 'fuelLogs', 'schemaVersion', 'shifts', 'trips']
   );
   assert.strictEqual(env.schemaVersion, SCHEMA_VERSION);
   assert.strictEqual(env.exportedAt, '2026-08-15T12:00:00.000Z');
@@ -46,6 +50,9 @@ test('backup: round-trip export → wipe → import restores state byte-identica
     ],
     logs: [
       { id: 'fuel-1', date: '2026-08-15', time: '08:30', amount: 50, liters: 26.3, station: 'BP' }
+    ],
+    shifts: [
+      { id: 'shift-1', date: '2026-08-20', startedAt: '2026-08-20T06:00', endedAt: '2026-08-20T22:00', status: 'closed', odoStart: 142500, odoEnd: 142880, normTarget: 13, notes: '', createdAt: 3 }
     ]
   };
   const source = makeStubs(seed);
@@ -57,6 +64,35 @@ test('backup: round-trip export → wipe → import restores state byte-identica
   assert.deepStrictEqual(target.state.calc, seed.calc);
   assert.deepStrictEqual(target.state.trips, seed.trips);
   assert.deepStrictEqual(target.state.logs, seed.logs);
+  assert.deepStrictEqual(target.state.shifts, seed.shifts);
+});
+
+test('backup: a v1 file imports into v2 — shifts appear, trips gain the new fields', async () => {
+  const target = makeStubs();
+  const v1File = JSON.stringify({
+    schemaVersion: 1,
+    exportedAt: '2026-08-01T00:00:00.000Z',
+    calcState: { checkGross: 45 },
+    trips: [{ id: 'old-trip', clientName: 'Legacy', date: '2026-07-30', time: '09:00', price: 40 }],
+    fuelLogs: []
+  });
+
+  await importAll(v1File, target);
+
+  assert.deepStrictEqual(target.state.shifts, []);
+  assert.strictEqual(target.state.trips[0].shiftId, null);
+  assert.strictEqual(target.state.trips[0].actualLanding, null);
+  assert.strictEqual(target.state.trips[0].clientName, 'Legacy', 'nothing else is disturbed');
+});
+
+test('backup: a shifts key of the wrong type is rejected', async () => {
+  const target = makeStubs({ shifts: [{ id: 'keep-me' }] });
+  const bad = JSON.stringify({
+    schemaVersion: SCHEMA_VERSION, exportedAt: 'x',
+    calcState: {}, trips: [], fuelLogs: [], shifts: 'not-array'
+  });
+  await assert.rejects(() => importAll(bad, target), /shifts must be array/);
+  assert.strictEqual(target.state.shifts[0].id, 'keep-me', 'untouched');
 });
 
 test('backup: importAll rejects future schemaVersion before touching any store', async () => {
