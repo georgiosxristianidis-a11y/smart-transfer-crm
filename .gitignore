@@ -1,0 +1,9 @@
+.gemini/
+.claude/
+node_modules/
+.DS_Store
+Thumbs.db
+.lighthouseci/
+lhr-*.html
+lhr-*.json
+

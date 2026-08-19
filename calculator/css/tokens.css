@@ -92,6 +92,27 @@
   --status-sched-bg:          rgba(129, 140, 248, 0.12);
   --status-sched-glow:        rgba(129, 140, 248, 0.25);
 
+  /* CRM Payment Status Tokens */
+  --payment-paid-fg:          #34D399; /* Emerald 400 */
+  --payment-paid-bg:          rgba(16, 185, 129, 0.14);
+  --payment-paid-border:      rgba(52, 211, 153, 0.35);
+
+  --payment-cash-fg:          #FBBF24; /* Amber 400 */
+  --payment-cash-bg:          rgba(245, 158, 11, 0.14);
+  --payment-cash-border:      rgba(251, 191, 36, 0.35);
+
+  --payment-card-fg:          #38BDF8; /* Sky 400 */
+  --payment-card-bg:          rgba(14, 165, 233, 0.14);
+  --payment-card-border:      rgba(56, 189, 248, 0.35);
+
+  --payment-hotel-fg:         #C084FC; /* Purple 400 */
+  --payment-hotel-bg:         rgba(168, 85, 247, 0.14);
+  --payment-hotel-border:     rgba(192, 132, 252, 0.35);
+
+  --payment-unpaid-fg:        #FB7185; /* Rose 400 (Anti-toxic red) */
+  --payment-unpaid-bg:        rgba(244, 63, 94, 0.14);
+  --payment-unpaid-border:    rgba(251, 113, 133, 0.35);
+
   /* ─── TIER 3: COMPONENT SPECULAR RIM LIGHTING & SHADOWS ─── */
   /* Specular Rim Light: Top reflection + Bottom shadow */
   --rim-light-neutral: 

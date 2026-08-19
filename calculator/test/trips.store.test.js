@@ -131,7 +131,18 @@ test('FlightService: Code extraction & Status resolving', async () => {
   const statusRes = FlightService.resolveFlightStatus(tripWithFlight);
   assert.ok(statusRes !== null);
   assert.strictEqual(statusRes.flightCode, 'LH1234');
-  assert.ok(['landed', 'ontime', 'delayed', 'scheduled'].includes(statusRes.status));
+  assert.strictEqual(statusRes.status, 'unknown');
+  assert.strictEqual(statusRes.label, 'Flightradar24');
+
+  // Test status override when external telemetry is provided
+  const tripWithOverride = {
+    ...tripWithFlight,
+    flightStatusOverride: { status: 'delayed', label: 'Задержка +35м', delayMins: 35 }
+  };
+  const overrideRes = FlightService.resolveFlightStatus(tripWithOverride);
+  assert.strictEqual(overrideRes.status, 'delayed');
+  assert.strictEqual(overrideRes.label, 'Задержка +35м');
+  assert.strictEqual(overrideRes.delayMins, 35);
 
   // Test status resolver with explicit manual flightCode outside allow-list (R-3)
   const tripManualFlight = {
@@ -146,6 +157,21 @@ test('FlightService: Code extraction & Status resolving', async () => {
   const manualRes = FlightService.resolveFlightStatus(tripManualFlight);
   assert.ok(manualRes !== null);
   assert.strictEqual(manualRes.flightCode, 'XY5678');
+
+  // Test explicit 1-2 digit flights in flightCode field (BA 1, A3 10)
+  const tripShortFlight = {
+    clientName: 'VIP Diplomat',
+    flightCode: 'BA 1',
+    date: '2026-08-14',
+    time: '19:00',
+    pickup: 'Αεροδρόμιο Ηρακλείου Ν. Καζαντζάκης',
+    dropoff: 'Elounda',
+    price: 150
+  };
+  const shortRes = FlightService.resolveFlightStatus(tripShortFlight);
+  assert.ok(shortRes !== null);
+  assert.strictEqual(shortRes.flightCode, 'BA1');
+  assert.strictEqual(shortRes.isAirport, true, 'Detects Greek airport name');
 
   // Test Navigation URL generator
   const navUrl = FlightService.getGoogleMapsNavUrl('Elounda Resort', 'HER Airport');
@@ -208,6 +234,36 @@ test('TripsStore: schedule conflicts detection (<45 mins)', async () => {
   assert.ok(!conflicts.has(t3.id), 'Trip 3 has no conflict');
 });
 
+test('TripsStore: importTripsBatch (append & replace) and payment status update', async () => {
+  const store = new TripsStore();
+  await store.ready;
+
+  const batch1 = [
+    { date: '2026-08-18', time: '09:00', clientName: 'Guest 1', price: 40, paymentStatus: 'paid', pax: 2 },
+    { date: '2026-08-18', time: '11:00', clientName: 'Guest 2', price: 50, paymentStatus: 'cash', phone: '+306912345678' }
+  ];
+
+  const count = await store.importTripsBatch(batch1, { mode: 'append' });
+  assert.strictEqual(count, 2);
+
+  const t2 = store.trips.find(t => t.clientName === 'Guest 2');
+  assert.strictEqual(t2.paymentStatus, 'cash');
+  assert.strictEqual(t2.phone, '+306912345678');
+
+  await store.updateTripPaymentStatus(t2.id, 'card');
+  assert.strictEqual(t2.paymentStatus, 'card');
+
+  // Replace mode for target date
+  const batch2 = [
+    { date: '2026-08-18', time: '14:00', clientName: 'Replaced Guest', price: 75, paymentStatus: 'hotel' }
+  ];
+
+  await store.importTripsBatch(batch2, { mode: 'replace', targetDate: '2026-08-18' });
+  const todayTrips = store.trips.filter(t => t.date === '2026-08-18');
+  assert.strictEqual(todayTrips.length, 1);
+  assert.strictEqual(todayTrips[0].clientName, 'Replaced Guest');
+});
+
 test('FuelStore: Logging and metrics calculation', async () => {
   const { FuelStore } = await import('../js/fuel.store.js');
   const fuelStore = new FuelStore();
@@ -222,3 +278,62 @@ test('FuelStore: Logging and metrics calculation', async () => {
 });
 
 
+
+
+test('TripsStore: actualLanding accepts HH:MM and anchors it to the trip date', async () => {
+  const store = new TripsStore();
+  await store.ready;
+  await store.replaceAllTrips([]);
+
+  const trip = await store.addTrip({
+    clientName: 'Nikos', flightCode: 'A3 312',
+    date: '2026-08-19', time: '14:00', price: 45
+  });
+  assert.strictEqual(trip.actualLanding, null, 'nothing is recorded until a person records it');
+
+  await store.setActualLanding(trip.id, '14:35');
+  assert.strictEqual(store.trips[0].actualLanding, '2026-08-19T14:35');
+  assert.strictEqual(store.getLandingDelayMins(trip.id), 35, 'the plane was 35 minutes late');
+});
+
+test('TripsStore: actualLanding takes a full stamp, a Date, and rejects garbage', async () => {
+  const store = new TripsStore();
+  await store.ready;
+  await store.replaceAllTrips([]);
+
+  const trip = await store.addTrip({ date: '2026-08-19', time: '23:50', price: 60 });
+
+  // A landing after midnight keeps its own date — it is not folded onto the trip's.
+  await store.setActualLanding(trip.id, '2026-08-20T00:25');
+  assert.strictEqual(store.trips[0].actualLanding, '2026-08-20T00:25');
+  assert.strictEqual(store.getLandingDelayMins(trip.id), 35);
+
+  await store.setActualLanding(trip.id, new Date(2026, 7, 19, 23, 45));
+  assert.strictEqual(store.trips[0].actualLanding, '2026-08-19T23:45');
+
+  await store.setActualLanding(trip.id, 'скоро');
+  assert.strictEqual(store.trips[0].actualLanding, null, 'a wrong landing time is worse than none');
+  assert.strictEqual(store.getLandingDelayMins(trip.id), null);
+
+  await store.setActualLanding(trip.id, '25:99');
+  assert.strictEqual(store.trips[0].actualLanding, null);
+
+  await assert.rejects(() => store.setActualLanding('nope', '10:00'), /unknown trip/);
+});
+
+test('TripsStore: every write path yields the same shape (no half-normalised trips)', async () => {
+  const store = new TripsStore();
+  await store.ready;
+  await store.replaceAllTrips([]);
+
+  const added = await store.addTrip({ date: '2026-08-19', time: '10:00', price: 30 });
+  await store.importTripsBatch([{ clientName: 'CSV row', time: '11:00', price: 40 }], { targetDate: '2026-08-19' });
+  await store.importTrips([...store.getAllTripsSnapshot(), { id: 'legacy', clientName: 'Old', date: '2026-08-18' }]);
+
+  const keys = Object.keys(added).sort();
+  for (const t of store.trips) {
+    assert.deepStrictEqual(Object.keys(t).sort(), keys, `${t.clientName} has a different shape`);
+    assert.strictEqual(t.shiftId, null);
+    assert.strictEqual(t.actualLanding, null);
+  }
+});

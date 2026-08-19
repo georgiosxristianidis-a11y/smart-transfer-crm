@@ -5,7 +5,6 @@
  */
 
 import { exportAll, importAll } from './backup.js';
-import { SCHEMA_VERSION } from './schema.js';
 import { localDateKey } from './utils.js';
 
 const LAST_BACKUP_KEY = 'smart_transfer_last_backup_ts';
@@ -14,11 +13,12 @@ export class BackupService {
   /**
    * Generates a complete backup snapshot of the application state.
    */
-  static exportBackup({ tripsStore, fuelStore, calcStore }) {
+  static exportBackup({ tripsStore, fuelStore, calcStore, shiftsStore }) {
     const jsonStr = exportAll({
       calculatorStore: calcStore,
       tripsStore: tripsStore,
-      fuelStore: fuelStore
+      fuelStore: fuelStore,
+      shiftsStore: shiftsStore
     });
     return JSON.parse(jsonStr);
   }
@@ -48,11 +48,12 @@ export class BackupService {
   /**
    * Imports a backup snapshot into all application stores.
    */
-  static async importBackup(backupData, { tripsStore, fuelStore, calcStore }) {
+  static async importBackup(backupData, { tripsStore, fuelStore, calcStore, shiftsStore }) {
     const env = await importAll(backupData, {
       calculatorStore: calcStore,
       tripsStore: tripsStore,
-      fuelStore: fuelStore
+      fuelStore: fuelStore,
+      shiftsStore: shiftsStore
     });
 
     this.recordBackupTimestamp();
@@ -61,7 +62,8 @@ export class BackupService {
       success: true,
       stats: {
         tripsCount: (env.trips || []).length,
-        fuelLogsCount: (env.fuelLogs || []).length
+        fuelLogsCount: (env.fuelLogs || []).length,
+        shiftsCount: (env.shifts || []).length
       }
     };
   }

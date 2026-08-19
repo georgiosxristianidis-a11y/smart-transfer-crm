@@ -1,6 +1,6 @@
 import { SCHEMA_VERSION } from './shared/schema.js';
 import { DB } from './shared/db.js';
-import { localDateKey, parseLocalDate } from './shared/utils.js';
+import { localDateKey } from './shared/utils.js';
 
 export class FuelStore {
   constructor() {
@@ -146,7 +146,7 @@ export class FuelStore {
     let monthLiters = 0;
 
     this.logs.forEach(log => {
-      const logDate = parseLocalDate(log.date);
+      const logDate = new Date(log.date);
       if (log.date === todayStr) {
         todayAmount += log.amount;
         todayLiters += log.liters;

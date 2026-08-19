@@ -17,8 +17,8 @@ Remove fake hash-based status simulation and fake Sync button. Implement strict 
 - `docs/handoff/cards/AUDIT-02-flight-status-honest.md`
 
 ## Done when
-1. `flight.service.js` has no hash/simulation and returns `status: 'unknown'`, `label: 'Нет данных'` without external override.
-2. `KNOWN_IATA_CODES` whitelist matches real airlines and rejects non-flight false positives (`Room 1205`, `+30 694 1234`, `ул. 25 Августа 1234`).
-3. Fake "Sync" button and fake alert removed from UI.
-4. Flight radar links lead directly to Flightradar24 (`rel="noopener noreferrer"`).
-5. All test suites pass (0 failures).
+1. ✅ `flight.service.js` has no hash/simulation and returns honest `status: 'unknown'`, `label: 'Flightradar24'` without external override.
+2. ✅ `KNOWN_IATA_CODES` whitelist matches real airlines and rejects non-flight false positives (`Room 1205`, `+30 694 1234`, `ул. 25 Августа 1234`).
+3. ✅ Fake "Sync" button and fake alert removed from UI.
+4. ✅ Flight radar links lead directly to Flightradar24 (`rel="noopener noreferrer"`).
+5. ✅ All test suites pass (0 failures).

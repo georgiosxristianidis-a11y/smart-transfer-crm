@@ -1,4 +1,4 @@
-import { formatCurrency, html } from './shared/utils.js';
+import { html } from './shared/utils.js';
 
 export class FuelView {
   constructor(fuelStore) {
@@ -12,7 +12,7 @@ export class FuelView {
 
   initDOM() {
     this.els = {
-      container: document.getElementById('tab-fuel'),
+      container: document.getElementById('tab-uchet') || document.getElementById('tab-fuel'),
       heroAmount: document.getElementById('fuel-hero-amount'),
       heroLiters: document.getElementById('fuel-hero-liters'),
       heroPeriodLabel: document.getElementById('fuel-hero-period-lbl'),
@@ -23,6 +23,15 @@ export class FuelView {
       btnQuick90: document.getElementById('btn-fuel-quick-90'),
       btnCustom: document.getElementById('btn-fuel-custom'),
       
+      // Quick Fuel Modal on Смена screen
+      btnOpenQuickFuel: document.getElementById('btn-quick-fuel'),
+      modalQuickFuel: document.getElementById('modal-quick-fuel'),
+      btnCloseQuickFuel: document.getElementById('btn-close-quick-fuel'),
+      btnModalFuel20: document.getElementById('btn-modal-fuel-20'),
+      btnModalFuel50: document.getElementById('btn-modal-fuel-50'),
+      btnModalFuel90: document.getElementById('btn-modal-fuel-90'),
+      btnModalFuelCustom: document.getElementById('btn-modal-fuel-custom'),
+
       logsList: document.getElementById('fuel-logs-list')
     };
   }
@@ -41,7 +50,7 @@ export class FuelView {
       });
     }
 
-    // Quick add buttons
+    // Quick add buttons on accounting tab
     if (this.els.btnQuick20) {
       this.els.btnQuick20.addEventListener('click', () => this.handleQuickAdd(20));
     }
@@ -52,13 +61,62 @@ export class FuelView {
       this.els.btnQuick90.addEventListener('click', () => this.handleQuickAdd(90, 'Полный бак'));
     }
     if (this.els.btnCustom) {
-      this.els.btnCustom.addEventListener('click', () => {
-        const val = prompt('Введите сумму заправки (€):', '40');
-        if (val) {
-          const num = parseFloat(val);
-          if (num > 0) this.handleQuickAdd(num, 'Заправка');
-        }
+      this.els.btnCustom.addEventListener('click', () => this.promptCustomFuel());
+    }
+
+    // Quick Fuel Modal (on Смена screen)
+    if (this.els.btnOpenQuickFuel && this.els.modalQuickFuel) {
+      this.els.btnOpenQuickFuel.addEventListener('click', () => {
+        if (navigator.vibrate) navigator.vibrate(30);
+        this.els.modalQuickFuel.classList.remove('hidden');
       });
+    }
+
+    const closeQuickModal = () => {
+      if (this.els.modalQuickFuel) this.els.modalQuickFuel.classList.add('hidden');
+    };
+
+    if (this.els.btnCloseQuickFuel) {
+      this.els.btnCloseQuickFuel.addEventListener('click', closeQuickModal);
+    }
+
+    if (this.els.modalQuickFuel) {
+      this.els.modalQuickFuel.addEventListener('click', (e) => {
+        if (e.target === this.els.modalQuickFuel) closeQuickModal();
+      });
+    }
+
+    if (this.els.btnModalFuel20) {
+      this.els.btnModalFuel20.addEventListener('click', () => {
+        this.handleQuickAdd(20);
+        closeQuickModal();
+      });
+    }
+    if (this.els.btnModalFuel50) {
+      this.els.btnModalFuel50.addEventListener('click', () => {
+        this.handleQuickAdd(50);
+        closeQuickModal();
+      });
+    }
+    if (this.els.btnModalFuel90) {
+      this.els.btnModalFuel90.addEventListener('click', () => {
+        this.handleQuickAdd(90, 'Полный бак');
+        closeQuickModal();
+      });
+    }
+    if (this.els.btnModalFuelCustom) {
+      this.els.btnModalFuelCustom.addEventListener('click', () => {
+        closeQuickModal();
+        this.promptCustomFuel();
+      });
+    }
+  }
+
+  promptCustomFuel() {
+    const val = prompt('Введите сумму заправки (€):', '40');
+    if (val) {
+      const num = parseFloat(val);
+      if (num > 0) this.handleQuickAdd(num, 'Заправка');
     }
   }
 

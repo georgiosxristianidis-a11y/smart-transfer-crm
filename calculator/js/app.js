@@ -4,19 +4,22 @@ import { TripsStore } from './trips.store.js';
 import { TripsView } from './trips.view.js';
 import { FuelStore } from './fuel.store.js';
 import { FuelView } from './fuel.view.js';
+import { ShiftsStore } from './shifts.store.js';
 import { BackupService } from './shared/backup.service.js';
-import { localDateKey, parseLocalDate } from './shared/utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Stores
   const calcStore = new CalculatorStore();
   const tripsStore = new TripsStore();
   const fuelStore = new FuelStore();
+  // DATA-10: storage only, no UI yet. It exists here so backups carry shifts —
+  // a store outside the backup is a store one cache clear away from gone.
+  const shiftsStore = new ShiftsStore();
 
   // Initialize Views
-  const calcView = new CalculatorView(calcStore);
-  const tripsView = new TripsView(tripsStore);
-  const fuelView = new FuelView(fuelStore);
+  new CalculatorView(calcStore);
+  new TripsView(tripsStore);
+  new FuelView(fuelStore);
 
   // Backup & Restore handlers (AUDIT-05)
   const lblLastBackup = document.getElementById('lbl-last-backup');
@@ -34,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnExportBackup) {
     btnExportBackup.addEventListener('click', () => {
       if (navigator.vibrate) navigator.vibrate(30);
-      const snapshot = BackupService.exportBackup({ tripsStore, fuelStore, calcStore });
+      const snapshot = BackupService.exportBackup({ tripsStore, fuelStore, calcStore, shiftsStore });
       BackupService.downloadBackupFile(snapshot);
       refreshBackupLabel();
     });
@@ -53,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const text = await file.text();
         const json = JSON.parse(text);
-        const res = await BackupService.importBackup(json, { tripsStore, fuelStore, calcStore });
+        const res = await BackupService.importBackup(json, { tripsStore, fuelStore, calcStore, shiftsStore });
         refreshBackupLabel();
         alert(`Данные успешно восстановлены!\nПоездок: ${res.stats.tripsCount}, Заправок: ${res.stats.fuelLogsCount}`);
       } catch (err) {
@@ -76,13 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentTrips = [];
 
   function updateNormAndStats() {
-    // Use local date, not UTC — toISOString() returns UTC and shifts date by -3h before 03:00 local (AUDIT-04)
+    // Use local date, not UTC — toISOString() returns UTC and shifts date by -3h before 03:00 local
     const now = new Date();
-    const todayStr = localDateKey(now);
+    const todayStr = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0')
+    ].join('-');
     const trips = currentTrips;
     const todayTrips = trips.filter(t => t.date === todayStr && t.status === 'completed');
     const monthTrips = trips.filter(t => {
-      const d = parseLocalDate(t.date);
+      const d = new Date(t.date + 'T00:00:00');
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && t.status === 'completed';
     });
     const todayRev = todayTrips.reduce((s, t) => s + t.price, 0);
@@ -156,10 +163,32 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       if (document.startViewTransition) {
-        document.startViewTransition(switchTabs);
+        try {
+          const vt = document.startViewTransition(switchTabs);
+          if (vt && vt.finished) {
+            vt.finished.catch(() => {});
+          }
+        } catch {
+          switchTabs();
+        }
       } else {
         switchTabs();
       }
     });
   });
+
+  // Print button handler (AUDIT-06)
+  const btnPrint = document.getElementById('btn-print');
+  if (btnPrint) {
+    btnPrint.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+  // Register Service Worker (AUDIT-06)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch((err) => {
+      console.error('[SW] Registration failed:', err);
+    });
+  }
 });
