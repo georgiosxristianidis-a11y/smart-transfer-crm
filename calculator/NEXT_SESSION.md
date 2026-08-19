@@ -20,7 +20,7 @@
 
 **CALC-01** — input VAT 24% is never reclaimed: fuel, servicing, tyres and overheads are expensed gross, overstating cost by ≈€4 900/yr. 🟠 writes the card (which expense line carries which rate — insurance and ΕΦΚΑ are exempt) before 🔵 codes it.
 
-Open and independent: items 3, 5.
+Open and independent: item 5.
 
 ## Owner decisions not yet executed
 
