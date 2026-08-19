@@ -47,7 +47,7 @@
 
       <div class="header-stats">
         <div class="hstat">
-          <div class="hstat-label">Сегодня €</div>
+          <div class="hstat-label" id="hdr-today-rev-label">Сегодня €</div>
           <div class="hstat-val indigo" id="hdr-today-rev">0</div>
         </div>
         <div class="hstat" id="hstat-trips-box">
@@ -63,6 +63,16 @@
 
     <!-- TAB 1: TRIPS DISPATCH -->
     <div id="tab-trips" class="tab-content active">
+      <!-- SHIFT BAR (DATA-11) -->
+      <div id="shift-bar" class="shift-bar no-print" role="region" aria-label="Смена">
+        <div class="shift-bar-info">
+          <span id="shift-bar-status" class="shift-bar-status">Смена не открыта</span>
+          <span id="shift-bar-meta" class="shift-bar-meta hidden"></span>
+        </div>
+        <button type="button" id="btn-open-shift" class="btn btn-primary btn-shift">Открыть смену</button>
+        <button type="button" id="btn-close-shift" class="btn btn-outline btn-shift hidden">Закрыть смену</button>
+      </div>
+
       <!-- SHIFT NORM PROGRESS (NAV-05) -->
       <div id="shift-norm-container" class="shift-norm-card no-print" role="region" aria-label="Прогресс смены">
         <div class="shift-norm-header">
@@ -568,6 +578,48 @@
 
 
   <!-- MODAL: ADVANCED SETTINGS (3-DOTS & TOP-RIGHT BUTTON) -->
+  <!-- MODAL: OPEN SHIFT (DATA-11) -->
+  <div id="modal-open-shift" class="modal-overlay hidden no-print">
+    <div class="modal-content">
+      <div class="modal-header-row">
+        <h2 style="margin:0; font-size: 18px; font-weight: 700; color: var(--text-hi);">Открыть смену</h2>
+        <button type="button" id="btn-close-open-shift-modal" class="btn-close-modal" title="Закрыть">✕</button>
+      </div>
+      <form id="form-open-shift">
+        <div class="control-group mt-15">
+          <label for="inp-shift-odo-start" class="control-title">Одометр на старте, км (необязательно)</label>
+          <input type="number" id="inp-shift-odo-start" min="0" step="1" class="input-text input-large" placeholder="142500">
+        </div>
+        <p id="err-open-shift" class="form-error-text hidden"></p>
+        <div class="modal-equal-actions mt-20">
+          <button type="button" id="btn-cancel-open-shift" class="btn btn-outline btn-modal-action">Отмена</button>
+          <button type="submit" class="btn btn-primary btn-modal-action">Открыть смену</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CLOSE SHIFT (DATA-11) -->
+  <div id="modal-close-shift" class="modal-overlay hidden no-print">
+    <div class="modal-content">
+      <div class="modal-header-row">
+        <h2 style="margin:0; font-size: 18px; font-weight: 700; color: var(--text-hi);">Закрыть смену</h2>
+        <button type="button" id="btn-close-close-shift-modal" class="btn-close-modal" title="Закрыть">✕</button>
+      </div>
+      <form id="form-close-shift">
+        <div class="control-group mt-15">
+          <label for="inp-shift-odo-end" class="control-title">Одометр на финише, км</label>
+          <input type="number" id="inp-shift-odo-end" min="0" step="1" class="input-text input-large" placeholder="142780">
+        </div>
+        <p id="err-close-shift" class="form-error-text hidden"></p>
+        <div class="modal-equal-actions mt-20">
+          <button type="button" id="btn-cancel-close-shift" class="btn btn-outline btn-modal-action">Отмена</button>
+          <button type="submit" class="btn btn-primary btn-modal-action">Закрыть смену</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="modal-calc-settings" class="modal-overlay hidden no-print">
     <div class="modal-content">
       <div class="modal-header-row">
