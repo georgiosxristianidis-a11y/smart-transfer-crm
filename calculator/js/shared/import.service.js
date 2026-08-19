@@ -7,6 +7,9 @@
 import { FlightService } from './flight.service.js';
 import { localDateKey } from './utils.js';
 
+/** A `:` or a single whitespace character — the run that may sit before a flight code. */
+const SEPARATOR = /[:\s]/;
+
 export class ImportService {
   /**
    * Main entry point: auto-detects format (CSV/TSV or WhatsApp/free-form text) and extracts trips.
@@ -153,7 +156,7 @@ export class ImportService {
     };
 
     headers.forEach((h, index) => {
-      const cleanHeader = h.toLowerCase().replace(/['"_\-]/g, ' ').trim();
+      const cleanHeader = h.toLowerCase().replace(/['"_-]/g, ' ').trim();
       for (const [key, regex] of Object.entries(patterns)) {
         if (regex.test(cleanHeader) && map[key] === undefined) {
           map[key] = index;
@@ -246,11 +249,48 @@ export class ImportService {
   }
 
   /**
+   * Removes every occurrence of a flight code, together with the label that may
+   * sit in front of it ("fl", "flight", "рейс", "πτήση") and any `:`/space run.
+   *
+   * Plain string search, not `new RegExp(code)`: the code comes out of the text
+   * being parsed, and a pattern built from parsed input is a pattern the parser
+   * no longer controls. The walk-back is linear — nothing here backtracks.
+   */
+  static stripFlightCode(text, flightCode) {
+    if (!flightCode) return text;
+
+    // Longest first: "flight" must win over the "fl" prefix inside it.
+    const LABELS = ['flight', 'рейс', 'πτήση', 'fl'];
+    const needle = flightCode.toUpperCase();
+    let out = text;
+    let searchFrom = 0;
+
+    for (;;) {
+      const idx = out.toUpperCase().indexOf(needle, searchFrom);
+      if (idx === -1) return out;
+
+      let start = idx;
+      while (start > 0 && SEPARATOR.test(out[start - 1])) start--;
+
+      const before = out.slice(0, start).toLowerCase();
+      for (const label of LABELS) {
+        if (before.endsWith(label)) {
+          start -= label.length;
+          break;
+        }
+      }
+
+      out = `${out.slice(0, start)} ${out.slice(idx + needle.length)}`;
+      searchFrom = start + 1;
+    }
+  }
+
+  /**
    * Parses a single WhatsApp order line.
    */
   static parseWhatsAppLine(line, currentDate, opts) {
     // Remove leading bullet/numbering e.g. "1.", "1)", "- ", "* "
-    let text = line.replace(/^(\d+[\.\)]|\*|-|•)\s*/, '').trim();
+    let text = line.replace(/^(\d+[.)]|\*|-|•)\s*/, '').trim();
 
     // A transfer order line MUST contain a route separator (->, —, -, to, →)
     const routeSeparators = /\s*(?:->|-->|=>|→|—|\s-\s|\sto\s|\sв\s|\sдо\s|\sπρος\s)\s*/i;
@@ -275,12 +315,12 @@ export class ImportService {
     // 3. Extract Flight Code
     const flightCode = FlightService.extractFlightCode(text, true, false) || '';
     if (flightCode) {
-      text = text.replace(new RegExp(`(fl|flight|рейс|πτήση)?[:\\s]*${flightCode}`, 'gi'), ' ');
+      text = this.stripFlightCode(text, flightCode);
     }
 
     // 4. Extract Room Number
     let roomNumber = '';
-    const roomMatch = text.match(/\b(?:room|номер|комната|rm|apt|δωμ)[\s#:]*([A-Za-z0-9\-]+)\b/i);
+    const roomMatch = text.match(/\b(?:room|номер|комната|rm|apt|δωμ)[\s#:]*([A-Za-z0-9-]+)\b/i);
     if (roomMatch) {
       roomNumber = roomMatch[1];
       text = text.replace(roomMatch[0], ' ');
@@ -288,7 +328,7 @@ export class ImportService {
 
     // 5. Extract Phone Number
     let phone = '';
-    const phoneMatch = text.match(/\+?\d[\d\s\-\(\)]{7,}\d/);
+    const phoneMatch = text.match(/\+?\d[\d\s()-]{7,}\d/);
     if (phoneMatch && phoneMatch[0].replace(/\D/g, '').length >= 9) {
       phone = phoneMatch[0].trim();
       text = text.replace(phoneMatch[0], ' ');
@@ -298,7 +338,7 @@ export class ImportService {
     let price = opts.defaultPrice;
     let paymentStatus = 'unpaid';
 
-    const priceMatch = text.match(/([€$]\s*(\d+(?:[.,]\d{1,2})?)|\b(\d+(?:[.,]\d{1,2})?)\s*(?:€|\$|eur|евро|euro))\s*(cash|нал|наличные|paid|оплачено|card|карта|hotel|отель|b2b|картой)?/i);
+    const priceMatch = text.match(/([€$]\s*(\d+(?:[.,]\d\d|[.,]\d)?)|\b(\d+(?:[.,]\d\d|[.,]\d)?)\s*(?:€|\$|eur|евро|euro))\s*(cash|нал|наличные|paid|оплачено|card|карта|hotel|отель|b2b|картой)?/i);
     if (priceMatch) {
       const numStr = priceMatch[2] || priceMatch[3];
       if (numStr) price = parseFloat(numStr.replace(',', '.'));
@@ -423,7 +463,7 @@ export class ImportService {
     if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) return clean;
 
     // DD.MM.YYYY or DD/MM/YYYY or DD-MM-YYYY
-    const match = clean.match(/^(\d{1,2})[./\-](\d{1,2})[./\-](\d{4})$/);
+    const match = clean.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
     if (match) {
       return `${match[3]}-${String(match[2]).padStart(2, '0')}-${String(match[1]).padStart(2, '0')}`;
     }

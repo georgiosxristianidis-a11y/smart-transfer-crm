@@ -146,3 +146,58 @@ test('ImportService: Empty or invalid input handling', () => {
   assert.ok(res3.errors.length > 0);
 });
 
+// --- INFRA-02: the rewritten spots must parse exactly as before ---
+
+test('ImportService: stripFlightCode removes the code and the label in front of it', () => {
+  const cases = [
+    ['Ivan HER -> Elounda flight A3312 14:00', 'A3312', ['flight'], ['Ivan', 'Elounda', '14:00']],
+    ['Maria рейс: U24531 CHQ -> Chania', 'U24531', ['рейс'], ['Maria', 'CHQ', 'Chania']],
+    ['Petros FL FR8214 airport pickup', 'FR8214', ['FL'], ['Petros', 'airport', 'pickup']],
+    ['Anna πτήση W64412 HER -> Malia', 'W64412', ['πτήση'], ['Anna', 'HER', 'Malia']],
+    ['Nikos A3312 -> hotel', 'A3312', [], ['Nikos', 'hotel']]
+  ];
+
+  for (const [line, code, goneWords, keptWords] of cases) {
+    const out = ImportService.stripFlightCode(line, code);
+    assert.ok(!out.toUpperCase().includes(code), `${code} still present in "${out}"`);
+    for (const gone of goneWords) {
+      assert.ok(!out.toLowerCase().includes(gone.toLowerCase()), `label "${gone}" left behind in "${out}"`);
+    }
+    for (const kept of keptWords) {
+      assert.ok(out.includes(kept), `"${kept}" was eaten from "${line}" -> "${out}"`);
+    }
+  }
+
+  assert.strictEqual(ImportService.stripFlightCode('no flight here', 'A3312'), 'no flight here');
+  assert.strictEqual(ImportService.stripFlightCode('anything', ''), 'anything');
+});
+
+test('ImportService: stripFlightCode clears every occurrence and terminates', () => {
+  const out = ImportService.stripFlightCode('A3312 duplicate рейс A3312 tail', 'A3312');
+  assert.ok(!out.includes('A3312'));
+  assert.ok(out.includes('duplicate') && out.includes('tail'));
+});
+
+test('ImportService: prices with and without decimals survive the regex flattening', () => {
+  const rows = [
+    ['Ivan HER -> Elounda 14:00 €45', 45],
+    ['Ivan HER -> Elounda 14:00 €45.5', 45.5],
+    ['Ivan HER -> Elounda 14:00 €45.50', 45.5],
+    ['Ivan HER -> Elounda 14:00 €45,90', 45.9],
+    ['Ivan HER -> Elounda 14:00 120 eur', 120],
+    ['Ivan HER -> Elounda 14:00 120,25 евро', 120.25]
+  ];
+
+  for (const [line, expected] of rows) {
+    const res = ImportService.parse(line, { defaultDate: '2026-08-19' });
+    assert.strictEqual(res.trips.length, 1, `not parsed: "${line}"`);
+    assert.strictEqual(res.trips[0].price, expected, `wrong price for "${line}"`);
+  }
+});
+
+test('ImportService: a payment marker after the price still lands', () => {
+  const res = ImportService.parse('Maria HER -> Malia 16:30 €80 cash', { defaultDate: '2026-08-19' });
+  assert.strictEqual(res.trips.length, 1);
+  assert.strictEqual(res.trips[0].price, 80);
+  assert.strictEqual(res.trips[0].paymentStatus, 'cash');
+});

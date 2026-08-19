@@ -39,9 +39,8 @@
 | 24 | **CALC-02** — hotel commission per pickup: absent from the model entirely | 🟠 card · 🔵 code | — | economics review |
 | 25 | **CALC-03** — shoulder and winter seasons; winter reserve replaces the 5% magic number | 🔵 | — | economics review |
 | 26 | **CALC-04** — depreciation, 22% profit tax, break-even fare | 🟠 card · 🔵 code | — | economics review |
-| 27 | **DATA-10** — shift as an entity (IDB v3), trips gain `shiftId` + `actualLanding` | 🟠 | ✅ **done** (no UI) | DATA-10 |
-
-**Item 6 stands apart:** `NAV-01` **deletes** code and depends on nothing — takeable any time.
+| 27 | **DATA-10** — shift as an entity (IDB v3), trip gains `shiftId`/`actualLanding` | 🟠 | ✅ **done** (no UI) | DATA-10 |
+| 28 | **INFRA-02** — lint gate red on the import parser | 🟠 | ✅ **done** | INFRA-02 |
 
 **CALC is money math:** 🟠 pins rates and formula in the card before 🔵 types. A wrong VAT rate on the wrong line fails no test, it silently inflates profit. Item 25 also settles item 20's magic `netRevenue * 0.05`.
 
