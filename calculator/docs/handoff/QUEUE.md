@@ -41,7 +41,7 @@
 | 26 | **CALC-04** — depreciation, 22% profit tax, break-even fare | 🟠 card · 🔵 code | — | economics review |
 | 27 | **DATA-10** — shift as an entity (IDB v3), trip gains `shiftId`/`actualLanding` | 🟠 | ✅ **done** (no UI) | DATA-10 |
 | 28 | **INFRA-02** — lint gate red on the import parser | 🟠 | ✅ **done** | INFRA-02 |
-| 29 | **DATA-11** — shift UI: open/close, norm by shift | 🔵 | — | card |
+| 29 | **DATA-11** — shift UI: open/close, norm by shift | 🔵 | ✅ **merged** | card |
 
 **CALC is money math:** 🟠 pins rates and formula in the card before 🔵 types. A wrong VAT rate on the wrong line fails no test, it silently inflates profit. Item 25 also settles item 20's magic `netRevenue * 0.05`.
 
