@@ -1,20 +1,3 @@
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node",
-            "args": [
-              "C:\\PROJECTS\\TAXI\\.claude\\hooks\\bump-version.mjs"
-            ],
-            "timeout": 10,
-            "statusMessage": "bump version"
-          }
-        ]
-      }
-    ]
-  }
+  "//": "Version bump moved to .githooks/pre-commit (scripts/bump-version.mjs --staged): git is the only path every agent goes through, a PostToolUse hook only fires for one tool."
 }

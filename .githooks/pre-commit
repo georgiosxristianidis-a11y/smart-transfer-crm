@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Hardcore Fail-Safe Pre-Commit Hook (PROTOCOL.md & DV Enforcement)
+set -e
+
+# 1. Master Branch Protection
+branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+# Allow merge commits or direct override if explicitly bypassed, but block regular commits on master
+if [ "$branch" = "master" ] || [ "$branch" = "main" ]; then
+  # Check if this is a merge commit
+  if [ ! -f .git/MERGE_HEAD ]; then
+    echo "❌ [PRE-COMMIT BLOCKED]: Direct commits on '$branch' are forbidden by PROTOCOL.md."
+    echo "👉 Work in a dedicated card branch: git checkout -b <card-id-slug>"
+    exit 1
+  fi
+fi
+
+# Determine root and calculator dir. Ask git, not the script path: this hook lives in
+# .githooks (versioned) and used to live in .git/hooks, one directory deeper.
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+CALC_DIR="$REPO_ROOT/calculator"
+
+# 2. Machine Double Verification Gate (Zero-Lazy, DOM leaks, innerHTML, Hex colors)
+if [ -f "$REPO_ROOT/.gemini/scripts/gate-dv.mjs" ]; then
+  node "$REPO_ROOT/.gemini/scripts/gate-dv.mjs" || {
+    echo ""
+    echo "❌ [PRE-COMMIT BLOCKED]: Double Verification (DV) Gate failed."
+    echo "👉 Fix architectural violations or remove lazy comments before committing."
+    exit 1
+  }
+fi
+
+# 3. Docs Budget Gate
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+touched_docs=$(printf '%s\n' "$staged" | grep -E '^calculator/(docs/handoff/(cards|audit)/.*\.md|(CLAUDE|NEXT_SESSION)\.md|docs/(NAV_SPEC|RULES)\.md|docs/handoff/(QUEUE|PROTOCOL)\.md)$' || true)
+if [ -n "$touched_docs" ]; then
+  cd "$CALC_DIR"
+  node scripts/check-docs-budget.mjs >/dev/null || {
+    echo ""
+    echo "❌ [PRE-COMMIT BLOCKED]: Docs budget exceeded. Run 'npm run docs:budget' for details."
+    exit 1
+  }
+fi
+
+# 4. Unit Tests Gate (run when JS files are staged)
+touched_js=$(printf '%s\n' "$staged" | grep -E '^calculator/(js|test|scripts)/.*\.(js|mjs)$' || true)
+if [ -n "$touched_js" ]; then
+  cd "$CALC_DIR"
+  node --test test/*.test.js >/dev/null || {
+    echo ""
+    echo "❌ [PRE-COMMIT BLOCKED]: Project unit tests failed. Run 'npm test' to inspect failures."
+    exit 1
+  }
+fi
+
+# 5. Auto-bump version + regenerate SW cache manifest (any agent, any tool)
+node "$CALC_DIR/scripts/bump-version.mjs" --staged || {
+  echo ""
+  echo "❌ [PRE-COMMIT BLOCKED]: version bump / build:sw failed."
+  exit 1
+}
+
+exit 0

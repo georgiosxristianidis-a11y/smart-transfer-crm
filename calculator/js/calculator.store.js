@@ -1,5 +1,5 @@
 /**
- * Core Reactive Store (Athlete Pro pattern)
+ * Core reactive store: pure state and business logic, zero DOM.
  */
 import { SCHEMA_VERSION } from './shared/schema.js';
 

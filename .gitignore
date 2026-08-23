@@ -1,9 +1,13 @@
-.gemini/
+# Agent workspaces: rules and memory are versioned, scratch is not.
+.gemini/*
+!.gemini/rules/
+!.gemini/memory/
+!.gemini/scripts/
 .claude/
+
 node_modules/
 .DS_Store
 Thumbs.db
 .lighthouseci/
 lhr-*.html
 lhr-*.json
-
