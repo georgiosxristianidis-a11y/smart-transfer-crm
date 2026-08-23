@@ -1,10 +1,13 @@
-const CACHE_NAME = 'unit-calc-v1787147104550';
+const CACHE_NAME = 'unit-calc-v1.1.1';
 
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
   "./favicon.ico",
+  "./favicon.svg",
+  "./logo-horizontal.svg",
+  "./logo.svg",
   "./js/app.js",
   "./js/calculator.store.js",
   "./js/calculator.view.js",

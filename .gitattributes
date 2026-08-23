@@ -1,0 +1,2 @@
+# Shell hooks must stay LF: a CRLF shebang line is not executable under bash.
+.githooks/** text eol=lf

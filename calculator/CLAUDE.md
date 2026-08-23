@@ -1,13 +1,12 @@
 # CLAUDE.md — Smart Transfer
 
-Product `docs/NAV_SPEC.md` · process `docs/handoff/PROTOCOL.md` · queue `docs/handoff/QUEUE.md` · state `NEXT_SESSION.md`
+Product `docs/NAV_SPEC.md` · process `docs/handoff/PROTOCOL.md` · queue `docs/handoff/QUEUE.md` · state `NEXT_SESSION.md` · executor law `../GEMINI.md`
 
 ## Agents
-- 🟠 **LEAD-OPUS** — decisions, data schema, money math, `sw.js`, security, review.
-- 🔵 **HORSE** (Sonnet 5) — implementation: stores, views, tests.
-- 🟢 **GEMINI 3.7** — bulk & simple: css, tokens, icons, microcopy.
+- **OWNER** (human) — decisions: money rates, data schema, queue order, product laws.
+- **GEMINI** — 100% of execution: cards, code, tests, gates, PRs, docs. Rules: root `GEMINI.md`.
 
-Escalate to 🟠 before changing: tab count, start tab, fixed button positions, data schema.
+Escalate to OWNER before changing: tab count, start tab, fixed button positions, data schema, any rate, the CSP, dependencies.
 
 ## Code
 - Store/View split: `*.store.js` = logic, zero DOM. `*.view.js` = DOM, events, charts.
@@ -33,6 +32,7 @@ Card = file = branch = agent = one squashed commit. Fields `STOP` and `Гран�
 - `npm run check` — full gate (`lint` && `test`)
 - `npm test` — unit math (50/50 split, VAT 13%)
 - `npm run docs:budget` — system docs size limits
-- `npm run build:sw` — never hand-edit `ASSETS` in `sw.js`
+- `node ../.gemini/scripts/gate-dv.mjs` — DV gate: Store/View, innerHTML, hex, lazy code, foreign symbols
+- `npm run build:sw` — never hand-edit `ASSETS` or `CACHE_NAME` in `sw.js`; the pre-commit hook bumps the version and regenerates it
 
 
