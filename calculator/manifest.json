@@ -11,7 +11,11 @@
   "orientation": "portrait",
   "background_color": "#020008",
   "theme_color": "#6366F1",
-  "categories": ["business", "productivity", "travel"],
+  "categories": [
+    "business",
+    "productivity",
+    "travel"
+  ],
   "icons": [
     {
       "src": "favicon.svg",
@@ -23,7 +27,7 @@
       "src": "logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }

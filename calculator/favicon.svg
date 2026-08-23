@@ -1,7 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none">
-  <!-- Kinetic Road -->
-  <path d="M 4 20 C 5 14 9 10 16 5" stroke="#2DD4BF" stroke-width="2.2" stroke-linecap="round"/>
-  <path d="M 9 20 C 10 16 13 13 19 8" stroke="#818CF8" stroke-width="2" stroke-linecap="round"/>
-  <!-- Ascending Jet -->
-  <polygon points="17,3 21,7 18,8 15,6 12,11 14,3" fill="#FBBF24" stroke="#FDE047" stroke-width="0.8" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none" role="img" aria-label="Smart Transfer">
+  <!--
+    Heavy weight of the Neon Streamline mark. Same geometry as logo.svg, fewer and
+    thicker strokes: at 16-24 px a monoline with a glow collapses into a smudge, and
+    a transparent background puts teal on a white browser tab. Hence the obsidian
+    plate, two ribbons instead of five, and a solid beacon with no filter.
+  -->
+  <rect width="24" height="24" rx="6" fill="#0C0622"/>
+  <path d="M 6 19 C 7 13.5 10 10 15.5 6" stroke="#2DD4BF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 11 19 C 12 15 14 12.5 18 8.5" stroke="#A5B4FC" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 18.4 4 L 20 10 L 14.6 8.2 Z" fill="#FBBF24"/>
+  <circle cx="18.4" cy="4" r="1.6" fill="#FFFBEB"/>
 </svg>
