@@ -16,7 +16,7 @@
 
 ## In progress
 
-Branding WIP uncommitted: `css/style.css`, `index.html`, three SVGs. Commit or discard first.
+Branding WIP uncommitted: `css/style.css`, `index.html`. SVGs and manifest landed in DS-02.
 
 ## Next
 
