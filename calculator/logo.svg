@@ -1,61 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="512" height="512" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="512" height="512" fill="none" role="img" aria-label="Smart Transfer">
+  <!--
+    Master mark, maskable-first. The plate is full bleed because a maskable icon is
+    cropped to a platform shape: a squircle drawn inside the canvas would show
+    transparent corners. The mark sits inside the safe circle (centre 64,64 r 51.2),
+    so no launcher shape can clip the beacon.
+    Light weight of the identity; the heavy weight lives in favicon.svg.
+  -->
   <defs>
-    <!-- Background Gradient -->
-    <radialGradient id="stBg" cx="50%" cy="30%" r="75%">
-      <stop offset="0%" stop-color="#180D3D"/>
+    <radialGradient id="stBg" cx="50%" cy="25%" r="80%">
+      <stop offset="0%" stop-color="#140A34"/>
       <stop offset="100%" stop-color="#060214"/>
     </radialGradient>
 
-    <!-- Highway Trajectory 1 Gradient -->
-    <linearGradient id="stRoad1" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#14B8A6" stop-opacity="0.2"/>
-      <stop offset="50%" stop-color="#2DD4BF"/>
-      <stop offset="100%" stop-color="#818CF8"/>
+    <linearGradient id="stTeal" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#14B8A6" stop-opacity="0.3"/>
+      <stop offset="40%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#5EEAD4"/>
     </linearGradient>
 
-    <!-- Highway Trajectory 2 Gradient -->
-    <linearGradient id="stRoad2" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.1"/>
-      <stop offset="60%" stop-color="#6366F1"/>
+    <linearGradient id="stIndigo" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="#6366F1"/>
       <stop offset="100%" stop-color="#A5B4FC"/>
     </linearGradient>
 
-    <!-- Jet Apex Glow Gradient -->
-    <linearGradient id="stJet" x1="0%" y1="100%" x2="100%" y2="0%">
+    <linearGradient id="stDelta" x1="0%" y1="100%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#2DD4BF"/>
-      <stop offset="60%" stop-color="#FBBF24"/>
-      <stop offset="100%" stop-color="#FFFBEB"/>
+      <stop offset="50%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
     </linearGradient>
 
-    <!-- Subtle Ambient Bloom Filter -->
     <filter id="stGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
       <feComposite in="SourceGraphic" in2="blur" operator="over"/>
     </filter>
   </defs>
 
-  <!-- 1. Squircle Glass Base (Border & Surface) -->
-  <rect x="4" y="4" width="120" height="120" rx="30" fill="url(#stBg)" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
+  <rect width="128" height="128" fill="url(#stBg)"/>
 
-  <!-- 2. Neon Ambient Underglow -->
-  <path d="M 34 94 C 36 68 52 52 82 30" stroke="#2DD4BF" stroke-width="8" stroke-linecap="round" opacity="0.3" filter="url(#stGlow)"/>
-  <path d="M 50 94 C 54 74 66 60 92 40" stroke="#6366F1" stroke-width="7" stroke-linecap="round" opacity="0.25" filter="url(#stGlow)"/>
+  <g transform="translate(64,64) scale(0.82) translate(-64,-64)">
+    <path d="M 32 94 C 36 66 52 50 84 26" stroke="#2DD4BF" stroke-width="8" stroke-linecap="round" opacity="0.25" filter="url(#stGlow)"/>
+    <path d="M 48 94 C 52 72 64 58 92 34" stroke="#6366F1" stroke-width="8" stroke-linecap="round" opacity="0.22" filter="url(#stGlow)"/>
 
-  <!-- 3. Primary Kinetic Highway Ribbons -->
-  <path d="M 34 94 C 36 66 52 50 82 30" 
-        stroke="url(#stRoad1)" stroke-width="5" stroke-linecap="round"/>
-  <path d="M 50 94 C 54 74 66 60 92 40" 
-        stroke="url(#stRoad2)" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 32 94 C 36 66 52 50 84 26" stroke="url(#stTeal)" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 48 94 C 52 72 64 58 92 34" stroke="url(#stIndigo)" stroke-width="5" stroke-linecap="round"/>
 
-  <!-- 4. Ascending Jet Wing Silhouette -->
-  <!-- Left Wing -->
-  <path d="M 48 46 L 74 34 L 68 58 Z" 
-        fill="rgba(45, 212, 191, 0.2)" stroke="url(#stRoad1)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon points="92,18 98,38 88,34 76,42 92,18" fill="url(#stDelta)" stroke="#FFFBEB" stroke-width="1.5" stroke-linejoin="round"/>
 
-  <!-- Fuselage & Right Wing -->
-  <path d="M 82 30 L 98 48 L 90 52 L 80 40 L 68 58 L 84 20 Z" 
-        fill="url(#stJet)" stroke="#FFFBEB" stroke-width="1.5" stroke-linejoin="round"/>
-
-  <!-- 5. Apex Golden Flare Dot -->
-  <circle cx="84" cy="20" r="3.5" fill="#FFFBEB" filter="url(#stGlow)"/>
+    <circle cx="92" cy="18" r="3" fill="#FBBF24" filter="url(#stGlow)"/>
+    <circle cx="92" cy="18" r="1.5" fill="#FFFBEB"/>
+  </g>
 </svg>
