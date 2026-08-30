@@ -65,14 +65,51 @@ export class ShiftsView {
   constructor(shiftsStore, calcStore) {
     this.store = shiftsStore;
     this.calcStore = calcStore;
+    this._tick = null;
 
     this.initDOM();
     this.bindEvents();
 
     this.store.subscribe(() => this.render());
-    // Elapsed time on the bar drifts stale without a live shift; a driver
-    // watching it should not have to trigger some other event to refresh it.
-    this._tick = setInterval(() => this.render(), 60000);
+
+    this._onVisibilityChange = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        this._stopTimer();
+      } else {
+        this.render();
+        this._startTimer();
+      }
+    };
+
+    if (typeof document !== 'undefined' && document.addEventListener) {
+      document.addEventListener('visibilitychange', this._onVisibilityChange);
+    }
+
+    if (typeof document === 'undefined' || document.visibilityState !== 'hidden') {
+      this._startTimer();
+    }
+  }
+
+  _startTimer() {
+    if (!this._tick) {
+      // Elapsed time on the bar drifts stale without a live shift; a driver
+      // watching it should not have to trigger some other event to refresh it.
+      this._tick = setInterval(() => this.render(), 60000);
+    }
+  }
+
+  _stopTimer() {
+    if (this._tick) {
+      clearInterval(this._tick);
+      this._tick = null;
+    }
+  }
+
+  destroy() {
+    this._stopTimer();
+    if (typeof document !== 'undefined' && document.removeEventListener && this._onVisibilityChange) {
+      document.removeEventListener('visibilitychange', this._onVisibilityChange);
+    }
   }
 
   initDOM() {

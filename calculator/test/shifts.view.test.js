@@ -94,10 +94,12 @@ test('formatShiftDistance: formats non-negative distance as +N км and null as 
   assert.strictEqual(formatShiftDistance(NaN), '—');
 });
 
-test('ShiftsView: renderHistory renders closed shifts with distance and duration into DOM', async () => {
-  const { ShiftsView } = await import('../js/shifts.view.js');
+function createMockDocument(initialVisibilityState = 'visible') {
   const elements = {};
-  const mockDoc = {
+  const listeners = {};
+
+  return {
+    visibilityState: initialVisibilityState,
     getElementById(id) {
       if (!elements[id]) {
         elements[id] = {
@@ -123,9 +125,29 @@ test('ShiftsView: renderHistory renders closed shifts with distance and duration
         };
       }
       return elements[id];
-    }
+    },
+    addEventListener(event, fn) {
+      if (!listeners[event]) listeners[event] = [];
+      listeners[event].push(fn);
+    },
+    removeEventListener(event, fn) {
+      if (!listeners[event]) return;
+      listeners[event] = listeners[event].filter(l => l !== fn);
+    },
+    dispatchEvent(event) {
+      const fns = listeners[event] || [];
+      for (const fn of fns) fn();
+    },
+    getListeners(event) {
+      return listeners[event] || [];
+    },
+    elements
   };
+}
 
+test('ShiftsView: renderHistory renders closed shifts with distance and duration into DOM', async () => {
+  const { ShiftsView } = await import('../js/shifts.view.js');
+  const mockDoc = createMockDocument('visible');
   const oldDoc = global.document;
   global.document = mockDoc;
 
@@ -148,13 +170,114 @@ test('ShiftsView: renderHistory renders closed shifts with distance and duration
     };
 
     const view = new ShiftsView(mockStore, {});
-    const historyList = elements['shifts-history-list'];
+    const historyList = mockDoc.elements['shifts-history-list'];
     assert.ok(historyList.innerHTML.includes('+150 км'));
     assert.ok(historyList.innerHTML.includes('1000 → 1150 км'));
     assert.ok(historyList.innerHTML.includes('08:00 – 18:00'));
     assert.ok(historyList.innerHTML.includes('10 ч 00 мин'));
 
-    if (view._tick) clearInterval(view._tick);
+    view.destroy();
+  } finally {
+    global.document = oldDoc;
+  }
+});
+
+test('ShiftsView: timer starts when visible, does not start when initialized hidden', async () => {
+  const { ShiftsView } = await import('../js/shifts.view.js');
+  const oldDoc = global.document;
+
+  try {
+    const mockStore = {
+      shifts: [],
+      getOpenShift() { return null; },
+      getShiftDistance() { return null; },
+      subscribe(fn) { fn(); }
+    };
+
+    // When document is visible
+    const mockDocVisible = createMockDocument('visible');
+    global.document = mockDocVisible;
+    const viewVisible = new ShiftsView(mockStore, {});
+    assert.ok(viewVisible._tick !== null, 'timer is running when visible');
+    viewVisible.destroy();
+
+    // When document is hidden
+    const mockDocHidden = createMockDocument('hidden');
+    global.document = mockDocHidden;
+    const viewHidden = new ShiftsView(mockStore, {});
+    assert.strictEqual(viewHidden._tick, null, 'timer is not running when initialized hidden');
+    viewHidden.destroy();
+  } finally {
+    global.document = oldDoc;
+  }
+});
+
+test('ShiftsView: visibilitychange stops timer on hidden and immediately renders + resumes on visible', async () => {
+  const { ShiftsView } = await import('../js/shifts.view.js');
+  const mockDoc = createMockDocument('visible');
+  const oldDoc = global.document;
+  global.document = mockDoc;
+
+  try {
+    const mockStore = {
+      shifts: [],
+      getOpenShift() { return null; },
+      getShiftDistance() { return null; },
+      subscribe(fn) { fn(); }
+    };
+
+    const view = new ShiftsView(mockStore, {});
+    assert.ok(view._tick !== null, 'timer is active on init');
+
+    let renderCallCount = 0;
+    const origRender = view.render.bind(view);
+    view.render = () => {
+      renderCallCount++;
+      origRender();
+    };
+
+    // Tab goes to background / screen off
+    mockDoc.visibilityState = 'hidden';
+    mockDoc.dispatchEvent('visibilitychange');
+
+    assert.strictEqual(view._tick, null, 'timer stopped when tab hidden');
+    assert.strictEqual(renderCallCount, 0, 'render not triggered on hidden');
+
+    // Tab comes back to foreground
+    mockDoc.visibilityState = 'visible';
+    mockDoc.dispatchEvent('visibilitychange');
+
+    assert.ok(view._tick !== null, 'timer resumed when tab visible');
+    assert.strictEqual(renderCallCount, 1, 'render was called immediately upon becoming visible');
+
+    view.destroy();
+  } finally {
+    global.document = oldDoc;
+  }
+});
+
+test('ShiftsView: destroy() clears timer and unbinds visibilitychange listener', async () => {
+  const { ShiftsView } = await import('../js/shifts.view.js');
+  const mockDoc = createMockDocument('visible');
+  const oldDoc = global.document;
+  global.document = mockDoc;
+
+  try {
+    const mockStore = {
+      shifts: [],
+      getOpenShift() { return null; },
+      getShiftDistance() { return null; },
+      subscribe(fn) { fn(); }
+    };
+
+    const view = new ShiftsView(mockStore, {});
+    assert.strictEqual(mockDoc.getListeners('visibilitychange').length, 1);
+    assert.ok(view._tick !== null);
+
+    view.destroy();
+
+    assert.strictEqual(view._tick, null, 'timer cleared by destroy()');
+    assert.strictEqual(mockDoc.getListeners('visibilitychange').length, 0, 'listener removed by destroy()');
   } finally {
     global.document = oldDoc;
   }

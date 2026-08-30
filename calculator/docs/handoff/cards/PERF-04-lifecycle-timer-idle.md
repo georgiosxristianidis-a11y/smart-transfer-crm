@@ -28,10 +28,14 @@ Everything else is off-limits.
 3. `destroy()` cleans up the timer and event listener.
 4. Unit tests verify pause on hidden, immediate render on visible, and clean teardown.
 
+## Status
+✅ **done** (visibilitychange pause on hidden, immediate render on visible, and destroy teardown with unit tests).
+
 ## Gates
-- `npm test` — 0 failures
-- `npm run lint` — 0 errors, 0 warnings
-- `npm run docs:budget` — prints 0
+- `npm test` — 97 passed, 0 failed (exit 0)
+- `npm run lint` — 0 errors, 0 warnings (exit 0)
+- `npm run docs:budget` — prints 0 (exit 0)
+- `node ../.gemini/scripts/gate-dv.mjs` — 0 violations (exit 0)
 
 ## Found along the way
 <empty>
