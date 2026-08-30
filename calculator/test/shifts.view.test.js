@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { selectNormTrips, formatElapsed, formatStartTime } from '../js/shifts.view.js';
+import {
+  selectNormTrips,
+  formatElapsed,
+  formatStartTime,
+  formatShiftDuration,
+  formatShiftTimeRange,
+  formatShiftDistance
+} from '../js/shifts.view.js';
 
 test('selectNormTrips: with an open shift, counts only that shift\'s completed trips', () => {
   const shift = { id: 'shift-1' };
@@ -61,4 +68,94 @@ test('formatStartTime: HH:MM out of a local startedAt stamp', () => {
   assert.strictEqual(formatStartTime('2026-08-19T22:05'), '22:05');
   assert.strictEqual(formatStartTime(''), '');
   assert.strictEqual(formatStartTime(null), '');
+});
+
+test('formatShiftDuration: calculates hours and minutes between start and end stamps', () => {
+  assert.strictEqual(formatShiftDuration('2026-08-19T08:00', '2026-08-19T17:45'), '9 ч 45 мин');
+  assert.strictEqual(formatShiftDuration('2026-08-19T22:00', '2026-08-20T04:15'), '6 ч 15 мин');
+  assert.strictEqual(formatShiftDuration('2026-08-19T10:00', '2026-08-19T09:00'), '0 ч 00 мин');
+  assert.strictEqual(formatShiftDuration('', '2026-08-19T17:45'), '');
+  assert.strictEqual(formatShiftDuration('2026-08-19T08:00', null), '');
+  assert.strictEqual(formatShiftDuration('garbage', '2026-08-19T17:45'), '');
+});
+
+test('formatShiftTimeRange: formats start and end time as HH:MM – HH:MM', () => {
+  assert.strictEqual(formatShiftTimeRange('2026-08-19T08:30:00', '2026-08-19T18:00:00'), '08:30 – 18:00');
+  assert.strictEqual(formatShiftTimeRange('2026-08-19T22:00', ''), 'с 22:00');
+  assert.strictEqual(formatShiftTimeRange('', ''), '');
+  assert.strictEqual(formatShiftTimeRange(null, null), '');
+});
+
+test('formatShiftDistance: formats non-negative distance as +N км and null as —', () => {
+  assert.strictEqual(formatShiftDistance(140), '+140 км');
+  assert.strictEqual(formatShiftDistance(0), '+0 км');
+  assert.strictEqual(formatShiftDistance(null), '—');
+  assert.strictEqual(formatShiftDistance(undefined), '—');
+  assert.strictEqual(formatShiftDistance(NaN), '—');
+});
+
+test('ShiftsView: renderHistory renders closed shifts with distance and duration into DOM', async () => {
+  const { ShiftsView } = await import('../js/shifts.view.js');
+  const elements = {};
+  const mockDoc = {
+    getElementById(id) {
+      if (!elements[id]) {
+        elements[id] = {
+          textContent: '',
+          innerHTML: '',
+          classList: {
+            classes: new Set(),
+            add(c) { this.classes.add(c); },
+            remove(c) { this.classes.delete(c); },
+            toggle(c, force) {
+              if (force === undefined) {
+                if (this.classes.has(c)) this.classes.delete(c);
+                else this.classes.add(c);
+              } else if (force) {
+                this.classes.add(c);
+              } else {
+                this.classes.delete(c);
+              }
+            },
+            contains(c) { return this.classes.has(c); }
+          },
+          addEventListener() {}
+        };
+      }
+      return elements[id];
+    }
+  };
+
+  const oldDoc = global.document;
+  global.document = mockDoc;
+
+  try {
+    const mockStore = {
+      shifts: [
+        {
+          id: 'shift-1',
+          date: '2026-08-19',
+          startedAt: '2026-08-19T08:00',
+          endedAt: '2026-08-19T18:00',
+          status: 'closed',
+          odoStart: 1000,
+          odoEnd: 1150
+        }
+      ],
+      getOpenShift() { return null; },
+      getShiftDistance(id) { return id === 'shift-1' ? 150 : null; },
+      subscribe(fn) { fn(); }
+    };
+
+    const view = new ShiftsView(mockStore, {});
+    const historyList = elements['shifts-history-list'];
+    assert.ok(historyList.innerHTML.includes('+150 км'));
+    assert.ok(historyList.innerHTML.includes('1000 → 1150 км'));
+    assert.ok(historyList.innerHTML.includes('08:00 – 18:00'));
+    assert.ok(historyList.innerHTML.includes('10 ч 00 мин'));
+
+    if (view._tick) clearInterval(view._tick);
+  } finally {
+    global.document = oldDoc;
+  }
 });
