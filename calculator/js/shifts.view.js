@@ -1,3 +1,4 @@
+import { html } from './shared/utils.js';
 import { SHIFT_STATUS } from './shifts.store.js';
 
 /**
@@ -32,6 +33,34 @@ export function formatStartTime(startedAt) {
   return startedAt.slice(11, 16);
 }
 
+/** "H ч MM мин" duration between two local stamps ("YYYY-MM-DDTHH:MM"). */
+export function formatShiftDuration(startedAt, endedAt) {
+  if (typeof startedAt !== 'string' || !startedAt || typeof endedAt !== 'string' || !endedAt) return '';
+  const started = new Date(startedAt);
+  const ended = new Date(endedAt);
+  if (isNaN(started.getTime()) || isNaN(ended.getTime())) return '';
+  let diffMin = Math.floor((ended.getTime() - started.getTime()) / 60000);
+  if (diffMin < 0) diffMin = 0;
+  const h = Math.floor(diffMin / 60);
+  const m = diffMin % 60;
+  return `${h} ч ${String(m).padStart(2, '0')} мин`;
+}
+
+/** "HH:MM – HH:MM" range from startedAt and endedAt stamps. */
+export function formatShiftTimeRange(startedAt, endedAt) {
+  const start = formatStartTime(startedAt);
+  const end = formatStartTime(endedAt);
+  if (start && end) return `${start} – ${end}`;
+  if (start) return `с ${start}`;
+  return '';
+}
+
+/** Distance formatted as "+N км" or "—" if null. */
+export function formatShiftDistance(distance) {
+  if (distance === null || distance === undefined || isNaN(Number(distance))) return '—';
+  return `+${distance} км`;
+}
+
 export class ShiftsView {
   constructor(shiftsStore, calcStore) {
     this.store = shiftsStore;
@@ -53,6 +82,7 @@ export class ShiftsView {
       meta: document.getElementById('shift-bar-meta'),
       btnOpen: document.getElementById('btn-open-shift'),
       btnClose: document.getElementById('btn-close-shift'),
+      shiftsHistoryList: document.getElementById('shifts-history-list'),
 
       modalOpen: document.getElementById('modal-open-shift'),
       formOpen: document.getElementById('form-open-shift'),
@@ -162,6 +192,11 @@ export class ShiftsView {
   }
 
   render() {
+    this.renderBar();
+    this.renderHistory();
+  }
+
+  renderBar() {
     const open = this.store.getOpenShift();
 
     if (this.els.btnOpen) this.els.btnOpen.classList.toggle('hidden', !!open);
@@ -178,6 +213,57 @@ export class ShiftsView {
       this.els.meta.textContent = formatElapsed(open.startedAt);
       this.els.meta.classList.remove('hidden');
     }
+  }
+
+  renderHistory() {
+    if (!this.els.shiftsHistoryList) return;
+    const closedShifts = (this.store.shifts || []).filter(s => s.status === SHIFT_STATUS.CLOSED);
+
+    if (closedShifts.length === 0) {
+      this.els.shiftsHistoryList.innerHTML = '<div class="empty-state">Нет записей о закрытых сменах</div>';
+      return;
+    }
+
+    this.els.shiftsHistoryList.innerHTML = closedShifts.slice(0, 10).map(s => {
+      const dist = this.store.getShiftDistance(s.id);
+      const duration = formatShiftDuration(s.startedAt, s.endedAt);
+      const timeRange = formatShiftTimeRange(s.startedAt, s.endedAt);
+      const kmText = formatShiftDistance(dist);
+
+      let odoText = '';
+      if (s.odoStart !== null && s.odoEnd !== null) {
+        odoText = `${s.odoStart} → ${s.odoEnd} км`;
+      } else if (s.odoStart !== null) {
+        odoText = `старт ${s.odoStart} км`;
+      } else if (s.odoEnd !== null) {
+        odoText = `финиш ${s.odoEnd} км`;
+      }
+
+      const metaParts = [s.date];
+      if (duration) metaParts.push(duration);
+      if (odoText) metaParts.push(odoText);
+      const metaLine = metaParts.join(' · ');
+
+      return html`
+        <div class="shift-log-item">
+          <div class="shift-log-left">
+            <div class="shift-icon-chip">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div>
+              <div class="shift-log-title">Смена ${timeRange}</div>
+              <div class="shift-log-meta">${metaLine}</div>
+            </div>
+          </div>
+          <div class="shift-log-right">
+            <div class="shift-log-km">${kmText}</div>
+            <div class="shift-log-sub">${dist !== null ? 'пробег' : 'без одометра'}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   /** Status enum re-export, so a caller need not import shifts.store separately. */

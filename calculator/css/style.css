@@ -1181,6 +1181,67 @@ html::view-transition {
   color: var(--text-low); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
+
+/* Shifts History List (SHIFT-02) */
+.shifts-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.shift-log-item {
+  background: var(--stitch-surface-low);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--rim-light-neutral);
+  outline: 1px solid var(--stitch-border-subtle);
+}
+.shift-log-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.shift-icon-chip {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(129, 140, 248, 0.12);
+  color: var(--palette-indigo-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.shift-log-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-hi);
+}
+.shift-log-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-low);
+  margin-top: 2px;
+}
+.shift-log-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.shift-log-km {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--palette-teal-400);
+}
+.shift-log-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-low);
+}
 /* ─── CRM DISPATCH TOOLBAR & SEARCH / FILTERS ─── */
 .crm-toolbar {
   display: flex;
