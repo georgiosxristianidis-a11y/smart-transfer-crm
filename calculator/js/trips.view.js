@@ -45,7 +45,6 @@ export class TripsView {
       hero: document.getElementById('next-trip-hero'),
       list: document.getElementById('trips-list'),
       btnAdd: document.getElementById('btn-add-trip'),
-      btnExport: document.getElementById('btn-export-csv'),
       
       // Single Add Modal elements
       modal: document.getElementById('modal-add-trip'),
@@ -122,13 +121,6 @@ export class TripsView {
 
     if (this.els.btnCancel) this.els.btnCancel.addEventListener('click', closeModal);
     if (this.els.btnCancelX) this.els.btnCancelX.addEventListener('click', closeModal);
-
-    if (this.els.btnExport) {
-      this.els.btnExport.addEventListener('click', () => {
-        if (navigator.vibrate) navigator.vibrate(30);
-        this.store.exportCSV();
-      });
-    }
 
     // Quick location chips
     if (this.els.locationChips) {
