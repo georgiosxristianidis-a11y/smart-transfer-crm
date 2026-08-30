@@ -43,6 +43,14 @@
   --stitch-border-mid:        rgba(255, 255, 255, 0.10);
   --stitch-border-hi:         rgba(255, 255, 255, 0.18);
 
+  /* ─── TIER 2.5: AMBIENT AURORA & DARK MODE TOKENS ─── */
+  --bg-aurora-indigo:         rgba(99, 102, 241, 0.28);
+  --bg-aurora-teal:           rgba(45, 212, 191, 0.18);
+  --bg-aurora-pink:           rgba(255, 77, 136, 0.15);
+  --bg-aurora-violet:         rgba(167, 139, 250, 0.22);
+  --bg-aurora-cyan:           rgba(34, 211, 238, 0.14);
+
+
   /* ─── CONTRAST HIERARCHY (DS-01: CRETAN SUNLIGHT GRADE) ─── */
   /* Tier 1: Hero (≥ 7:1 AAA / Sunlight Grade: 20.8:1 on base, 17.5:1 on high glass) */
   --text-hero:                #FFFFFF;

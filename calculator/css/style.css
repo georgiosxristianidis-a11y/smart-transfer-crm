@@ -15,23 +15,29 @@ html, body {
   -webkit-font-smoothing: antialiased; 
 }
 
-/* ─── Space Atmosphere Background ─── */
+/* ─── Space Atmosphere Background (Ultra-Premium OLED Dark Mode) ─── */
 .cosmic-bg { 
   position: fixed; inset: 0; z-index: -2; 
   background:
-    radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.25) 0%, transparent 40%),
-    radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.2) 0%, transparent 40%),
-    radial-gradient(circle at 50% 80%, rgba(56, 189, 248, 0.15) 0%, transparent 50%),
-    linear-gradient(180deg, #020008 0%, #08031a 45%, #03000a 100%); 
+    radial-gradient(ellipse 90% 60% at 15% -10%, var(--bg-aurora-indigo, rgba(99, 102, 241, 0.28)) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 85% 15%, var(--bg-aurora-pink, rgba(255, 77, 136, 0.15)) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 50% 50%, var(--bg-aurora-violet, rgba(167, 139, 250, 0.18)) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 70% at 80% 90%, var(--bg-aurora-teal, rgba(45, 212, 191, 0.18)) 0%, transparent 60%),
+    radial-gradient(circle at 10% 85%, var(--bg-aurora-cyan, rgba(34, 211, 238, 0.12)) 0%, transparent 50%),
+    linear-gradient(180deg, var(--palette-space-950, #020008) 0%, #08031A 40%, #0C0626 70%, var(--palette-space-950, #020008) 100%); 
+  background-attachment: fixed;
 }
 .particles-layer {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background-image: 
-    radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px),
-    radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-  background-size: 50px 50px, 100px 100px;
-  background-position: 0 0, 25px 25px;
-  opacity: 0.4;
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(165, 180, 252, 0.18) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(94, 234, 212, 0.14) 1.2px, transparent 1.2px);
+  background-size: 32px 32px, 72px 72px, 128px 128px;
+  background-position: 0 0, 16px 24px, 48px 64px;
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0.6) 100%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0.6) 100%);
 }
 
 .app-container { 
@@ -330,11 +336,21 @@ input:checked + .slider:before { transform: translateX(20px); }
 /* ─── Horizon Light Beam (Oura Horizon Pattern - 60 FPS) ─── */
 .horizon-beam {
   position: fixed;
-  top: 38%; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.15) 20%, rgba(224, 231, 255, 0.7) 50%, rgba(45, 212, 191, 0.25) 80%, transparent 100%);
-  box-shadow: 0 0 28px 2px rgba(129, 140, 248, 0.4);
+  top: 36%; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(99, 102, 241, 0.12) 15%, 
+    rgba(165, 180, 252, 0.55) 38%, 
+    rgba(255, 255, 255, 0.85) 50%, 
+    rgba(94, 234, 212, 0.55) 62%, 
+    rgba(45, 212, 191, 0.15) 85%, 
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 24px 2px rgba(129, 140, 248, 0.45),
+    0 0 50px 8px rgba(45, 212, 191, 0.20);
   pointer-events: none; z-index: -1;
-  opacity: 0.75;
+  opacity: 0.80;
 }
 
 /* ─── Calc Top Action Bar ─── */
