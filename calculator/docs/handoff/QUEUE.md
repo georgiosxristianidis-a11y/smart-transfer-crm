@@ -41,7 +41,7 @@
 | 31 | **DS-02** — logo: one geometry, two weights; maskable safe zone | G | ✅ **done** | card |
 | 33 | **SHIFT-02** — shift mileage & closed shifts list in UI | G | ✅ **done** | card |
 | 34 | **DB-01** — IndexedDB singleton and versionchange handling | G | ✅ **done** | card |
-| 35 | **PERF-04** — pause shifts timer when screen is off / idle | G | — | card |
+| 35 | **PERF-04** — pause shifts timer when screen is off / idle | G | ✅ **done** | card |
 | 36 | **DATA-14** — atomic trip complete and shift binding | G | — | card |
 
 **CALC is money math:** OWNER pins rates in card; test with literal number lands first.
