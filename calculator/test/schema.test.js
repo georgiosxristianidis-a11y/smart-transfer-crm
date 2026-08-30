@@ -46,3 +46,50 @@ test('schema: v1 → v2 adds shifts and stamps every trip with the new fields', 
   assert.strictEqual(out.trips[1].actualLanding, '2026-08-21T14:05');
   assert.strictEqual(v1.trips[0].shiftId, undefined, 'the input payload is not mutated');
 });
+
+import { DB, db as sharedDb } from '../js/shared/db.js';
+
+test('DB: constructor returns singleton instance across multiple calls', () => {
+  const db1 = new DB();
+  const db2 = new DB();
+  assert.strictEqual(db1, db2);
+  assert.strictEqual(db1, sharedDb);
+});
+
+test('DB: onversionchange closes connection and resets state', async () => {
+  DB.resetInstanceForTesting();
+  let closeCalled = false;
+  const fakeDbInstance = {
+    close: () => { closeCalled = true; },
+    objectStoreNames: { contains: () => true }
+  };
+  const fakeReq = {};
+  const fakeIDB = {
+    open: () => {
+      setTimeout(() => {
+        fakeReq.result = fakeDbInstance;
+        if (typeof fakeReq.onsuccess === 'function') {
+          fakeReq.onsuccess();
+        }
+      }, 0);
+      return fakeReq;
+    }
+  };
+
+  globalThis.window = { indexedDB: fakeIDB };
+  try {
+    const dbInstance = new DB();
+    await dbInstance.initPromise;
+    assert.strictEqual(dbInstance.db, fakeDbInstance);
+    assert.strictEqual(typeof fakeDbInstance.onversionchange, 'function');
+
+    // Trigger onversionchange
+    fakeDbInstance.onversionchange();
+    assert.strictEqual(closeCalled, true);
+    assert.strictEqual(dbInstance.db, null);
+  } finally {
+    delete globalThis.window;
+    DB.resetInstanceForTesting();
+  }
+});
+

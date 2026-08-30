@@ -12,12 +12,38 @@ const STORE_SHIFTS = 'shifts';
 
 export class DB {
   constructor() {
+    if (DB._instance) {
+      return DB._instance;
+    }
     this.db = null;
     this.initPromise = this._init();
     this.isPersisted = false;
+    DB._instance = this;
+  }
+
+  static resetInstanceForTesting() {
+    if (DB._instance) {
+      DB._instance.close();
+      DB._instance = null;
+    }
+  }
+
+  close() {
+    if (this.db) {
+      try {
+        this.db.close();
+      } catch (e) {
+        console.warn('[DB] Error while closing connection:', e);
+      }
+      this.db = null;
+    }
+    this.initPromise = null;
   }
 
   _init() {
+    if (this.initPromise) {
+      return this.initPromise;
+    }
     return new Promise((resolve, reject) => {
       if (typeof window === 'undefined' || !window.indexedDB) {
         // Fallback for Node.js tests or unsupported browsers
@@ -25,9 +51,13 @@ export class DB {
         return;
       }
 
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      const idb = window.indexedDB;
+      const request = idb.open(DB_NAME, DB_VERSION);
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => {
+        this.initPromise = null;
+        reject(request.error);
+      };
 
       // Fires when another tab holds the old version open. Without this the
       // upgrade hangs silently and every read below rejects with no clue why.
@@ -37,6 +67,14 @@ export class DB {
 
       request.onsuccess = () => {
         this.db = request.result;
+
+        // When another tab or worker initiates a version upgrade, close this connection
+        // immediately so the upgrade can proceed without being blocked.
+        this.db.onversionchange = () => {
+          console.warn(`[DB] Upgrade requested elsewhere; closing connection to ${DB_NAME}.`);
+          this.close();
+        };
+
         this.requestPersistence();
         resolve(this.db);
       };
@@ -81,6 +119,9 @@ export class DB {
   }
 
   async _getStore(storeName = STORE_TRIPS, mode = 'readonly') {
+    if (!this.initPromise) {
+      this.initPromise = this._init();
+    }
     await this.initPromise;
     if (!this.db) throw new Error('IndexedDB not supported or running in test env');
     const tx = this.db.transaction(storeName, mode);
@@ -229,3 +270,6 @@ export class DB {
     });
   }
 }
+
+export const db = new DB();
+

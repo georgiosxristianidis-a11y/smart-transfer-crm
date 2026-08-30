@@ -31,10 +31,15 @@ Everything else is off-limits.
 3. Tests verify single connection initialization and connection closure on versionchange.
 4. All existing schema and store tests pass.
 
+## Status
+✅ **done** (DB singleton across stores, db.onversionchange close handler, and unit tests).
+
 ## Gates
-- `npm test` — 0 failures
-- `npm run lint` — 0 errors, 0 warnings
-- `npm run docs:budget` — prints 0
+- `npm test` — 94 passed, 0 failed (exit 0)
+- `npm run lint` — 0 errors, 0 warnings (exit 0)
+- `npm run docs:budget` — prints 0 (exit 0)
+- `node ../.gemini/scripts/gate-dv.mjs` — 0 violations (exit 0)
 
 ## Found along the way
 <empty>
+

@@ -40,7 +40,7 @@
 | 30 | **GEM-01** — handover: import firewall, auto-bump, PWA manifest | G | ✅ **done** | 23.08 |
 | 31 | **DS-02** — logo: one geometry, two weights; maskable safe zone | G | ✅ **done** | card |
 | 33 | **SHIFT-02** — shift mileage & closed shifts list in UI | G | ✅ **done** | card |
-| 34 | **DB-01** — IndexedDB singleton and versionchange handling | G | — | card |
+| 34 | **DB-01** — IndexedDB singleton and versionchange handling | G | ✅ **done** | card |
 | 35 | **PERF-04** — pause shifts timer when screen is off / idle | G | — | card |
 | 36 | **DATA-14** — atomic trip complete and shift binding | G | — | card |
 

@@ -9,6 +9,7 @@
 ## State — 2026-08-30 · v1.1.6
 
 - **Single executor.** GEMINI executes 100%; OWNER decides rates, schema, queue, laws.
+- **DB-01 closed.** IndexedDB singleton across stores, onversionchange connection closing, unit tests.
 - **SHIFT-02 closed.** Closed shifts history with start/end, duration, odo range and distance ("+N км") rendered on Учёт tab (`shifts.view.js`).
 - **CALC-01 closed.** Magic numbers moved to DEFAULT_STATE, NUMERIC_RANGES division guards added.
 - **PERF-03 closed.** Tab switch white flash eliminated (`--bg-vanta` aligned).
