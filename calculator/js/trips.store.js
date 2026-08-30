@@ -217,6 +217,27 @@ export class TripsStore {
   /* --- DATA-10: shift link and landing fact --- */
 
   /**
+   * DATA-14: Marks a trip completed and binds it to a shift in a single atomic
+   * database write and notification. Does not overwrite an already assigned shiftId.
+   *
+   * @param {string} tripId
+   * @param {string|null} [shiftId]
+   * @returns {Promise<Object>}
+   */
+  async completeTrip(tripId, shiftId = null) {
+    const trip = this.trips.find(t => t.id === tripId);
+    if (!trip) throw new Error(`completeTrip: unknown trip ${tripId}`);
+
+    trip.status = 'completed';
+    if (shiftId && !trip.shiftId) {
+      trip.shiftId = shiftId;
+    }
+    await this.db.saveTrip(trip);
+    this.notify();
+    return trip;
+  }
+
+  /**
    * Attaches a trip to a shift, or detaches it when `shiftId` is null.
    * The store does not verify that the shift exists — that is the caller's
    * business and would couple two stores that are deliberately independent.

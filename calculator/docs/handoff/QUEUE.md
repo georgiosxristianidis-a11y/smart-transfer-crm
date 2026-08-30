@@ -42,7 +42,7 @@
 | 33 | **SHIFT-02** — shift mileage & closed shifts list in UI | G | ✅ **done** | card |
 | 34 | **DB-01** — IndexedDB singleton and versionchange handling | G | ✅ **done** | card |
 | 35 | **PERF-04** — pause shifts timer when screen is off / idle | G | 🟣 **merged** | card |
-| 36 | **DATA-14** — atomic trip complete and shift binding | G | — | card |
+| 36 | **DATA-14** — atomic trip complete and shift binding | G | ✅ **done** | card |
 
 **CALC is money math:** OWNER pins rates in card; test with literal number lands first.
 

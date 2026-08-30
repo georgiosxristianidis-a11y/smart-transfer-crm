@@ -24,15 +24,16 @@ Everything else is off-limits.
 4. Second bug found → log below, do not fix.
 
 ## Done when
-1. `TripsStore.completeTrip(tripId, shiftId)` updates `status: 'completed'` and `shiftId` in a single write and notifies subscribers once.
-2. `trips.view.js` replaces the two-step call with `this.store.completeTrip(tId, openShiftId)`.
-3. Unit tests verify single write and atomic update.
-4. All existing tests pass.
+1. `TripsStore.completeTrip(tripId, shiftId)` updates `status: 'completed'` and `shiftId` in a single write and notifies subscribers once. — ✅ done
+2. `trips.view.js` replaces the two-step call with `this.store.completeTrip(tId, openShiftId)`. — ✅ done
+3. Unit tests verify single write and atomic update. — ✅ done
+4. All existing tests pass. — ✅ 98/98 passed
 
 ## Gates
-- `npm test` — 0 failures
+- `npm test` — 0 failures (98 pass)
 - `npm run lint` — 0 errors, 0 warnings
 - `npm run docs:budget` — prints 0
 
 ## Found along the way
 <empty>
+
