@@ -59,6 +59,7 @@ const DEFAULT_STATE = {
   // Model Constants & Unit Economics (CALC-01)
   fuelConsumptionPer100km: 8.7,
   vatRate: 1.13,
+  inputVatRate: 1.24,
   safetyNetRatio: 0.05,
 };
 
@@ -88,6 +89,7 @@ const NUMERIC_RANGES = {
   tiresCost: { min: 0, max: 50000 },
   fuelConsumptionPer100km: { min: 0.1, max: 100 },
   vatRate: { min: 1.0, max: 2.0 },
+  inputVatRate: { min: 1.0, max: 2.0 },
   safetyNetRatio: { min: 0, max: 1.0 },
 };
 
@@ -223,6 +225,9 @@ export class CalculatorStore {
     const vatRate = (s.vatRate && s.vatRate >= NUMERIC_RANGES.vatRate.min)
       ? s.vatRate
       : DEFAULT_STATE.vatRate;
+    const inputVatRate = (s.inputVatRate && s.inputVatRate >= NUMERIC_RANGES.inputVatRate.min)
+      ? s.inputVatRate
+      : DEFAULT_STATE.inputVatRate;
     const fuelConsumption = (s.fuelConsumptionPer100km && s.fuelConsumptionPer100km >= NUMERIC_RANGES.fuelConsumptionPer100km.min)
       ? s.fuelConsumptionPer100km
       : DEFAULT_STATE.fuelConsumptionPer100km;
@@ -251,6 +256,7 @@ export class CalculatorStore {
     const totalPortFees = s.portFeesEnabled ? totalTrips * s.portFee : 0;
     
     const grossRevenue = totalTrips * s.checkGross;
+    const outputVatYear = grossRevenue - (totalTrips * checkNet);
     const netRevenue = (totalTrips * checkNet) - totalPortFees;
     
     const effectiveKmPerTrip = s.kmPerTrip * s.emptyLegRatio;
@@ -258,14 +264,20 @@ export class CalculatorStore {
     
     const litersNeeded = (totalKm / 100) * fuelConsumption;
     const fuelCost = litersNeeded * s.fuelPrice;
+    const inputVatFuel = fuelCost - (fuelCost / inputVatRate);
     
     const oilCost = (totalKm / oilInterval) * s.oilCost;
     const clutchCost = (totalKm / clutchInterval) * s.clutchCost;
     const tiresCost = (totalKm / tiresInterval) * s.tiresCost;
     const totalMaintenance = oilCost + clutchCost + tiresCost;
+    const inputVatMaintenance = totalMaintenance - (totalMaintenance / inputVatRate);
     
     const insuranceCost = s.insuranceTaxi ? s.insuranceTaxiCost : s.insuranceBasicCost;
     const washCost = s.washPremium ? s.washPremiumCost : s.washBasicCost;
+    const inputVatWash = washCost - (washCost / inputVatRate);
+    const inputVatAccountant = s.accountant - (s.accountant / inputVatRate);
+    const inputVatNonRefundable = inputVatFuel + inputVatMaintenance + inputVatWash + inputVatAccountant;
+
     const totalEfka = s.efkaPerOwner * ownersCount;
     const fixedAdmin = insuranceCost + washCost + totalEfka + s.accountant;
     
@@ -293,10 +305,17 @@ export class CalculatorStore {
         totalTrips,
         totalKm,
         grossRevenue,
+        outputVatYear,
         netRevenue,
         fuelCost,
+        inputVatFuel,
         totalMaintenance,
+        inputVatMaintenance,
+        washCost,
+        inputVatWash,
         fixedAdmin,
+        inputVatAccountant,
+        inputVatNonRefundable,
         hiredLaborCost,
         safetyNet,
         totalExpenses,

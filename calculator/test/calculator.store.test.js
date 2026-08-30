@@ -230,3 +230,60 @@ test('CalculatorStore: CALC-01 non-finite and corrupted payload fallback', () =>
     }
   }
 });
+
+test('CalculatorStore: CALC-01 input VAT 24% non-reclaimable & output VAT 13% (pinned literal values)', () => {
+  const store = new CalculatorStore();
+  const calc = store.getCalculations();
+  const m = calc.metrics;
+  const s = calc.state;
+
+  // Default state checks
+  assert.strictEqual(s.vatRate, 1.13, 'Default output VAT rate is 1.13 (13%)');
+  assert.strictEqual(s.inputVatRate, 1.24, 'Default input VAT rate is 1.24 (24%)');
+
+  // Pinned literal revenue and output VAT
+  // 13 trips/day * 122 days = 1586 trips; 1586 * €45 = €71 370 gross
+  assert.strictEqual(m.totalTrips, 1586, 'Pinned totalTrips: 1586');
+  assert.strictEqual(m.grossRevenue, 71370, 'Pinned grossRevenue: €71 370');
+  assert.ok(Math.abs(m.outputVatYear - 8210.71) < 0.01, `Output VAT (13%) pinned: ~€8 210.71 (got ${m.outputVatYear})`);
+
+  // Pinned literal expenses and input VAT 24%
+  // Fuel: 103090 km @ 8.7L/100km = 8968.83L @ €1.78/L = €15 964.52 gross -> VAT €3 089.91
+  assert.ok(Math.abs(m.fuelCost - 15964.52) < 0.01, `Fuel cost pinned: €15 964.52 (got ${m.fuelCost})`);
+  assert.ok(Math.abs(m.inputVatFuel - 3089.91) < 0.01, `Fuel input VAT (24%) pinned: €3 089.91 (got ${m.inputVatFuel})`);
+
+  // Maintenance: oil €1718.17 + clutch €2061.80 + tires €2061.80 = €5841.77 gross -> VAT €1 130.66
+  assert.ok(Math.abs(m.totalMaintenance - 5841.77) < 0.01, `Maintenance cost pinned: €5 841.77 (got ${m.totalMaintenance})`);
+  assert.ok(Math.abs(m.inputVatMaintenance - 1130.66) < 0.01, `Maintenance input VAT (24%) pinned: €1 130.66 (got ${m.inputVatMaintenance})`);
+
+  // Wash: €2 400 gross -> VAT €464.52
+  assert.ok(Math.abs(m.inputVatWash - 464.52) < 0.01, `Wash input VAT (24%) pinned: €464.52 (got ${m.inputVatWash})`);
+
+  // Accountant: €1 800 gross -> VAT €348.39
+  assert.ok(Math.abs(m.inputVatAccountant - 348.39) < 0.01, `Accountant input VAT (24%) pinned: €348.39 (got ${m.inputVatAccountant})`);
+
+  // Total non-refundable input VAT (24%): €3089.91 + €1130.66 + €464.52 + €348.39 = €5 033.47
+  assert.ok(Math.abs(m.inputVatNonRefundable - 5033.47) < 0.01, `Total non-refundable input VAT pinned: €5 033.47 (got ${m.inputVatNonRefundable})`);
+
+  // Profit remains intact (expenses paid gross as cash outflow)
+  assert.ok(Math.abs(m.netProfitYear - 20181.64) < 0.01, `Net profit pinned: €20 181.64 (got ${m.netProfitYear})`);
+  assert.ok(Math.abs(m.netProfitPerOwnerYear - 10090.82) < 0.01, `Per owner profit pinned: €10 090.82 (got ${m.netProfitPerOwnerYear})`);
+});
+
+test('CalculatorStore: CALC-01 inputVatRate division-by-zero & negative bounds guard', () => {
+  const store = new CalculatorStore();
+
+  store.update({ inputVatRate: 0 });
+  let calc = store.getCalculations();
+  assert.strictEqual(calc.state.inputVatRate, 1.24, 'inputVatRate 0 rejected to default 1.24');
+  assert.ok(Number.isFinite(calc.metrics.inputVatNonRefundable), 'inputVatNonRefundable finite');
+
+  store.update({ inputVatRate: -1.24 });
+  calc = store.getCalculations();
+  assert.strictEqual(calc.state.inputVatRate, 1.24, 'Negative inputVatRate rejected to default');
+
+  store.update({ inputVatRate: 1.13 });
+  calc = store.getCalculations();
+  assert.strictEqual(calc.state.inputVatRate, 1.13, 'Valid custom inputVatRate accepted');
+});
+

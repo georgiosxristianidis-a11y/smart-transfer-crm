@@ -18,6 +18,8 @@ export class CalculatorView {
       yearRev: document.getElementById('val-year-rev'),
       yearProfit: document.getElementById('val-year-profit'),
       chartCenterProfit: document.getElementById('chart-center-profit'),
+      outputVat: document.getElementById('val-output-vat'),
+      inputVat: document.getElementById('val-input-vat'),
       
       inpCheck: document.getElementById('inp-check'),
       lblCheck: document.getElementById('lbl-check'),
@@ -177,6 +179,8 @@ export class CalculatorView {
     if (this.els.yearRev) this.els.yearRev.textContent = formatCurrency(m.netRevenue);
     if (this.els.yearProfit) this.els.yearProfit.textContent = formatCurrency(m.netProfitPerOwnerYear);
     if (this.els.chartCenterProfit) this.els.chartCenterProfit.textContent = formatCurrency(m.netProfitYear);
+    if (this.els.outputVat) this.els.outputVat.textContent = formatCurrency(m.outputVatYear);
+    if (this.els.inputVat) this.els.inputVat.textContent = formatCurrency(m.inputVatNonRefundable);
 
     if (this.els.warnMinFare) {
       this.els.warnMinFare.classList.toggle('is-hidden', !m.fareBelowMinimum);
