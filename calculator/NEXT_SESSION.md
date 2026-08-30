@@ -9,6 +9,7 @@
 ## State — 2026-08-30 · v1.1.6
 
 - **Single executor.** GEMINI executes 100%; OWNER decides rates, schema, queue, laws.
+- **CALC-01 (input VAT) closed.** 24% input VAT on operating expenses (~€5 033/yr) modelled and tested with literal numbers.
 - **DATA-14 closed.** TripsStore.completeTrip(tripId, shiftId) atomic complete & shift bind.
 - **PERF-04 closed.** Shifts timer pauses on background/screen lock via visibilitychange.
 - **DB-01 closed.** IndexedDB singleton across stores, onversionchange handling, unit tests.
@@ -24,7 +25,7 @@ _none_ (working tree clean)
 
 ## Next
 
-**CALC-01 (input VAT)** — input VAT 24% never reclaimed, ≈€4 900/yr. OWNER pins the rate; test with literal number lands first.
+**CALC-02** — hotel commission per pickup (absent from the model).
 **DS-03** — frosted 3D icon as raster; deferred by OWNER to its own session.
 
 ## OWNER decisions pending
