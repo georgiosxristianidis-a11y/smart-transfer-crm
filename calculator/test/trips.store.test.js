@@ -337,3 +337,49 @@ test('TripsStore: every write path yields the same shape (no half-normalised tri
     assert.strictEqual(t.actualLanding, null);
   }
 });
+
+test('TripsStore: completeTrip marks completed and binds shiftId atomically', async () => {
+  const store = new TripsStore();
+  await store.ready;
+  await store.replaceAllTrips([]);
+
+  const trip1 = await store.addTrip({
+    clientName: 'Trip 1',
+    date: '2026-08-19',
+    time: '12:00',
+    price: 50
+  });
+
+  let notifyCount = 0;
+  store.subscribe(() => {
+    notifyCount++;
+  });
+  notifyCount = 0;
+
+  // Complete with shiftId
+  const completed = await store.completeTrip(trip1.id, 'shift-100');
+  assert.strictEqual(completed.status, 'completed');
+  assert.strictEqual(completed.shiftId, 'shift-100');
+  assert.strictEqual(store.trips[0].status, 'completed');
+  assert.strictEqual(store.trips[0].shiftId, 'shift-100');
+  assert.strictEqual(notifyCount, 1, 'Notifies subscribers exactly once per atomic operation');
+
+  // Completing again with a different shift does not overwrite existing shiftId
+  await store.completeTrip(trip1.id, 'shift-999');
+  assert.strictEqual(store.trips[0].shiftId, 'shift-100', 'Preserves previously attached shiftId');
+
+  // Completing a trip without a shiftId
+  const trip2 = await store.addTrip({
+    clientName: 'Trip 2',
+    date: '2026-08-19',
+    time: '13:00',
+    price: 40
+  });
+  const completed2 = await store.completeTrip(trip2.id);
+  assert.strictEqual(completed2.status, 'completed');
+  assert.strictEqual(completed2.shiftId, null);
+
+  // Unknown trip id throws
+  await assert.rejects(() => store.completeTrip('non-existent', 'shift-100'), /unknown trip/);
+});
+

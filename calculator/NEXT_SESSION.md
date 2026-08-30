@@ -9,10 +9,11 @@
 ## State — 2026-08-30 · v1.1.6
 
 - **Single executor.** GEMINI executes 100%; OWNER decides rates, schema, queue, laws.
-- **PERF-04 closed.** Shifts timer pauses on background/screen lock via visibilitychange, resumes on visible, clean destroy.
-- **DB-01 closed.** IndexedDB singleton across stores, onversionchange connection closing, unit tests.
-- **SHIFT-02 closed.** Closed shifts history with start/end, duration, odo range and distance ("+N км") rendered on Учёт tab (`shifts.view.js`).
-- **CALC-01 closed.** Magic numbers moved to DEFAULT_STATE, NUMERIC_RANGES division guards added.
+- **DATA-14 closed.** TripsStore.completeTrip(tripId, shiftId) atomic complete & shift bind.
+- **PERF-04 closed.** Shifts timer pauses on background/screen lock via visibilitychange.
+- **DB-01 closed.** IndexedDB singleton across stores, onversionchange handling, unit tests.
+- **SHIFT-02 closed.** Closed shifts history with distance ("+N км") in Учёт (`shifts.view.js`).
+- **CALC-01 closed.** Magic numbers moved to DEFAULT_STATE, NUMERIC_RANGES guards added.
 - **PERF-03 closed.** Tab switch white flash eliminated (`--bg-vanta` aligned).
 - **CLEAN-02 closed.** Demo refuels removed on empty storage fallback.
 - **CLEAN-01 closed.** CSV export deleted to remove formula injection vector.
