@@ -140,3 +140,93 @@ test('CalculatorStore: Wear and Tear Math', () => {
   
   assert.ok(Math.abs(oilCost - 1083.33) < 1, 'Oil wear cost amortized accurately');
 });
+
+test('CalculatorStore: CALC-01 constants in DEFAULT_STATE and used in getCalculations', () => {
+  const store = new CalculatorStore();
+  const s = store.getCalculations().state;
+
+  assert.strictEqual(s.fuelConsumptionPer100km, 8.7, 'fuelConsumptionPer100km default is 8.7');
+  assert.strictEqual(s.vatRate, 1.13, 'vatRate default is 1.13');
+  assert.strictEqual(s.safetyNetRatio, 0.05, 'safetyNetRatio default is 0.05');
+
+  // Verify that customizing constants alters calculations accordingly
+  store.update({
+    fuelConsumptionPer100km: 10.0,
+    safetyNetRatio: 0.10
+  });
+  const m = store.getCalculations().metrics;
+  // fuelCost with 10.0 l/100km:
+  const totalKm = m.totalKm;
+  const expectedFuel = (totalKm / 100) * 10.0 * 1.78;
+  assert.ok(Math.abs(m.fuelCost - expectedFuel) < 0.01, 'Fuel cost reflects custom fuelConsumptionPer100km');
+  assert.ok(Math.abs(m.safetyNet - (m.netRevenue * 0.10)) < 0.01, 'Safety net reflects custom safetyNetRatio');
+});
+
+test('CalculatorStore: CALC-01 division-by-zero guards yield finite metrics', () => {
+  const store = new CalculatorStore();
+
+  // Test zero values for divisors
+  store.update({
+    seasonDays: 0,
+    ownersCount: 0,
+    oilInterval: 0,
+    clutchInterval: 0,
+    tiresInterval: 0,
+    vatRate: 0
+  });
+
+  const calc = store.getCalculations();
+  const m = calc.metrics;
+
+  for (const [key, value] of Object.entries(m)) {
+    if (typeof value === 'number') {
+      assert.ok(Number.isFinite(value), `Metric ${key} MUST be finite (got ${value})`);
+      assert.ok(!Number.isNaN(value), `Metric ${key} MUST not be NaN`);
+    }
+  }
+});
+
+test('CalculatorStore: CALC-01 range guards clamp negatives and garbage', () => {
+  const store = new CalculatorStore();
+
+  store.update({
+    seasonDays: -10,
+    ownersCount: -5,
+    kmPerTrip: -100,
+    tripsPerDay: -3,
+    fuelConsumptionPer100km: -8.7,
+    oilInterval: -15000
+  });
+
+  const s = store.getCalculations().state;
+  assert.strictEqual(s.seasonDays, 122, 'Negative seasonDays rejected to default');
+  assert.strictEqual(s.ownersCount, 2, 'Negative ownersCount rejected to default');
+  assert.strictEqual(s.kmPerTrip, 50, 'Negative kmPerTrip rejected to default');
+  assert.strictEqual(s.tripsPerDay, 13, 'Negative tripsPerDay rejected to default');
+  assert.strictEqual(s.fuelConsumptionPer100km, 8.7, 'Negative fuelConsumption rejected to default');
+  assert.strictEqual(s.oilInterval, 15000, 'Negative oilInterval rejected to default');
+});
+
+test('CalculatorStore: CALC-01 non-finite and corrupted payload fallback', () => {
+  const store = new CalculatorStore();
+
+  store.update({
+    seasonDays: NaN,
+    ownersCount: Infinity,
+    checkGross: 'not-a-number',
+    fuelPrice: undefined,
+    safetyNetRatio: null
+  });
+
+  const s = store.getCalculations().state;
+  assert.strictEqual(s.seasonDays, 122, 'NaN falls back to default');
+  assert.strictEqual(s.ownersCount, 2, 'Infinity falls back to default');
+  assert.strictEqual(s.checkGross, 45, 'Non-numeric string falls back to default');
+
+  const m = store.getCalculations().metrics;
+  for (const [key, value] of Object.entries(m)) {
+    if (typeof value === 'number') {
+      assert.ok(Number.isFinite(value), `Metric ${key} MUST be finite under corrupted payload`);
+    }
+  }
+});
