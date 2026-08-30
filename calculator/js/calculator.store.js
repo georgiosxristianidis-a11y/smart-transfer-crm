@@ -55,6 +55,40 @@ const DEFAULT_STATE = {
   clutchCost: 1200,
   tiresInterval: 40000,
   tiresCost: 800,
+
+  // Model Constants & Unit Economics (CALC-01)
+  fuelConsumptionPer100km: 8.7,
+  vatRate: 1.13,
+  safetyNetRatio: 0.05,
+};
+
+const NUMERIC_RANGES = {
+  checkGross: { min: 0, max: 100000 },
+  tripsPerDay: { min: 0, max: 500 },
+  seasonDays: { min: 1, max: 366 },
+  ownersCount: { min: 1, max: 10 },
+  hiredDrivers: { min: 0, max: 50 },
+  fuelPrice: { min: 0, max: 100 },
+  kmPerTrip: { min: 0, max: 10000 },
+  emptyLegRatio: { min: 1, max: 10 },
+  portFee: { min: 0, max: 1000 },
+  tipsPerTrip: { min: 0, max: 1000 },
+  insuranceTaxiCost: { min: 0, max: 100000 },
+  insuranceBasicCost: { min: 0, max: 100000 },
+  washPremiumCost: { min: 0, max: 100000 },
+  washBasicCost: { min: 0, max: 100000 },
+  efkaPerOwner: { min: 0, max: 100000 },
+  accountant: { min: 0, max: 100000 },
+  hiredDriverAnnual: { min: 0, max: 500000 },
+  oilInterval: { min: 100, max: 1000000 },
+  oilCost: { min: 0, max: 50000 },
+  clutchInterval: { min: 100, max: 1000000 },
+  clutchCost: { min: 0, max: 50000 },
+  tiresInterval: { min: 100, max: 1000000 },
+  tiresCost: { min: 0, max: 50000 },
+  fuelConsumptionPer100km: { min: 0.1, max: 100 },
+  vatRate: { min: 1.0, max: 2.0 },
+  safetyNetRatio: { min: 0, max: 1.0 },
 };
 
 export class CalculatorStore {
@@ -94,8 +128,19 @@ export class CalculatorStore {
           }
         } else if (expectedType === 'number') {
           const num = Number(val);
+          const range = NUMERIC_RANGES[key];
           if (!isNaN(num) && isFinite(num)) {
-            sanitized[key] = num;
+            if (range) {
+              if (num >= range.min && num <= range.max) {
+                sanitized[key] = num;
+              } else {
+                sanitized[key] = DEFAULT_STATE[key];
+              }
+            } else {
+              sanitized[key] = num;
+            }
+          } else {
+            sanitized[key] = DEFAULT_STATE[key];
           }
         } else if (expectedType === 'boolean') {
           sanitized[key] = Boolean(val);
@@ -169,8 +214,34 @@ export class CalculatorStore {
   getCalculations() {
     const s = this.state;
     
-    const totalTrips = s.tripsPerDay * s.seasonDays;
-    const checkNet = s.checkGross / 1.13;
+    const seasonDays = (s.seasonDays && s.seasonDays >= NUMERIC_RANGES.seasonDays.min)
+      ? s.seasonDays
+      : DEFAULT_STATE.seasonDays;
+    const ownersCount = (s.ownersCount && s.ownersCount >= NUMERIC_RANGES.ownersCount.min)
+      ? s.ownersCount
+      : DEFAULT_STATE.ownersCount;
+    const vatRate = (s.vatRate && s.vatRate >= NUMERIC_RANGES.vatRate.min)
+      ? s.vatRate
+      : DEFAULT_STATE.vatRate;
+    const fuelConsumption = (s.fuelConsumptionPer100km && s.fuelConsumptionPer100km >= NUMERIC_RANGES.fuelConsumptionPer100km.min)
+      ? s.fuelConsumptionPer100km
+      : DEFAULT_STATE.fuelConsumptionPer100km;
+    const safetyNetRatio = (s.safetyNetRatio !== undefined && s.safetyNetRatio !== null && isFinite(s.safetyNetRatio) && s.safetyNetRatio >= 0)
+      ? s.safetyNetRatio
+      : DEFAULT_STATE.safetyNetRatio;
+
+    const oilInterval = (s.oilInterval && s.oilInterval >= NUMERIC_RANGES.oilInterval.min)
+      ? s.oilInterval
+      : DEFAULT_STATE.oilInterval;
+    const clutchInterval = (s.clutchInterval && s.clutchInterval >= NUMERIC_RANGES.clutchInterval.min)
+      ? s.clutchInterval
+      : DEFAULT_STATE.clutchInterval;
+    const tiresInterval = (s.tiresInterval && s.tiresInterval >= NUMERIC_RANGES.tiresInterval.min)
+      ? s.tiresInterval
+      : DEFAULT_STATE.tiresInterval;
+
+    const totalTrips = s.tripsPerDay * seasonDays;
+    const checkNet = s.checkGross / vatRate;
 
     // Flag, never clamp: the owner's number stays the owner's number.
     const regime = LICENSE_MODES[s.licenseMode] || LICENSE_MODES.edx;
@@ -185,34 +256,34 @@ export class CalculatorStore {
     const effectiveKmPerTrip = s.kmPerTrip * s.emptyLegRatio;
     const totalKm = totalTrips * effectiveKmPerTrip;
     
-    const litersNeeded = (totalKm / 100) * 8.7;
+    const litersNeeded = (totalKm / 100) * fuelConsumption;
     const fuelCost = litersNeeded * s.fuelPrice;
     
-    const oilCost = (totalKm / s.oilInterval) * s.oilCost;
-    const clutchCost = (totalKm / s.clutchInterval) * s.clutchCost;
-    const tiresCost = (totalKm / s.tiresInterval) * s.tiresCost;
+    const oilCost = (totalKm / oilInterval) * s.oilCost;
+    const clutchCost = (totalKm / clutchInterval) * s.clutchCost;
+    const tiresCost = (totalKm / tiresInterval) * s.tiresCost;
     const totalMaintenance = oilCost + clutchCost + tiresCost;
     
     const insuranceCost = s.insuranceTaxi ? s.insuranceTaxiCost : s.insuranceBasicCost;
     const washCost = s.washPremium ? s.washPremiumCost : s.washBasicCost;
-    const totalEfka = s.efkaPerOwner * s.ownersCount;
+    const totalEfka = s.efkaPerOwner * ownersCount;
     const fixedAdmin = insuranceCost + washCost + totalEfka + s.accountant;
     
     const hiredLaborCost = s.hiredDrivers * s.hiredDriverAnnual;
     
-    const safetyNet = netRevenue * 0.05;
+    const safetyNet = netRevenue * safetyNetRatio;
     
     const totalExpenses = fuelCost + totalMaintenance + fixedAdmin + hiredLaborCost + safetyNet;
     
     const netProfitYear = netRevenue - totalExpenses;
     
-    const dailyNet = netProfitYear / s.seasonDays;
+    const dailyNet = netProfitYear / seasonDays;
     
-    const netProfitPerOwnerYear = netProfitYear / s.ownersCount;
-    const dailyNetPerOwner = dailyNet / s.ownersCount;
+    const netProfitPerOwnerYear = netProfitYear / ownersCount;
+    const dailyNetPerOwner = dailyNet / ownersCount;
     
     const totalTipsCash = totalTrips * s.tipsPerTrip;
-    const tipsCashPerOwner = totalTipsCash / s.ownersCount;
+    const tipsCashPerOwner = totalTipsCash / ownersCount;
 
     return {
       state: s,

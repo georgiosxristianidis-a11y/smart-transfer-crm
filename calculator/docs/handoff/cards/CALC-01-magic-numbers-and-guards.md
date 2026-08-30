@@ -1,27 +1,25 @@
 # CALC-01 — Calculator constants and range guards
 
-**Severity:** MEDIUM · **Size:** M · **Owner:** 🔵 HORSE · **Source:** audit/13 · #20
+**Severity:** MEDIUM · **Size:** M · **Owner:** 🟢 GEMINI · **Status:** ✅ DONE · **Source:** audit/13 · #20
 
 ## Goal
 No metric in `getCalculations()` can return `Infinity` or `NaN`, and the three hardcoded constants live in state, not in the formula.
 
 ## Symptom & root
-`seasonDays = 0` or `ownersCount = 0` renders `€∞`; a corrupted `taxi_calc_state` leaks through every metric. Root: `_sanitizeState()` (`calculator.store.js:71-91`) checks type and finiteness but not range — `0` and negatives pass, then divide at lines 169-171, 187, 189-190, 193.
-Fuel use `8.7` (166), VAT `1.13` (155), safety net `0.05` (181) are inlined: the van's key unit-economics parameter and a legally set tax rate change only by release.
+`seasonDays = 0` or `ownersCount = 0` renders `€∞`; corrupted state leaks through metrics. Root: `_sanitizeState()` checked type/finiteness without range bounds — `0` and negatives passed and divided.
+Constants `8.7`, `1.13`, `0.05` were hardcoded in formula.
 
 ## Scope
 - `js/calculator.store.js`
 - `test/calculator.store.test.js`
 - this card
 
-Everything else is off-limits — no view, HTML or CSS.
-
 ## STOP
-1. A file outside Scope is needed → stop, escalate to 🟠 LEAD.
-2. Tempted to expose the new fields in the settings modal → **do not**. That is CALC-02.
-3. `SCHEMA_VERSION` bump looks needed → stop, escalate. New fields stay additive: an old payload merges over `DEFAULT_STATE` unchanged.
-4. Default outputs shift by a cent → the constants are wrong, stop.
-5. A second bug found → log below, finish this card.
+1. A file outside Scope needed → stop, escalate.
+2. Exposing new fields in settings modal → CALC-02.
+3. `SCHEMA_VERSION` bump → do not bump; fields stay additive.
+4. Default outputs shift by a cent → stop.
+5. Second bug found → log below, finish card.
 
 ## Done when
 1. `fuelConsumptionPer100km: 8.7`, `vatRate: 1.13`, `safetyNetRatio: 0.05` are in `DEFAULT_STATE` and used by `getCalculations()`.

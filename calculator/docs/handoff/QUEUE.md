@@ -27,7 +27,7 @@
 | 17 | Full `innerHTML` re-render + subscription leak | G | — | audit/10 |
 | 18 | Demo fuel data shipped to a real user | G | ✅ **done** (CLEAN-02) | audit/11 |
 | 19 | `alert`/`confirm` and modals without a11y | G | — | audit/12 |
-| 20 | Magic numbers and division by zero in calculations | G | — | audit/13 |
+| 20 | Magic numbers and division by zero in calculations | G | ✅ **done** (CALC-01) | audit/13 |
 | 21 | View layer untested (~800 lines) | G | — | audit/09 |
 | 22 | **CALC-00** — licence regime (ΕΔΧ / ΕΙХ) and minimum fare | 🟠 | ✅ **merged** | economics review |
 | 23 | **CALC-01** — input VAT 24% never reclaimed (≈€4 900/yr) | G | — | economics review |
