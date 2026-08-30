@@ -176,7 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tabEl) tabEl.classList.add('active');
       };
 
-      if (document.startViewTransition) {
+      const prefersReducedMotion = typeof window !== 'undefined' &&
+        window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (document.startViewTransition && !prefersReducedMotion) {
         try {
           const vt = document.startViewTransition(switchTabs);
           if (vt && vt.finished) {
