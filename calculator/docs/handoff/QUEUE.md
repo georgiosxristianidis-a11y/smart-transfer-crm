@@ -1,11 +1,6 @@
-# QUEUE.md — Single work queue
+# QUEUE.md — Work queue
 
-> Written by OWNER on merge. Owner column: `G` = GEMINI, sole executor since 2026-08-23; emoji in closed rows are historical roles.
-> Rules: `PROTOCOL.md` · Product: `docs/NAV_SPEC.md`
-
-**Sort order: by dependency and harm.** First what **lies or loses data**, then structure, then presentation.
-
-> Why not "navigation first": a lie moved into larger type is still a lie. Reasoning: `NAV_SPEC.md` §7.
+> Owner: `G` = GEMINI. Order: integrity & loss first, then structure, then presentation. Rules: `PROTOCOL.md` · `NAV_SPEC.md`.
 
 ---
 
@@ -25,16 +20,16 @@
 | 10 | **NAV-05** — "9 of 13" progress on Смена, one hero per screen | 🔵 + 🟢 | ✅ **merged** | NAV_SPEC |
 | 11 | ESLint into the gates (installed but never runs) | 🔵 | ✅ **merged** | audit/08 |
 | 12 | CSP decorative: `unsafe-inline` + `unsafe-eval` | 🔵 | ✅ **done** (AUDIT-06) | audit/06 |
-| 13 | CSV injection + `exportCSV` breaks Store/View | G | — | audit/07 |
+| 13 | CSV injection + `exportCSV` breaks Store/View | G | ✅ **done** (CLEAN-01) | audit/07 |
 | 14 | **DS-01** — contrast hierarchy in tokens (hero / primary / decor) | 🟢 | ✅ **merged** | NAV_SPEC |
 | 15 | **NAV-06** — driver-mode seam: marker on money elements | G | — | NAV_SPEC |
 | 16 | **DEV-01** — version in UI + diagnostics behind 5 taps | G | — | NAV_SPEC |
 | 17 | Full `innerHTML` re-render + subscription leak | G | — | audit/10 |
-| 18 | Demo fuel data shipped to a real user | G | — | audit/11 |
+| 18 | Demo fuel data shipped to a real user | G | ✅ **done** (CLEAN-02) | audit/11 |
 | 19 | `alert`/`confirm` and modals without a11y | G | — | audit/12 |
 | 20 | Magic numbers and division by zero in calculations | G | — | audit/13 |
 | 21 | View layer untested (~800 lines) | G | — | audit/09 |
-| 22 | **CALC-00** — licence regime (ΕΔΧ / ΕΙΧ) and minimum fare | 🟠 | ✅ **merged** | economics review |
+| 22 | **CALC-00** — licence regime (ΕΔΧ / ΕΙХ) and minimum fare | 🟠 | ✅ **merged** | economics review |
 | 23 | **CALC-01** — input VAT 24% never reclaimed (≈€4 900/yr) | G | — | economics review |
 | 24 | **CALC-02** — hotel commission per pickup: absent from the model | G | — | economics review |
 | 25 | **CALC-03** — shoulder/winter seasons; reserve replaces the 5% magic | G | — | economics |
@@ -44,16 +39,13 @@
 | 29 | **DATA-11** — shift UI: open/close, norm by shift | 🔵 | ✅ **merged** | card |
 | 30 | **GEM-01** — handover: import firewall, auto-bump, PWA manifest | G | ✅ **done** | 23.08 |
 | 31 | **DS-02** — logo: one geometry, two weights; maskable safe zone | G | ✅ **done** | card |
-| 32 | **PERF-03** — white flash on tab switch: root paints nothing | G | — | card |
+| 32 | **PERF-03** — white flash on tab switch: root paints nothing | G | ✅ **done** (PERF-03) | card |
 
-**CALC is money math:** OWNER pins the rate and the formula in the card, and the test with the literal number is committed before the implementation. A wrong rate fails no test, it silently inflates profit. Item 25 also settles item 20's magic `netRevenue * 0.05`.
-
-**OWNER decision, defaults only:** ΕΔΧ €45 × 13/day or ΕΙΧ €130–180 × 1–2/day. CALC-00 made it a switch, nothing is blocked.
+**CALC is money math:** OWNER pins rates in card; test with literal number lands first.
 
 ---
 
 ## Sources
+`docs/handoff/audit/` — P0–P2 verdicts · `AUDIT_2026-08-14.md` · `NAV_SPEC.md` · `cards/`
 
-`docs/handoff/audit/` — P0–P2 verdicts · `AUDIT_2026-08-14.md` — 35 findings with STOP · `docs/NAV_SPEC.md` — 10 navigation cards.
-`audit/` is read-only history; `cards/` holds work cards.
 
