@@ -331,35 +331,4 @@ export class TripsStore {
     this.trips.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
     this.notify();
   }
-
-  exportCSV() {
-    const headers = ['Дата', 'Время', 'Клиент', 'Телефон', 'Откуда', 'Куда', 'Пассажиры', 'Цена (€)', 'Оплата', 'Рейс', 'Номер/Комната', 'Статус', 'Источник', 'Примечания'];
-    const rows = this.trips.map(t => [
-      t.date,
-      t.time,
-      `"${(t.clientName || '').replace(/"/g, '""')}"`,
-      `"${(t.phone || '').replace(/"/g, '""')}"`,
-      `"${(t.pickup || '').replace(/"/g, '""')}"`,
-      `"${(t.dropoff || '').replace(/"/g, '""')}"`,
-      t.pax || 1,
-      t.price,
-      `"${(t.paymentStatus || 'unpaid').replace(/"/g, '""')}"`,
-      `"${(t.flightCode || '').replace(/"/g, '""')}"`,
-      `"${(t.roomNumber || '').replace(/"/g, '""')}"`,
-      t.status,
-      t.source || 'hotel',
-      `"${(t.notes || '').replace(/"/g, '""')}"`
-    ]);
-    
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `trips_crm_export_${localDateKey()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
 }
