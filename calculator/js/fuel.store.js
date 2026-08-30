@@ -33,11 +33,7 @@ export class FuelStore {
     } catch (e) {
       console.warn('Failed to read fuel logs from localStorage', e);
     }
-    // Default demo data if empty
-    return [
-      { id: 'fuel-1', date: localDateKey(), time: '08:30', amount: 50, liters: 26.3, odo: 142500, station: 'BP Heraklion' },
-      { id: 'fuel-2', date: '2026-08-10', time: '19:15', amount: 90, liters: 47.4, odo: 141950, station: 'Shell Airport' }
-    ];
+    return [];
   }
 
   saveLocalLogs() {
