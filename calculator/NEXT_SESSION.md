@@ -6,22 +6,21 @@
 
 `AUDIT_2026-08-14.md` + `audit/`. Every card carries a **STOP** — the edit limit. Older docs are partly wrong; audits win.
 
-## State — 2026-08-23 · v1.1.2
+## State — 2026-08-30 · v1.1.5
 
-- **Single executor.** GEMINI does 100% of the work; OWNER decides rates, schema, queue, laws.
-- **Import Firewall.** `FOREIGN_ORIGIN` in `gate-dv.mjs` fails commits on symbols borrowed from other projects; the global `~/.gemini/GEMINI.md` is principles only and is outranked here.
-- **Hooks versioned.** `core.hooksPath=.githooks`; pre-commit bumps the version, rebuilds `sw.js`.
-- **PWA fixed.** `build-sw.mjs` cached a `favicon.ico` that never existed — one 404 killed `cache.addAll()` and offline with it. Assets are asserted at build.
-- ⚠️ **Actions dead** — `test` never starts (billing). Merges rely on local gates.
+- **Single executor.** GEMINI does 100% of execution; OWNER decides rates, schema, queue, laws.
+- **PERF-03 closed.** Tab switch white flash eliminated (`--bg-vanta` aligned with `--stitch-surface-base`, double animation dropped, prefers-reduced-motion respected).
+- **CLEAN-02 closed.** Demo refuels removed on first run / empty storage fallback; full unit test suite added (`test/fuel.store.test.js`).
+- **CLEAN-01 (AUDIT-07) closed.** CSV export deleted to remove CSV formula injection vector and `document.createElement('a')` DOM leak from store.
 
 ## In progress
 
-Branding WIP uncommitted: `css/style.css`, `index.html`. SVGs landed in DS-02.
+_none_ (working tree clean)
 
 ## Next
 
-**PERF-03** — white flash on tab switch: `--bg-vanta` (`style.css:7`) is declared nowhere, so the root paints nothing under the view transition.
 **CALC-01** — input VAT 24% never reclaimed, ≈€4 900/yr. OWNER pins the rate; the test with the number lands first.
+**CALC-00/01 guards** — division by zero guards on `seasonDays` and `ownersCount`.
 **SHIFT-02** — shift km stored, shown nowhere.
 **DS-03** — frosted 3D icon as raster; deferred by OWNER to its own session.
 
