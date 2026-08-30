@@ -60,6 +60,7 @@
   --text-hi:                  var(--text-primary);
   --text-mid:                 var(--text-secondary);
   --text-low:                 var(--text-muted);
+  --bg-vanta:                 var(--stitch-surface-base);
 
   /* Semantic Brand Roles */
   --brand-prim:               var(--palette-indigo-400);
