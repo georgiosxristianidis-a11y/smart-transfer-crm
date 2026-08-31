@@ -33,6 +33,8 @@ const DEFAULT_STATE = {
   portFee: 2,
   insuranceTaxi: true,
   washPremium: true,
+  hotelCommissionEnabled: false,
+  hotelCommissionRate: 0.10,
   
   // Tips
   tipsPerTrip: 5,
@@ -73,6 +75,7 @@ const NUMERIC_RANGES = {
   kmPerTrip: { min: 0, max: 10000 },
   emptyLegRatio: { min: 1, max: 10 },
   portFee: { min: 0, max: 1000 },
+  hotelCommissionRate: { min: 0, max: 1.0 },
   tipsPerTrip: { min: 0, max: 1000 },
   insuranceTaxiCost: { min: 0, max: 100000 },
   insuranceBasicCost: { min: 0, max: 100000 },
@@ -283,9 +286,15 @@ export class CalculatorStore {
     
     const hiredLaborCost = s.hiredDrivers * s.hiredDriverAnnual;
     
+    const hotelCommissionRate = (s.hotelCommissionRate !== undefined && s.hotelCommissionRate !== null && isFinite(s.hotelCommissionRate) && s.hotelCommissionRate >= NUMERIC_RANGES.hotelCommissionRate.min && s.hotelCommissionRate <= NUMERIC_RANGES.hotelCommissionRate.max)
+      ? s.hotelCommissionRate
+      : DEFAULT_STATE.hotelCommissionRate;
+    const hotelCommissionPerTrip = s.hotelCommissionEnabled ? (s.checkGross * hotelCommissionRate) : 0;
+    const hotelCommissionCost = totalTrips * hotelCommissionPerTrip;
+
     const safetyNet = netRevenue * safetyNetRatio;
     
-    const totalExpenses = fuelCost + totalMaintenance + fixedAdmin + hiredLaborCost + safetyNet;
+    const totalExpenses = fuelCost + totalMaintenance + fixedAdmin + hiredLaborCost + hotelCommissionCost + safetyNet;
     
     const netProfitYear = netRevenue - totalExpenses;
     
@@ -317,6 +326,8 @@ export class CalculatorStore {
         inputVatAccountant,
         inputVatNonRefundable,
         hiredLaborCost,
+        hotelCommissionPerTrip,
+        hotelCommissionCost,
         safetyNet,
         totalExpenses,
         netProfitYear,

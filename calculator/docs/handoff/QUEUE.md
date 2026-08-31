@@ -31,7 +31,7 @@
 | 21 | View layer untested (~800 lines) | G | — | audit/09 |
 | 22 | **CALC-00** — licence regime (ΕΔΧ / ΕΙХ) and minimum fare | 🟠 | ✅ **merged** | economics review |
 | 23 | **CALC-01** — input VAT 24% never reclaimed (≈€4 900/yr) | G | ✅ **done** | economics review |
-| 24 | **CALC-02** — hotel commission per pickup: absent from the model | G | — | economics review |
+| 24 | **CALC-02** — hotel commission per pickup: absent from the model | G | ✅ **done** | economics review |
 | 25 | **CALC-03** — shoulder/winter seasons; reserve replaces the 5% magic | G | — | economics |
 | 26 | **CALC-04** — depreciation, 22% tax, break-even fare | G | — | economics |
 | 27 | **DATA-10** — shift as an entity (IDB v3), trip gains `shiftId` | 🟠 | ✅ **done** (no UI) | DATA-10 |
