@@ -287,3 +287,55 @@ test('CalculatorStore: CALC-01 inputVatRate division-by-zero & negative bounds g
   assert.strictEqual(calc.state.inputVatRate, 1.13, 'Valid custom inputVatRate accepted');
 });
 
+test('CalculatorStore: CALC-02 hotel commission 10% toggle and profit impact (pinned literal values)', () => {
+  const store = new CalculatorStore();
+  
+  // 1. Default scenario: toggle is OFF
+  let calc = store.getCalculations();
+  let m = calc.metrics;
+  let s = calc.state;
+
+  assert.strictEqual(s.hotelCommissionEnabled, false, 'Default hotelCommissionEnabled is false');
+  assert.strictEqual(s.hotelCommissionRate, 0.10, 'Default hotelCommissionRate is 0.10 (10%)');
+  assert.strictEqual(m.hotelCommissionPerTrip, 0, 'No commission per trip when disabled');
+  assert.strictEqual(m.hotelCommissionCost, 0, 'Zero commission cost when disabled');
+  assert.ok(Math.abs(m.netProfitYear - 20181.64) < 0.01, 'Net profit unchanged when commission disabled');
+  assert.ok(Math.abs(m.dailyNetPerOwner - 82.71) < 0.01, 'Daily net per owner unchanged');
+
+  // 2. Enable 10% hotel commission
+  store.update({ hotelCommissionEnabled: true });
+  calc = store.getCalculations();
+  m = calc.metrics;
+
+  // €45 fare * 10% = €4.50 per trip
+  assert.ok(Math.abs(m.hotelCommissionPerTrip - 4.50) < 0.01, `Commission per trip pinned: €4.50 (got ${m.hotelCommissionPerTrip})`);
+
+  // 1586 trips * €4.50 = €7 137.00 total commission
+  assert.ok(Math.abs(m.hotelCommissionCost - 7137.00) < 0.01, `Total annual hotel commission pinned: €7 137.00 (got ${m.hotelCommissionCost})`);
+
+  // Total expenses: €39 805.65 + €7 137.00 = €46 942.65
+  assert.ok(Math.abs(m.totalExpenses - 46942.65) < 0.01, `Total expenses pinned: €46 942.65 (got ${m.totalExpenses})`);
+
+  // Net profit: €59 987.29 - €46 942.65 = €13 044.64
+  assert.ok(Math.abs(m.netProfitYear - 13044.64) < 0.01, `Net profit pinned: €13 044.64 (got ${m.netProfitYear})`);
+  assert.ok(Math.abs(m.netProfitPerOwnerYear - 6522.32) < 0.01, `Per owner profit pinned: €6 522.32 (got ${m.netProfitPerOwnerYear})`);
+  assert.ok(Math.abs(m.dailyNetPerOwner - 53.46) < 0.01, `Daily net per owner pinned: €53.46 (got ${m.dailyNetPerOwner})`);
+});
+
+test('CalculatorStore: CALC-02 hotelCommissionRate guards against negative and overflow', () => {
+  const store = new CalculatorStore();
+
+  store.update({ hotelCommissionRate: -0.10 });
+  let calc = store.getCalculations();
+  assert.strictEqual(calc.state.hotelCommissionRate, 0.10, 'Negative hotelCommissionRate rejected to default');
+
+  store.update({ hotelCommissionRate: 2.5 });
+  calc = store.getCalculations();
+  assert.strictEqual(calc.state.hotelCommissionRate, 0.10, 'Overflow hotelCommissionRate rejected to default');
+
+  store.update({ hotelCommissionRate: 0.15 });
+  calc = store.getCalculations();
+  assert.strictEqual(calc.state.hotelCommissionRate, 0.15, 'Valid 15% rate accepted');
+});
+
+

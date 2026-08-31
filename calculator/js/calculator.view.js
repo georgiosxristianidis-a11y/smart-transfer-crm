@@ -47,6 +47,7 @@ export class CalculatorView {
       togPort: document.getElementById('tog-port'),
       togIns: document.getElementById('tog-ins'),
       togWash: document.getElementById('tog-wash'),
+      togHotelCommission: document.getElementById('tog-hotel-commission'),
       segDrivers: document.getElementById('seg-drivers')
     };
 
@@ -68,6 +69,7 @@ export class CalculatorView {
     if (this.els.togPort) this.bindToggle(this.els.togPort, 'portFeesEnabled');
     if (this.els.togIns) this.bindToggle(this.els.togIns, 'insuranceTaxi');
     if (this.els.togWash) this.bindToggle(this.els.togWash, 'washPremium');
+    if (this.els.togHotelCommission) this.bindToggle(this.els.togHotelCommission, 'hotelCommissionEnabled');
     if (this.els.segDrivers) this.bindSegment(this.els.segDrivers, 'hiredDrivers');
     if (this.els.segLicense) this.bindSegment(this.els.segLicense, 'licenseMode', (v) => v);
   }
